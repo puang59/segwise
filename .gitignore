@@ -1,0 +1,17 @@
+# Large data files - too big for GitHub (>100MB)
+data/database/
+data/sql/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
