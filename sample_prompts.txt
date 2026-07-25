@@ -1,0 +1,82 @@
+Viewed problem_statement.txt:30-46
+
+Here are the **5 key test sample prompts** based directly on the problem statement requirements, along with the **expected results and agent behaviors** in the chat UI:
+
+---
+
+### 1. Main Segmentation Query (Core Task)
+**Sample Prompt to Type:**
+> *"Segment retail customers into priority, regular, and dormant tiers based on balance maintained and frequency of transactions."*
+
+**What Agent Chain Executes:**
+- `Advait` (Intent): Identifies intent $\rightarrow$ `Rule-based + K-Means Segmentation`.
+- `Vihaan` (Data Scout): Resolves required columns (`avg_balance`, `transaction_frequency`, `recency`).
+- `Kabir` (Features): Normalizes features and calculates feature weights.
+- `Ishaan` (Segmentation): Clusters accounts into 3 groups (Priority, Regular, Dormant).
+- `Myra` (Synthesis): Formulates narrative and builds customer segment table.
+
+**What Results to Expect:**
+* **Chat Window**: 
+  - Trace panel showing real-time agent execution stream (`Advait` $\rightarrow$ `Vihaan` $\rightarrow$ `Kabir` $\rightarrow$ `Ishaan` $\rightarrow$ `Myra`).
+  - **Segment Breakdown Table**:
+    - **Priority**: ~18% base (~147k customers, ₹1,82,400 avg balance, 22.4 txns/mo)
+    - **Regular**: ~58% base (~477k customers, ₹23,100 avg balance, 8.7 txns/mo)
+    - **Dormant**: ~24% base (~198k customers, ₹4,200 avg balance, 1.1 txns/mo)
+* **Right Context Panel**: Renders a cluster distribution chart. Clicking any row in the Segment Table opens the **Segment Detail Slide-Over Drawer**.
+
+---
+
+### 2. Segment Explainability Query (SHAP & Rules)
+**Sample Prompt to Type:**
+> *"On what basis were priority customers selected?"*
+
+**What Agent Chain Executes:**
+- `Advait` $\rightarrow$ `Aadhya` (Explainability Agent) $\rightarrow$ `Kabir` $\rightarrow$ `Myra`.
+
+**What Results to Expect:**
+* **Chat Window**: Explains exact rule boundaries & ML feature importance (e.g., `avg_balance > ₹1.5L`, `credit_score > 740`, `digital_active = True`).
+* **Right Context Panel**: Displays Kabir & Aadhya's **SHAP Feature Importance Chart** (`avg_balance` +0.42 SHAP, `credit_score` +0.28 SHAP).
+
+---
+
+### 3. Aggregation & Metrics Query
+**Sample Prompt to Type:**
+> *"What is the average transaction size and balance for priority vs regular customers?"*
+
+**What Agent Chain Executes:**
+- `Advait` $\rightarrow$ `Vihaan` (Data Scouting & SQL Aggregation) $\rightarrow$ `Myra`.
+
+**What Results to Expect:**
+* **Chat Window**: Structured comparative summary comparing Priority vs. Regular customer balances and transaction volumes.
+* **Right Context Panel**: Renders a comparative bar chart under the **Charts** tab.
+
+---
+
+### 4. Transition Candidates & Product Recommendations
+**Sample Prompt to Type:**
+> *"Which regular customers can be converted to priority customers, and what products should we recommend to them?"*
+
+**What Agent Chain Executes:**
+- `Advait` $\rightarrow$ `Ishaan` (Transition Identification) $\rightarrow$ `Saanvi` (Recommendation Engine) $\rightarrow$ `Myra`.
+
+**What Results to Expect:**
+* **Chat Window**: 
+  - List of high-potential candidate accounts (regular accounts with high balance growth or high digital activity).
+  - **Saanvi's Recommended Products**: Premium Wealth Savings Account, Auto-SIP Mutual Funds, and Travel Signature Credit Cards.
+  - Follow-up suggestion chips (e.g., *"Export priority candidates to CSV"*).
+
+---
+
+### 5. Human-in-the-Loop (HITL) Clarification Prompt
+**Sample Prompt to Type:**
+> *"Identify VIP customers in the dataset."*
+
+**What Agent Chain Executes:**
+- `Advait` detects ambiguous intent ("VIP" is not strictly defined in rules).
+
+**What Results to Expect:**
+* **Chat Window**: Triggers an interactive **HITL Clarification Card** displaying:
+  > **◆ Advait needs input**  
+  > *"How would you like to define VIP customers?"*  
+  > `[ Balance > ₹2L ]` `[ Income > ₹1L ]` `[ High Credit Score ]` `[ Let Ishaan decide ]`
+* **User Action**: Clicking any option chip instantly dispatches the response and resumes the multi-agent execution chain.
