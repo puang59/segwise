@@ -11,7 +11,7 @@ An enterprise-grade, multi-agent AI copilot designed for retail banking analytic
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 Segwise utilizes a decoupled 3-column client-server architecture. The frontend streams agent reasoning traces via Server-Sent Events (SSE) from a FastAPI microservice backend connected to a relational customer database (`bank_sqlite.db`).
 
@@ -47,7 +47,7 @@ graph TD
 
 ---
 
-## 🤖 7-Agent Orchestration Flow
+## 7-Agent Orchestration Flow
 
 Rather than a single prompt-response LLM, Segwise deploys a **7-agent specialized pipeline** simulating an entire bank data analytics department:
 
@@ -94,7 +94,7 @@ sequenceDiagram
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Pristine `#FDFDFC` Light UI**: Designed using Emil Kowalski and Apple Design engineering principles (`scale(0.97)` active press feedback, sub-200ms spring animations).
 - **Client-Side DiceBear Avatars**: Local Data URI generation (`@dicebear/core` + `@dicebear/lorelei`) for 0-latency, 100% offline avatar rendering.
@@ -105,7 +105,7 @@ sequenceDiagram
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 segwise/
@@ -128,7 +128,7 @@ segwise/
 
 ---
 
-## 🚀 Local Setup & Installation
+## Local Setup & Installation
 
 ### Prerequisites
 
@@ -204,7 +204,7 @@ cd segwise
 
 ---
 
-## 💡 Example Queries to Test
+## Example Queries to Test
 
 Try entering these natural language prompts into the chat input bar:
 
@@ -222,6 +222,6 @@ Try entering these natural language prompts into the chat input bar:
 
 ---
 
-## 📜 License
+## License
 
 This project is open-source under the [MIT License](LICENSE).
