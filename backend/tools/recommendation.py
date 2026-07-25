@@ -5,6 +5,7 @@ Implements PRODUCT_RULES registry with priority scoring and segment affinity.
 """
 
 import logging
+import pandas as pd
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)

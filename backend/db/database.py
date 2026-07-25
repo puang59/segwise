@@ -92,14 +92,25 @@ def create_session(
     serialized_state = json.dumps(state_data) if state_data else None
 
     def _execute(s: Session):
-        session_obj = SessionModel(
-            id=sid,
-            title=title or f"Session {sid[:8]}",
-            advait_model=advait_model,
-            myra_model=myra_model,
-            state_data=serialized_state,
-        )
-        s.add(session_obj)
+        session_obj = s.query(SessionModel).filter(SessionModel.id == sid).first()
+        if not session_obj:
+            session_obj = SessionModel(
+                id=sid,
+                title=title or f"Session {sid[:8]}",
+                advait_model=advait_model,
+                myra_model=myra_model,
+                state_data=serialized_state,
+            )
+            s.add(session_obj)
+        else:
+            if title:
+                session_obj.title = title
+            if advait_model:
+                session_obj.advait_model = advait_model
+            if myra_model:
+                session_obj.myra_model = myra_model
+            if serialized_state:
+                session_obj.state_data = serialized_state
         s.flush()
         return {
             "id": session_obj.id,
@@ -109,10 +120,69 @@ def create_session(
             "created_at": session_obj.created_at.isoformat() if session_obj.created_at else None,
         }
 
+
     if db:
         return _execute(db)
     with get_db_session() as s:
         return _execute(s)
+
+
+def get_session(session_id: str, db: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+    """Retrieve session details by session_id."""
+    def _execute(s: Session):
+        session_obj = s.query(SessionModel).filter(SessionModel.id == session_id).first()
+        if not session_obj:
+            return None
+        return {
+            "id": session_obj.id,
+            "title": session_obj.title,
+            "advait_model": session_obj.advait_model,
+            "myra_model": session_obj.myra_model,
+            "created_at": session_obj.created_at.isoformat() if session_obj.created_at else None,
+            "updated_at": session_obj.updated_at.isoformat() if session_obj.updated_at else None,
+        }
+
+    if db:
+        return _execute(db)
+    with get_db_session() as s:
+        return _execute(s)
+
+
+def update_session_models(
+    session_id: str,
+    advait_model: Optional[str] = None,
+    myra_model: Optional[str] = None,
+    db: Optional[Session] = None
+) -> Dict[str, Any]:
+    """Update selected model configuration for a given session."""
+    def _execute(s: Session):
+        session_obj = s.query(SessionModel).filter(SessionModel.id == session_id).first()
+        if not session_obj:
+            session_obj = SessionModel(
+                id=session_id,
+                title=f"Session {session_id[:8]}",
+                advait_model=advait_model or DEFAULT_ADV_MODEL,
+                myra_model=myra_model or DEFAULT_MYRA_MODEL,
+            )
+            s.add(session_obj)
+        else:
+            if advait_model:
+                session_obj.advait_model = advait_model
+            if myra_model:
+                session_obj.myra_model = myra_model
+        s.flush()
+        return {
+            "id": session_obj.id,
+            "title": session_obj.title,
+            "advait_model": session_obj.advait_model,
+            "myra_model": session_obj.myra_model,
+        }
+
+    if db:
+        return _execute(db)
+    with get_db_session() as s:
+        return _execute(s)
+
 
 
 def save_message(
