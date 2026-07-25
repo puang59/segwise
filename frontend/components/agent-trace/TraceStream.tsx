@@ -42,12 +42,13 @@ export const TraceStream: React.FC<TraceStreamProps> = ({
           totalDurationMs={totalDurationMs}
         />
       ) : (
-        <div className="flex flex-col gap-1 my-2">
-          {traceItems.map((item) => (
-            <TraceRow key={item.id} item={item} />
+        <div className="flex flex-col gap-0.5 my-2">
+          {traceItems.map((item, i) => (
+            <TraceRow key={item.id} item={item} index={i} />
           ))}
         </div>
       )}
+
     </div>
   );
 };

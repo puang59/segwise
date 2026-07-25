@@ -11,7 +11,6 @@ import {
   Loader2,
   Check,
 } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
 import { ChartSpec, CustomerRecord } from '@/lib/types';
 import { ChartCard } from './ChartCard';
 import { generatePdfReport, fetchCustomers } from '@/lib/api';
@@ -95,84 +94,162 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
 
   const activeCharts = chartSpecs.length > 0 ? chartSpecs : sampleChartSpecs;
 
+  if (!isOpen) return null;
+
   return (
     <>
-      {/* Mobile/Tablet Overlay Backdrop (<1024px) */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      {/* Mobile Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 lg:hidden"
+        onClick={onClose}
+      />
 
       <aside
-        className={cn(
-          'w-[360px] flex-shrink-0 flex flex-col bg-surface border-l border-border h-screen select-none transition-transform duration-300 ease-drawer z-50',
-          'fixed lg:relative inset-y-0 right-0',
-          isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
-        )}
+        style={{
+          width: 360,
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          background: '#ffffff',
+          borderLeft: '1px solid rgba(0,0,0,0.07)',
+          position: 'relative',
+          zIndex: 50,
+          userSelect: 'none',
+        }}
       >
         {/* Header & Tabs */}
-        <div className="p-3 border-b border-border flex items-center justify-between bg-surface">
-          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-lg border border-border w-full max-w-[280px]">
+        <div style={{
+          padding: '10px 14px',
+          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: '#ffffff',
+          gap: 8,
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            background: '#f5f5f3',
+            padding: 3,
+            borderRadius: 8,
+            border: '1px solid rgba(0,0,0,0.06)',
+            flex: 1,
+          }}>
             <button
               onClick={() => setActiveTab('charts')}
-              className={cn(
-                'flex-1 flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium transition-all',
-                activeTab === 'charts'
-                  ? 'bg-accent/15 text-accent border border-accent/30 shadow-xs'
-                  : 'text-text-secondary hover:text-text-primary'
-              )}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 5,
+                padding: '4px 8px',
+                borderRadius: 6,
+                fontSize: 11,
+                fontWeight: 500,
+                border: 'none',
+                background: activeTab === 'charts' ? '#ffffff' : 'transparent',
+                color: activeTab === 'charts' ? '#4f46e5' : 'rgba(26,26,24,0.5)',
+                boxShadow: activeTab === 'charts' ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
+                cursor: 'pointer',
+              }}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
+              <BarChart3 size={13} />
               <span>Charts</span>
             </button>
             <button
               onClick={() => setActiveTab('data')}
-              className={cn(
-                'flex-1 flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium transition-all',
-                activeTab === 'data'
-                  ? 'bg-accent/15 text-accent border border-accent/30 shadow-xs'
-                  : 'text-text-secondary hover:text-text-primary'
-              )}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 5,
+                padding: '4px 8px',
+                borderRadius: 6,
+                fontSize: 11,
+                fontWeight: 500,
+                border: 'none',
+                background: activeTab === 'data' ? '#ffffff' : 'transparent',
+                color: activeTab === 'data' ? '#4f46e5' : 'rgba(26,26,24,0.5)',
+                boxShadow: activeTab === 'data' ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
+                cursor: 'pointer',
+              }}
             >
-              <Table className="w-3.5 h-3.5" />
+              <Table size={13} />
               <span>Data</span>
             </button>
             <button
               onClick={() => setActiveTab('report')}
-              className={cn(
-                'flex-1 flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium transition-all',
-                activeTab === 'report'
-                  ? 'bg-accent/15 text-accent border border-accent/30 shadow-xs'
-                  : 'text-text-secondary hover:text-text-primary'
-              )}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 5,
+                padding: '4px 8px',
+                borderRadius: 6,
+                fontSize: 11,
+                fontWeight: 500,
+                border: 'none',
+                background: activeTab === 'report' ? '#ffffff' : 'transparent',
+                color: activeTab === 'report' ? '#4f46e5' : 'rgba(26,26,24,0.5)',
+                boxShadow: activeTab === 'report' ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
+                cursor: 'pointer',
+              }}
             >
-              <FileText className="w-3.5 h-3.5" />
+              <FileText size={13} />
               <span>Report</span>
             </button>
           </div>
 
+          {/* Close Panel Button (Works on Desktop & Mobile) */}
           {onClose && (
             <button
               onClick={onClose}
-              className="lg:hidden p-1 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface-2"
+              className="pressable"
+              style={{
+                padding: 5,
+                borderRadius: 6,
+                background: 'none',
+                border: 'none',
+                color: 'rgba(26,26,24,0.4)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              title="Close panel"
             >
-              <X className="w-4 h-4" />
+              <X size={15} />
             </button>
           )}
         </div>
 
         {/* Tab Contents Viewport */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
           {activeTab === 'charts' && (
-            <div className="space-y-4 entering">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-text-secondary flex items-center gap-1.5">
-                  <BarChart3 className="w-3.5 h-3.5 text-accent" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+                <h3 style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'rgba(26,26,24,0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  margin: 0,
+                  flex: 1,
+                }}>
+                  <BarChart3 size={13} color="#4f46e5" />
                   Agent Output Charts
                 </h3>
-                <span className="text-[10px] text-text-tertiary font-mono">
+                <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>
                   {activeCharts.length} cards
                 </span>
               </div>
@@ -184,36 +261,52 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
           )}
 
           {activeTab === 'data' && (
-            <div className="space-y-4 entering">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-text-secondary flex items-center gap-1.5">
-                  <Table className="w-3.5 h-3.5 text-accent" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+                <h3 style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'rgba(26,26,24,0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  margin: 0,
+                  flex: 1,
+                }}>
+                  <Table size={13} color="#4f46e5" />
                   Customer Records Explorer
                 </h3>
-                <span className="text-[10px] text-text-tertiary font-mono">
+                <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>
                   Vihaan Output
                 </span>
               </div>
 
-              <div className="bg-surface-2 rounded-lg border border-border overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-[11px]">
+              <div style={{
+                background: '#f9f9f8',
+                borderRadius: 10,
+                border: '1px solid rgba(0,0,0,0.07)',
+                overflow: 'hidden',
+              }}>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', fontSize: 11 }}>
                     <thead>
-                      <tr className="border-b border-border bg-bg/60 text-text-tertiary font-mono">
-                        <th className="p-2 font-normal">Customer</th>
-                        <th className="p-2 font-normal">Segment</th>
-                        <th className="p-2 font-normal text-right">Balance</th>
+                      <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#f5f5f3', color: 'rgba(26,26,24,0.4)', fontFamily: 'var(--font-mono)' }}>
+                        <th style={{ padding: '8px 10px', fontWeight: 400 }}>Customer</th>
+                        <th style={{ padding: '8px 10px', fontWeight: 400 }}>Segment</th>
+                        <th style={{ padding: '8px 10px', fontWeight: 400, textAlign: 'right' }}>Balance</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border text-text-secondary">
+                    <tbody style={{ color: 'rgba(26,26,24,0.6)' }}>
                       {customers.map((c) => (
-                        <tr key={c.customer_id} className="hover:bg-surface-3 transition-colors">
-                          <td className="p-2 font-mono text-accent">
+                        <tr key={c.customer_id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                          <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', color: '#4f46e5' }}>
                             <div>{c.full_name || c.customer_id}</div>
-                            <div className="text-[9px] text-text-tertiary">{c.customer_id}</div>
+                            <div style={{ fontSize: 9, color: 'rgba(26,26,24,0.35)' }}>{c.customer_id}</div>
                           </td>
-                          <td className="p-2 text-text-secondary text-[10px]">{c.segment}</td>
-                          <td className="p-2 font-mono text-right text-emerald-400 font-medium">
+                          <td style={{ padding: '8px 10px', fontSize: 10 }}>{c.segment}</td>
+                          <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#16a34a', fontWeight: 500 }}>
                             ₹{c.avg_balance.toLocaleString()}
                           </td>
                         </tr>
@@ -226,44 +319,79 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
           )}
 
           {activeTab === 'report' && (
-            <div className="space-y-4 entering">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-text-secondary flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5 text-accent" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+                <h3 style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'rgba(26,26,24,0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  margin: 0,
+                  flex: 1,
+                }}>
+                  <FileText size={13} color="#4f46e5" />
                   Executive PDF Report
                 </h3>
-                <span className="text-[10px] text-text-tertiary font-mono">9 Sections</span>
+                <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>9 Sections</span>
               </div>
 
-              <div className="p-4 bg-surface-2 rounded-xl border border-border space-y-3">
-                <div className="space-y-1">
-                  <h4 className="text-xs font-semibold text-text-primary">
+              <div style={{
+                padding: 14,
+                background: '#f9f9f8',
+                borderRadius: 10,
+                border: '1px solid rgba(0,0,0,0.07)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+              }}>
+                <div>
+                  <h4 style={{ fontSize: 12, fontWeight: 600, color: '#1a1a18', margin: '0 0 4px' }}>
                     Banking Analytics Executive Summary
                   </h4>
-                  <p className="text-[11px] text-text-secondary leading-relaxed">
+                  <p style={{ fontSize: 11, color: 'rgba(26,26,24,0.55)', margin: 0, lineHeight: 1.5 }}>
                     Includes segmentation profiles, Saanvi cross-sell strategies, retention opportunities, and SHAP explainability.
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-border flex flex-col gap-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
                   <button
                     onClick={handleGeneratePdf}
                     disabled={isGeneratingPdf}
-                    className="pressable w-full flex items-center justify-center gap-2 py-2 px-3 bg-accent hover:bg-accent/90 text-white rounded-lg text-xs font-medium transition-colors shadow-sm disabled:opacity-50"
+                    className="pressable"
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      padding: '8px 12px',
+                      background: '#4f46e5',
+                      color: '#ffffff',
+                      borderRadius: 8,
+                      border: 'none',
+                      fontSize: 12,
+                      fontWeight: 500,
+                      cursor: isGeneratingPdf ? 'not-allowed' : 'pointer',
+                      opacity: isGeneratingPdf ? 0.6 : 1,
+                    }}
                   >
                     {isGeneratingPdf ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} />
                         <span>Compiling PDF Report...</span>
                       </>
                     ) : pdfGenerated ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-white" />
+                        <Check size={13} color="#ffffff" />
                         <span>Download PDF Again</span>
                       </>
                     ) : (
                       <>
-                        <Download className="w-3.5 h-3.5" />
+                        <Download size={13} />
                         <span>Generate Executive PDF</span>
                       </>
                     )}
@@ -271,9 +399,24 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
 
                   <button
                     onClick={onExportCsv}
-                    className="pressable w-full flex items-center justify-center gap-2 py-2 px-3 bg-surface-3 hover:bg-surface text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium transition-colors"
+                    className="pressable"
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      padding: '8px 12px',
+                      background: '#ffffff',
+                      color: 'rgba(26,26,24,0.6)',
+                      borderRadius: 8,
+                      border: '1px solid rgba(0,0,0,0.08)',
+                      fontSize: 12,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                    }}
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink size={13} />
                     <span>Export Segment Data CSV</span>
                   </button>
                 </div>

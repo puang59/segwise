@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { ChatMessage, AgentName, SegmentSummary } from '@/lib/types';
 import { MessageBlock } from './MessageBlock';
 import { InputBar } from './InputBar';
-import { Sparkles, Layers, ShieldCheck, Zap } from 'lucide-react';
+import { Brain, Layers, ShieldCheck, Zap, Sparkles } from 'lucide-react';
 
 interface ChatWindowProps {
   messages: ChatMessage[];
@@ -15,6 +16,37 @@ interface ChatWindowProps {
   onRespondHitl?: (response: string) => void;
 }
 
+const PRESETS = [
+  {
+    Icon: Layers,
+    color: '#c2410c',
+    title: 'Rule-Based & K-Means Segmentation',
+    desc: 'Segment 800k+ accounts into Priority, Regular, and Dormant groups.',
+    query: 'Segment retail customers into priority, regular, and dormant tiers based on balance and transaction frequency.',
+  },
+  {
+    Icon: ShieldCheck,
+    color: '#15803d',
+    title: 'Churn Risk Breakdown',
+    desc: 'Identify dormant account transitions and risk signals using Aadhya.',
+    query: 'Analyze churn risk across customer segments and highlight key warning indicators.',
+  },
+  {
+    Icon: Zap,
+    color: '#92400e',
+    title: 'Product Recommendations',
+    desc: 'Get Saanvi recommendation strategies for high-potential customers.',
+    query: 'Which regular customers can be transitioned into priority tier accounts?',
+  },
+  {
+    Icon: Sparkles,
+    color: '#7c3aed',
+    title: 'Kabir Feature Radar',
+    desc: 'View SHAP feature importance and Kabir radar visualization.',
+    query: 'Explain SHAP feature importance for priority digital banking customers.',
+  },
+];
+
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
   isStreaming = false,
@@ -24,110 +56,136 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   onRespondHitl,
 }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
-  const [presetInput, setPresetInput] = React.useState('');
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isStreaming]);
 
-  const handleSelectPreset = (query: string) => {
-    onSendMessage(query);
-  };
-
-  const handleSelectSuggestion = (chipText: string) => {
-    onSendMessage(chipText);
-  };
+  const handleSelectSuggestion = (chip: string) => onSendMessage(chip);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-bg relative">
-      {/* Scrollable Messages Viewport */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-4">
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      height: 0, // flex child needs explicit 0 height to shrink correctly
+      minHeight: 0,
+      overflow: 'hidden',
+      background: '#FDFDFC',
+    }}>
+      {/* Scroll area */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
         {messages.length === 0 ? (
-          /* Welcome Banner & Presets */
-          <div className="max-w-2xl mx-auto my-auto py-12 flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/30 flex items-center justify-center mb-4">
-              <Sparkles className="w-6 h-6 text-accent" />
-            </div>
+          /* Welcome State */
+          <div style={{
+            maxWidth: 560,
+            margin: '48px auto 0',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: 'rgba(79,70,229,0.07)',
+                border: '1px solid rgba(79,70,229,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+              }}
+            >
+              <Brain size={20} color="#4f46e5" />
+            </motion.div>
 
-            <h2 className="text-2xl font-bold text-text-primary tracking-tight mb-2">
-              Segwise Banking Copilot
-            </h2>
-            <p className="text-sm text-text-secondary max-w-md mb-8 leading-relaxed">
-              Multi-agent analytical engine for automated customer segmentation, feature engineering, and personalized recommendations.
-            </p>
+            <motion.h2
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.07, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              style={{
+                fontSize: 20,
+                fontWeight: 600,
+                color: '#1a1a18',
+                letterSpacing: '-0.02em',
+                margin: '0 0 8px',
+                lineHeight: 1.25,
+              }}
+            >
+              Segwise Copilot
+            </motion.h2>
 
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-              <button
-                onClick={() =>
-                  handleSelectPreset(
-                    'Segment retail customers into priority, regular, and dormant tiers based on balance and transaction frequency.'
-                  )
-                }
-                className="p-4 rounded-xl border border-border bg-surface hover:bg-surface-2 transition-colors pressable group"
-              >
-                <div className="flex items-center gap-2 font-medium text-xs text-text-primary mb-1">
-                  <Layers className="w-4 h-4 text-[#f97316]" />
-                  <span>Rule-Based & K-Means Segmentation</span>
-                </div>
-                <p className="text-xs text-text-tertiary group-hover:text-text-secondary transition-colors">
-                  Segment 800k+ accounts into Priority, Regular, and Dormant groups.
-                </p>
-              </button>
+            <motion.p
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              style={{
+                fontSize: 13,
+                color: 'rgba(26,26,24,0.55)',
+                lineHeight: 1.65,
+                margin: '0 0 32px',
+                maxWidth: 380,
+              }}
+            >
+              Multi-agent analytical engine for customer segmentation, feature engineering, and personalized recommendations.
+            </motion.p>
 
-              <button
-                onClick={() =>
-                  handleSelectPreset(
-                    'Analyze churn risk across customer segments and highlight key warning indicators.'
-                  )
-                }
-                className="p-4 rounded-xl border border-border bg-surface hover:bg-surface-2 transition-colors pressable group"
-              >
-                <div className="flex items-center gap-2 font-medium text-xs text-text-primary mb-1">
-                  <ShieldCheck className="w-4 h-4 text-[#22c55e]" />
-                  <span>Churn Risk Breakdown</span>
-                </div>
-                <p className="text-xs text-text-tertiary group-hover:text-text-secondary transition-colors">
-                  Identify dormant account transitions and risk signals using Aadhya.
-                </p>
-              </button>
-
-              <button
-                onClick={() =>
-                  handleSelectPreset(
-                    'Which regular customers can be transitioned into priority tier accounts?'
-                  )
-                }
-                className="p-4 rounded-xl border border-border bg-surface hover:bg-surface-2 transition-colors pressable group"
-              >
-                <div className="flex items-center gap-2 font-medium text-xs text-text-primary mb-1">
-                  <Zap className="w-4 h-4 text-[#f59e0b]" />
-                  <span>Product Recommendations</span>
-                </div>
-                <p className="text-xs text-text-tertiary group-hover:text-text-secondary transition-colors">
-                  Get Saanvi recommendation strategies for high-potential candidates.
-                </p>
-              </button>
-
-              <button
-                onClick={() =>
-                  handleSelectPreset(
-                    'Explain SHAP feature importance for priority digital banking customers.'
-                  )
-                }
-                className="p-4 rounded-xl border border-border bg-surface hover:bg-surface-2 transition-colors pressable group"
-              >
-                <div className="flex items-center gap-2 font-medium text-xs text-text-primary mb-1">
-                  <Sparkles className="w-4 h-4 text-[#a78bfa]" />
-                  <span>Kabir Feature Radar</span>
-                </div>
-                <p className="text-xs text-text-tertiary group-hover:text-text-secondary transition-colors">
-                  View Kabir feature importance distribution and radar visualization.
-                </p>
-              </button>
+            {/* Preset Cards */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 10,
+              width: '100%',
+              textAlign: 'left',
+            }}>
+              {PRESETS.map((preset, i) => (
+                <motion.button
+                  key={preset.title}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.18 + i * 0.055,
+                    duration: 0.26,
+                    ease: [0.23, 1, 0.32, 1],
+                  }}
+                  onClick={() => onSendMessage(preset.query)}
+                  className="pressable"
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: 10,
+                    border: '1px solid rgba(0,0,0,0.07)',
+                    background: '#ffffff',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    transition: 'box-shadow 150ms cubic-bezier(0.23,1,0.32,1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 3px 10px rgba(0,0,0,0.08)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+                    <preset.Icon size={14} color={preset.color} />
+                    <span style={{ fontSize: 12, fontWeight: 500, color: '#1a1a18' }}>
+                      {preset.title}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11.5, color: 'rgba(26,26,24,0.45)', margin: 0, lineHeight: 1.5 }}>
+                    {preset.desc}
+                  </p>
+                </motion.button>
+              ))}
             </div>
           </div>
         ) : (
-          /* Render Active Session Messages */
           messages.map((msg) => (
             <MessageBlock
               key={msg.id}
@@ -141,13 +199,19 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div ref={bottomRef} />
       </div>
 
-      {/* Input Bar Fixed Bottom Container */}
-      <div className="p-4 md:px-8 border-t border-border bg-bg/80 backdrop-blur-md">
+      {/* Input bar — frosted glass bottom */}
+      <div style={{
+        padding: '12px 32px 16px',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
+        background: 'rgba(253,253,252,0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        flexShrink: 0,
+      }}>
         <InputBar
           activeAgent={activeAgent}
           isStreaming={isStreaming}
           onSendMessage={onSendMessage}
-          presetText={presetInput}
         />
       </div>
     </div>

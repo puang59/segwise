@@ -19,39 +19,55 @@ export const TraceCollapse: React.FC<TraceCollapseProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(!isComplete);
 
-  // Auto-collapse when query finishes
   React.useEffect(() => {
-    if (isComplete) {
-      setIsExpanded(false);
-    }
+    if (isComplete) setIsExpanded(false);
   }, [isComplete]);
 
   if (!traceItems || traceItems.length === 0) return null;
 
   const agentCount = new Set(traceItems.map((t) => t.agent)).size;
-  const computedDurationMs =
-    totalDurationMs ||
-    traceItems.reduce((acc, curr) => acc + (curr.duration_ms || 0), 0);
-  const formattedDuration =
-    computedDurationMs < 1000
-      ? `${computedDurationMs}ms`
-      : `${(computedDurationMs / 1000).toFixed(1)}s`;
+  const computedMs = totalDurationMs || traceItems.reduce((acc, curr) => acc + (curr.duration_ms || 0), 0);
+  const formattedDuration = computedMs < 1000
+    ? `${computedMs}ms`
+    : `${(computedMs / 1000).toFixed(1)}s`;
 
   return (
-    <div className="my-2 rounded-lg border border-border bg-surface-2 overflow-hidden">
+    <div style={{
+      borderRadius: 8,
+      overflow: 'hidden',
+      border: '1px solid rgba(0,0,0,0.07)',
+      background: '#f9f9f8',
+      marginBottom: 12,
+    }}>
       <button
-        onClick={() => setIsExpanded((prev) => !prev)}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-mono text-text-secondary hover:bg-surface-3 transition-colors pressable"
+        onClick={() => setIsExpanded((p) => !p)}
+        className="pressable"
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 7,
+          padding: '7px 10px',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
       >
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span>
-            Reasoning ({agentCount} {agentCount === 1 ? 'agent' : 'agents'}, {formattedDuration})
-          </span>
-        </div>
-        <div className="flex items-center gap-1 text-[11px] text-text-tertiary">
-          {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-        </div>
+        <Sparkles size={12} color="#4f46e5" />
+        <span style={{
+          fontSize: 11,
+          fontFamily: 'var(--font-mono)',
+          color: 'rgba(26,26,24,0.5)',
+          flex: 1,
+        }}>
+          {agentCount} {agentCount === 1 ? 'agent' : 'agents'} · {formattedDuration}
+        </span>
+        <span style={{ color: 'rgba(26,26,24,0.35)' }}>
+          {isExpanded
+            ? <ChevronDown size={13} />
+            : <ChevronRight size={13} />}
+        </span>
       </button>
 
       <AnimatePresence initial={false}>
@@ -60,12 +76,18 @@ export const TraceCollapse: React.FC<TraceCollapseProps> = ({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-            className="overflow-hidden p-2 border-t border-border bg-bg/50"
+            transition={{ duration: 0.24, ease: [0.32, 0.72, 0, 1] }}
+            style={{ overflow: 'hidden' }}
           >
-            {traceItems.map((item) => (
-              <TraceRow key={item.id} item={item} />
-            ))}
+            <div style={{
+              padding: '6px 8px',
+              borderTop: '1px solid rgba(0,0,0,0.06)',
+              background: '#fdfdfc',
+            }}>
+              {traceItems.map((item, i) => (
+                <TraceRow key={item.id} item={item} index={i} />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

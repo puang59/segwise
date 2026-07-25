@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { AgentName, AGENT_REGISTRY } from '@/lib/types';
+import { AgentAvatar } from '@/components/agent-trace/AgentAvatar';
 import { Send, Loader2 } from 'lucide-react';
 
 interface InputBarProps {
@@ -18,11 +19,10 @@ export const InputBar: React.FC<InputBarProps> = ({
   presetText = '',
 }) => {
   const [text, setText] = useState(presetText);
+  const [focused, setFocused] = useState(false);
 
   React.useEffect(() => {
-    if (presetText) {
-      setText(presetText);
-    }
+    if (presetText) setText(presetText);
   }, [presetText]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,50 +32,106 @@ export const InputBar: React.FC<InputBarProps> = ({
     setText('');
   };
 
-  const currentAgentMeta = AGENT_REGISTRY[activeAgent] || AGENT_REGISTRY['advait'];
+  const meta = AGENT_REGISTRY[activeAgent] || AGENT_REGISTRY['advait'];
+  const hasText = text.trim().length > 0;
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full relative flex items-center gap-2 p-2 rounded-2xl border border-border bg-surface-2 shadow-lg transition-colors focus-within:border-accent/50"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '8px 10px',
+        borderRadius: 12,
+        background: '#ffffff',
+        border: focused
+          ? `1.5px solid ${meta.color}55`
+          : '1.5px solid rgba(0,0,0,0.08)',
+        boxShadow: focused
+          ? `0 0 0 3px ${meta.color}10, 0 2px 8px rgba(0,0,0,0.06)`
+          : '0 1px 4px rgba(0,0,0,0.06)',
+        transition: 'border-color 150ms cubic-bezier(0.23,1,0.32,1), box-shadow 150ms cubic-bezier(0.23,1,0.32,1)',
+      }}
     >
-      {/* Dynamic Active Agent Indicator Pill */}
+      {/* Agent pill — uses DiceBear avatar instead of text symbol */}
       <div
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-medium shrink-0 transition-all duration-120"
         style={{
-          color: currentAgentMeta.color,
-          backgroundColor: `${currentAgentMeta.color}18`,
-          border: `1px solid ${currentAgentMeta.color}35`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '3px 8px 3px 5px',
+          borderRadius: 8,
+          background: `${meta.color}0D`,
+          border: `1px solid ${meta.color}20`,
+          flexShrink: 0,
         }}
       >
-        <span className={isStreaming ? 'animate-spin' : ''}>
-          {isStreaming ? '⟳' : currentAgentMeta.icon}
-        </span>
-        <span className="text-[11px] uppercase tracking-wider">
-          {currentAgentMeta.displayName}
+        {isStreaming ? (
+          <span className="dot-bounce" style={{ color: meta.color }}>
+            <span /><span /><span />
+          </span>
+        ) : (
+          <AgentAvatar agent={activeAgent} size={18} showName={false} />
+        )}
+        <span style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: meta.color,
+          letterSpacing: '-0.01em',
+        }}>
+          {meta.displayName}
         </span>
       </div>
 
-      {/* Query Input Field */}
+      {/* Input */}
       <input
         type="text"
         disabled={isStreaming}
-        placeholder="Ask anything about customer segments, balances, or recommendations..."
+        placeholder="Ask about segments, balances, or recommendations…"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className="flex-1 bg-transparent border-none text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed py-1.5"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          flex: 1,
+          background: 'none',
+          border: 'none',
+          outline: 'none',
+          fontSize: 13.5,
+          color: '#1a1a18',
+          caretColor: '#4f46e5',
+          padding: '2px 0',
+          opacity: isStreaming ? 0.5 : 1,
+          cursor: isStreaming ? 'not-allowed' : 'text',
+        }}
       />
 
-      {/* Send Button */}
+      {/* Send button */}
       <button
         type="submit"
-        disabled={!text.trim() || isStreaming}
-        className="p-2.5 rounded-xl bg-accent text-white font-medium hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed pressable transition-opacity shrink-0 flex items-center justify-center"
+        disabled={!hasText || isStreaming}
+        className="pressable"
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: 8,
+          border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          cursor: hasText && !isStreaming ? 'pointer' : 'not-allowed',
+          background: hasText && !isStreaming ? '#4f46e5' : '#f0f0ef',
+          color: hasText && !isStreaming ? '#ffffff' : 'rgba(26,26,24,0.3)',
+          transition: 'background 150ms cubic-bezier(0.23,1,0.32,1), color 150ms cubic-bezier(0.23,1,0.32,1)',
+          opacity: isStreaming ? 0.4 : 1,
+        }}
       >
         {isStreaming ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
         ) : (
-          <Send className="w-4 h-4" />
+          <Send size={14} />
         )}
       </button>
     </form>
