@@ -60,7 +60,7 @@ export const SegmentTable: React.FC<SegmentTableProps> = ({
                     {seg.percentage}%
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
-                    {seg.customer_count.toLocaleString()}
+                    {(seg.customer_count ?? seg.count ?? 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-text-primary">
                     ₹{seg.avg_balance.toLocaleString()}

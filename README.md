@@ -177,9 +177,12 @@ cd segwise
    ```
 
 5. Start the FastAPI development server:
+   From the project root directory (`segwise/`):
    ```bash
-   uvicorn main:app --reload --port 8000
+   uvicorn backend.main:app --reload --port 8000
    ```
+   *(Or if inside the `backend/` directory: `PYTHONPATH=.. uvicorn main:app --reload --port 8000`)*
+
    The backend API will be live at `http://localhost:8000`. Test endpoint docs at `http://localhost:8000/docs`.
 
 ---

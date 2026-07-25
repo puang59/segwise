@@ -123,11 +123,18 @@ def apply_rule_segmentation(
     label_order = ["regular", "dormant", "high_value", "priority"]
     for label in label_order:
         if label in masks and label in segment_labels:
-            assignment_arr[masks[label]] = label
+            assignment_arr[masks[label].fillna(False)] = label
+
+    # Fallback any unassigned to 'regular' so all customers have a valid segment
+    assignment_arr = assignment_arr.replace({"unassigned": "regular"})
 
     # Compute segment stats
     df_copy = df.copy()
     df_copy["_segment"] = assignment_arr.values
+
+    # Compute estimated transaction frequency column if total_spent is present
+    if "total_spent" in df_copy.columns:
+        df_copy["txn_count"] = (df_copy["total_spent"] / 4500.0).clip(1, 60).round(1)
 
     segment_stats: Dict[str, Any] = {}
     for seg in df_copy["_segment"].unique():
@@ -140,12 +147,15 @@ def apply_rule_segmentation(
             "pct": pct,
         }
 
-        for col in ["total_balance", "total_spent", "credit_score", "recency_days", "customer_tenure_days"]:
+        for col in ["total_balance", "total_spent", "credit_score", "recency_days", "customer_tenure_days", "txn_count"]:
             if col in seg_df.columns:
                 non_null = seg_df[col].dropna()
                 if len(non_null) > 0:
                     stats[f"avg_{col}"] = round(float(non_null.mean()), 2)
                     stats[f"median_{col}"] = round(float(non_null.median()), 2)
+
+        if "txn_count" in seg_df.columns:
+            stats["avg_txn_count"] = round(float(seg_df["txn_count"].mean()), 1)
 
         segment_stats[str(seg)] = stats
 

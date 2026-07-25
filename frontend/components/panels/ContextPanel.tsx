@@ -233,7 +233,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
           {activeTab === 'charts' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <h3 style={{
                   fontSize: 11,
                   fontFamily: 'var(--font-mono)',
@@ -262,7 +262,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
 
           {activeTab === 'data' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <h3 style={{
                   fontSize: 11,
                   fontFamily: 'var(--font-mono)',
@@ -320,7 +320,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
 
           {activeTab === 'report' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <h3 style={{
                   fontSize: 11,
                   fontFamily: 'var(--font-mono)',

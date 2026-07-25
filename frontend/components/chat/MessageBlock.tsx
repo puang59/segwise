@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { ChatMessage, SegmentSummary, AgentName } from '@/lib/types';
 import { AgentAvatar } from '@/components/agent-trace/AgentAvatar';
 import { TraceStream } from '@/components/agent-trace/TraceStream';
@@ -15,6 +16,15 @@ interface MessageBlockProps {
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
   onSelectSuggestion?: (chipText: string) => void;
+}
+
+function formatMarkdownTables(content: string): string {
+  if (!content) return '';
+  // 1. Convert compressed table rows '||' or '| |' or '|  |' into newlines '\n|'
+  let formatted = content.replace(/\|\s*\|\s*/g, '|\n|');
+  // 2. Ensure table headers starting after text get a preceding newline
+  formatted = formatted.replace(/([^\n])\s*(\|(?:(?:\s*:?-+:?\s*)\|)+)/g, '$1\n$2');
+  return formatted;
 }
 
 export const MessageBlock: React.FC<MessageBlockProps> = ({
@@ -126,8 +136,35 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({
         {/* Markdown content */}
         {message.content && (
           <div className={`prose-chat${message.isStreaming ? ' streaming-cursor' : ''}`}>
-            <ReactMarkdown>
-              {message.content.replace(/\|\|/g, '\n|')}
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                table: ({ children }) => (
+                  <div className="w-full my-3.5 overflow-x-auto rounded-xl border border-border/80 bg-surface shadow-xs">
+                    <table className="w-full text-left text-xs border-collapse divide-y divide-border/60">{children}</table>
+                  </div>
+                ),
+                thead: ({ children }) => (
+                  <thead className="bg-surface-2 border-b border-border text-text-tertiary uppercase text-[10px] font-semibold tracking-wider">
+                    {children}
+                  </thead>
+                ),
+                th: ({ children }) => (
+                  <th className="px-3.5 py-2.5 font-medium border-b border-border/60 text-text-primary whitespace-nowrap">
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td className="px-3.5 py-2.5 border-b border-border/40 text-text-secondary font-mono text-[11.5px] leading-relaxed">
+                    {children}
+                  </td>
+                ),
+                tr: ({ children }) => (
+                  <tr className="hover:bg-surface-2/60 transition-colors">{children}</tr>
+                ),
+              }}
+            >
+              {formatMarkdownTables(message.content)}
             </ReactMarkdown>
           </div>
         )}
