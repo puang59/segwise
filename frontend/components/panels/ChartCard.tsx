@@ -188,7 +188,14 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
 
         ) : (
           <BarChart data={chartSpec.data} config={ditherConfig} bloom="aura" className="w-full h-full">
-            <XAxis dataKey={chartType === 'horizontal_bar' && chartSpec.y_key ? chartSpec.y_key : categoryKey} />
+            <XAxis 
+              dataKey={chartType === 'horizontal_bar' && chartSpec.y_key ? chartSpec.y_key : categoryKey} 
+              tickFormatter={(val) => {
+                const str = String(val);
+                if (isModal || str.length <= 8) return str;
+                return str.substring(0, 8) + '..';
+              }}
+            />
             <YAxis />
             <Tooltip />
             {finalDataKeys.map((key: string) => (

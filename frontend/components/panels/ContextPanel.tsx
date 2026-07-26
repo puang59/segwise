@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   BarChart3,
   Table,
@@ -44,6 +44,38 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
   // Local override: null = use activeSegmentFilter from parent, undefined = show all
   const [segmentOverride, setSegmentOverride] = useState<string | null | undefined>(null);
+
+  const [panelWidth, setPanelWidth] = useState(540);
+  const isDragging = useRef(false);
+
+  const startResizing = useCallback((mouseDownEvent: React.MouseEvent) => {
+    mouseDownEvent.preventDefault();
+    mouseDownEvent.stopPropagation();
+    isDragging.current = true;
+    const startWidth = panelWidth;
+    const startX = mouseDownEvent.clientX;
+
+    const doDrag = (mouseMoveEvent: MouseEvent) => {
+      if (isDragging.current) {
+        const deltaX = startX - mouseMoveEvent.clientX;
+        const newWidth = Math.min(Math.max(startWidth + deltaX, 540), 900);
+        setPanelWidth(newWidth);
+      }
+    };
+
+    const stopDrag = () => {
+      isDragging.current = false;
+      document.removeEventListener('mousemove', doDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', stopDrag);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, [panelWidth]);
 
   // The resolved filter: if user cleared it (segmentOverride === undefined) show all;
   // if they haven't touched it, fall back to whatever the parent derived.
@@ -103,7 +135,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
 
       <aside
         style={{
-          width: 540,
+          width: panelWidth,
           flexShrink: 0,
           display: 'flex',
           flexDirection: 'column',
@@ -115,6 +147,19 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
           userSelect: 'none',
         }}
       >
+        {/* Resize Handle */}
+        <div
+          onMouseDown={startResizing}
+          style={{
+            position: 'absolute',
+            left: -3,
+            top: 0,
+            bottom: 0,
+            width: 6,
+            cursor: 'col-resize',
+            zIndex: 60,
+          }}
+        />
         {/* Header & Tabs */}
         <div style={{
           padding: '10px 14px',
