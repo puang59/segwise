@@ -17,6 +17,7 @@ import { ChartSpec, CustomerRecord } from '@/lib/types';
 import { ChartCard } from './ChartCard';
 import { generatePdfReport, fetchCustomers, exportCustomersCsv } from '@/lib/api';
 import { showToast } from '@/components/shared/ToastProvider';
+import { WhatIfSimulatorModal } from './WhatIfSimulatorModal';
 
 interface ContextPanelProps {
   isOpen?: boolean;
@@ -42,6 +43,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
+  const [simulatedCustomer, setSimulatedCustomer] = useState<CustomerRecord | null>(null);
   // Local override: null = use activeSegmentFilter from parent, undefined = show all
   const [segmentOverride, setSegmentOverride] = useState<string | null | undefined>(null);
 
@@ -410,7 +412,18 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                       </thead>
                       <tbody style={{ color: 'rgba(26,26,24,0.6)' }}>
                         {customers.map((c) => (
-                          <tr key={c.customer_id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                          <tr 
+                            key={c.customer_id} 
+                            onClick={() => setSimulatedCustomer(c)}
+                            style={{ 
+                              borderBottom: '1px solid rgba(0,0,0,0.05)',
+                              cursor: 'pointer',
+                              transition: 'background 0.2s',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            title="Click to open What-If Churn Simulator"
+                          >
                             <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', color: '#1a1a18' }}>
                               <div>{c.full_name || c.customer_id}</div>
                               <div style={{ fontSize: 9, color: 'rgba(26,26,24,0.35)' }}>{c.customer_id}</div>
@@ -555,6 +568,14 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
           )}
         </div>
       </aside>
+      
+      {simulatedCustomer && (
+        <WhatIfSimulatorModal
+          customer={simulatedCustomer}
+          isOpen={!!simulatedCustomer}
+          onClose={() => setSimulatedCustomer(null)}
+        />
+      )}
     </>
   );
 };

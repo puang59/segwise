@@ -167,11 +167,17 @@ export interface CustomerRecord {
   customer_id: string;
   full_name?: string;
   segment: string;
+  segment_label?: string;
   avg_balance: number;
   txn_freq?: number;
   credit_score?: number;
   churn_risk_score?: number;
   is_high_risk?: number;
+  engagement_score?: number;
+  savings_ratio?: number;
+  balance_trend?: number;
+  digital_score?: number;
+  recency_score?: number;
 }
 
 export interface ModelInfo {
