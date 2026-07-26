@@ -214,7 +214,7 @@ async def run_myra(state: AgentState) -> AgentState:
         response = await client.chat.completions.create(
             model=model_id,
             messages=messages,
-            max_tokens=1200,
+            max_tokens=8192,
             **extra_kwargs,
         )
         narrative = response.choices[0].message.content or ""
@@ -302,7 +302,7 @@ async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]
             model=model_id,
             messages=messages,
             stream=True,
-            max_tokens=1200,
+            max_tokens=8192,
             **extra_kwargs,
         )
 

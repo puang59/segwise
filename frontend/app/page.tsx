@@ -168,22 +168,12 @@ export default function Home() {
       timestamp,
     };
 
-    // 2. Seed the trace with the "Deploying Agents..." row
-    const deployTraceItem: AgentTraceItem = {
-      id: `trace-deploy-${Date.now()}`,
-      agent: 'advait',
-      role: 'Orchestrator',
-      status: 'running',
-      summary: 'Deploying Agents ...',
-      toolName: undefined,
-    };
-
     const assistantMsg: ChatMessage = {
       id: assistantMsgId,
       sender: 'myra',
       attribution: `✦ Myra · ${myraModel.split('/').pop() || myraModel}`,
       content: '',
-      traceItems: [deployTraceItem],
+      traceItems: [],
       timestamp,
       isStreaming: true,
     };
@@ -191,7 +181,7 @@ export default function Home() {
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsStreaming(true);
     setActiveAgent('advait');
-    setLiveStatusText('Deploying agents and analysing your query...');
+    setLiveStatusText('Deploying multi-agent network...');
 
     // Reset agent states
     setAgentStates({
@@ -205,7 +195,7 @@ export default function Home() {
     });
 
     // 3. Initiate SSE Chat Stream
-    let currentTraceItems: AgentTraceItem[] = [deployTraceItem];
+    let currentTraceItems: AgentTraceItem[] = [];
     let currentTextContent = '';
     let currentSegmentData: SegmentSummary[] | undefined;
     let currentSuggestions: string[] | undefined;
@@ -245,9 +235,9 @@ export default function Home() {
             case 'agent_start': {
               const agent = event.data.agent as AgentName;
 
-              // Mark deploy row as done, now show this agent running
-              currentTraceItems = currentTraceItems.map((t) =>
-                t.id.startsWith('trace-deploy-') ? { ...t, status: 'done', summary: 'Agents deployed successfully' } : t
+              // Remove deploy placeholder row once real agents start
+              currentTraceItems = currentTraceItems.filter(
+                (t) => !t.id.startsWith('trace-deploy-')
               );
 
               // Dynamic live cyan status text

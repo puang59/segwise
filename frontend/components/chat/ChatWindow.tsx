@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChatMessage, AgentName, SegmentSummary } from '@/lib/types';
+import { ChatMessage, AgentName, AgentStatus, SegmentSummary } from '@/lib/types';
 import { MessageBlock } from './MessageBlock';
 import { InputBar } from './InputBar';
 import { Brain, Layers, ShieldCheck, Zap, Sparkles } from 'lucide-react';
@@ -12,6 +12,7 @@ interface ChatWindowProps {
   isStreaming?: boolean;
   activeAgent?: AgentName;
   liveStatusText?: string;
+  agentStates?: Record<AgentName, AgentStatus>;
   onSendMessage: (query: string) => void;
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
@@ -53,6 +54,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   isStreaming = false,
   activeAgent = 'advait',
   liveStatusText = '',
+  agentStates,
   onSendMessage,
   onSelectSegment,
   onRespondHitl,
@@ -192,6 +194,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             <MessageBlock
               key={msg.id}
               message={msg}
+              liveStatusText={msg.isStreaming ? liveStatusText : undefined}
               onSelectSegment={onSelectSegment}
               onRespondHitl={onRespondHitl}
               onSelectSuggestion={handleSelectSuggestion}

@@ -143,6 +143,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
         isStreaming={isStreaming}
         activeAgent={activeAgent}
         liveStatusText={liveStatusText}
+        agentStates={agentStates}
         onSendMessage={onSendMessage}
         onSelectSegment={onSelectSegment}
         onRespondHitl={onRespondHitl}

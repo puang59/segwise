@@ -13,6 +13,7 @@ import { FollowUpChips } from './FollowUpChips';
 
 interface MessageBlockProps {
   message: ChatMessage;
+  liveStatusText?: string;
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
   onSelectSuggestion?: (chipText: string) => void;
@@ -29,6 +30,7 @@ function formatMarkdownTables(content: string): string {
 
 export const MessageBlock: React.FC<MessageBlockProps> = ({
   message,
+  liveStatusText,
   onSelectSegment,
   onRespondHitl,
   onSelectSuggestion,
@@ -107,6 +109,7 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({
           <TraceStream
             traceItems={message.traceItems}
             isComplete={!message.isStreaming}
+            liveStatusText={liveStatusText}
           />
         )}
 
