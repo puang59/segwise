@@ -18,7 +18,11 @@ from backend.tools.explainability import explain_customer_shap
 router = APIRouter(prefix="/customers", tags=["Customers"])
 
 
-def _load_full_customer_dataset() -> pd.DataFrame:
+import json
+from backend.db.database import get_db_session
+from backend.db.models import SegmentCacheModel
+
+def _load_full_customer_dataset(session_id: Optional[str] = None) -> pd.DataFrame:
     """Load full customer dataset with segmentation labels and engineered features."""
     conn = get_connection()
     try:
@@ -26,7 +30,21 @@ def _load_full_customer_dataset() -> pd.DataFrame:
     finally:
         conn.close()
         
-    assignments, _ = apply_rule_segmentation(df, segment_labels=["priority", "high_value", "dormant", "regular"], filters={})
+    assignments = None
+    if session_id:
+        with get_db_session() as s:
+            cache = s.query(SegmentCacheModel).filter(SegmentCacheModel.session_id == session_id).order_by(SegmentCacheModel.created_at.desc()).first()
+            if cache:
+                try:
+                    assignments_dict = json.loads(cache.segment_assignments)
+                    id_col = df["customer_id"].astype(str) if "customer_id" in df.columns else pd.Series(df.index.astype(str))
+                    assignments = id_col.map(assignments_dict)
+                except Exception:
+                    pass
+                    
+    if assignments is None or assignments.isna().all():
+        assignments, _ = apply_rule_segmentation(df, segment_labels=["priority", "high_value", "dormant", "regular"], filters={})
+        
     df["segment_label"] = assignments
     
     default_features = [
@@ -38,8 +56,6 @@ def _load_full_customer_dataset() -> pd.DataFrame:
     return df_feat
 
 
-
-
 @router.get("", summary="Get paginated list of customers with filtering")
 def get_customers_list(
     page: int = Query(1, ge=1, description="Page number (1-indexed)"),
@@ -48,12 +64,13 @@ def get_customers_list(
     city: Optional[str] = Query(None, description="Filter by customer city"),
     min_balance: Optional[float] = Query(None, description="Minimum estimated balance"),
     max_balance: Optional[float] = Query(None, description="Maximum estimated balance"),
-    search: Optional[str] = Query(None, description="Search query matching customer ID or name")
+    search: Optional[str] = Query(None, description="Search query matching customer ID or name"),
+    session_id: Optional[str] = Query(None, description="Filter by session ID")
 ) -> Dict[str, Any]:
     """
     Return a paginated list of customer records matching filter criteria.
     """
-    df = _load_full_customer_dataset()
+    df = _load_full_customer_dataset(session_id=session_id)
     
     # Filter by segment
     if segment:

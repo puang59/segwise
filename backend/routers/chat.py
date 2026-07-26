@@ -188,6 +188,7 @@ async def chat_stream_endpoint(req: ChatRequest):
                     for seg_name, stats in seg_stats.items():
                         avg_bal = stats.get("avg_balance", stats.get("avg_total_balance", 0))
                         formatted_segments.append({
+                            "id": seg_name,
                             "name": f"{seg_name.capitalize()} Tier",
                             "percentage": stats.get("pct", 0),
                             "customer_count": stats.get("count", 0),

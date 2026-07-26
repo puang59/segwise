@@ -178,6 +178,20 @@ async def run_ishaan(state: AgentState) -> AgentState:
         "evaluation_metrics": eval_metrics,
     }
 
+    from backend.db.database import cache_segment_results
+    try:
+        cache_segment_results(
+            session_id=conv_id,
+            method=method,
+            features=list(engineered_features) if engineered_features else [],
+            assignments=segment_assignments_dict,
+            stats=segment_stats,
+            metrics=eval_metrics,
+        )
+        logger.info(f"[Ishaan] Cached segmentation results for session {conv_id}")
+    except Exception as e:
+        logger.error(f"[Ishaan] Failed to cache segmentation results: {e}")
+
     updated = dict(state)
     updated["segment_assignments"] = segment_assignments_dict
     updated["segment_stats"] = segment_stats

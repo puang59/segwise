@@ -24,6 +24,7 @@ class ExportCSVRequest(BaseModel):
     segment_id: Optional[str] = Field(None, description="Filter CSV export by segment ID ('priority', 'high_value', 'regular', 'dormant')")
     city: Optional[str] = Field(None, description="Filter CSV export by city")
     min_balance: Optional[float] = Field(None, description="Minimum balance threshold")
+    session_id: Optional[str] = Field(None, description="Filter by session ID to use session-specific segmentation")
 
 
 class ExportPDFRequest(BaseModel):
@@ -35,6 +36,7 @@ class ExportPDFRequest(BaseModel):
         description="LLM narrative summary from Myra agent turn"
     )
 
+from backend.routers.customers import _load_full_customer_dataset
 
 # ── JINJA2 9-SECTION REPORT TEMPLATE ───────────────────────────────────────────
 REPORT_HTML_TEMPLATE = """<!DOCTYPE html>
@@ -191,14 +193,7 @@ def export_customers_csv(req: ExportCSVRequest) -> StreamingResponse:
     """
     Stream downloadable CSV customer dataset filtered by segment ID or balance.
     """
-    conn = get_connection()
-    try:
-        df = pd.read_sql_query("SELECT * FROM customer_profile", conn)
-    finally:
-        conn.close()
-        
-    assignments, _ = apply_rule_segmentation(df, segment_labels=["priority", "high_value", "dormant", "regular"], filters={})
-    df["segment_label"] = assignments
+    df = _load_full_customer_dataset(req.session_id)
     
     if req.segment_id:
         df = df[df["segment_label"] == req.segment_id]
@@ -225,14 +220,7 @@ def export_executive_pdf(req: ExportPDFRequest) -> Response:
     """
     Render 9-section HTML template using Jinja2 and compile to downloadable executive PDF.
     """
-    conn = get_connection()
-    try:
-        df = pd.read_sql_query("SELECT * FROM customer_profile", conn)
-    finally:
-        conn.close()
-        
-    assignments, _ = apply_rule_segmentation(df, segment_labels=["priority", "high_value", "dormant", "regular"], filters={})
-    df["segment_label"] = assignments
+    df = _load_full_customer_dataset(req.session_id)
     df_seg = df
     total_rows = len(df_seg)
 

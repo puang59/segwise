@@ -65,7 +65,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
       return;
     }
     setIsLoadingCustomers(true);
-    fetchCustomers(resolvedFilter || undefined).then((records) => {
+    fetchCustomers(resolvedFilter || undefined, sessionId).then((records) => {
       setCustomers(records);
       setIsLoadingCustomers(false);
     }).catch(() => {
@@ -511,7 +511,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                     onClick={async () => {
                       try {
                         showToast.info('Exporting CSV', 'Preparing customer segment data...');
-                        await exportCustomersCsv({ segmentId: resolvedFilter || undefined });
+                        await exportCustomersCsv({ segmentId: resolvedFilter || undefined, sessionId });
                         showToast.success('CSV Downloaded', 'Check your downloads folder.');
                       } catch (e: any) {
                         showToast.error('Export Failed', e?.message || 'Could not export CSV.');
