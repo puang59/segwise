@@ -89,7 +89,7 @@ async def _call_structured_output(state: AgentState) -> QueryPlan:
             model=model_id,
             messages=messages,
             response_format=QueryPlan,
-            max_tokens=512,
+            max_tokens=4096,
         )
         plan = response.choices[0].message.parsed
         if plan is not None:
@@ -120,7 +120,7 @@ async def _call_with_text_parse(state: AgentState) -> QueryPlan:
     response = await client.chat.completions.create(
         model=model_id,
         messages=messages,
-        max_tokens=1024,
+        max_tokens=4096,
         **extra_kwargs,
     )
 

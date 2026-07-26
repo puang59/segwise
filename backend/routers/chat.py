@@ -158,6 +158,17 @@ async def chat_stream_endpoint(req: ChatRequest):
                     "progress": 100,
                     "message": f"Engineered {len(features)} behavioral features",
                 })
+                
+                # Emit Correlation Heatmap if generated
+                kabir_outputs = state.get("tool_outputs", {}).get("kabir", {})
+                corr_chart = kabir_outputs.get("correlation_chart")
+                if corr_chart:
+                    yield _format_sse("structured_output", {
+                        "kind": "chart",
+                        "payload": corr_chart,
+                        "produced_by": "kabir",
+                    })
+
                 yield _format_sse("agent_complete", {
                     "agent": "kabir",
                     "duration_ms": 350,

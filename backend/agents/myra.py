@@ -51,7 +51,7 @@ async def generate_cluster_personas(
         response = await client.chat.completions.create(
             model=model_id,
             messages=messages,
-            max_tokens=512,
+            max_tokens=4096,
         )
         raw = response.choices[0].message.content or "[]"
         # Strip thinking tags

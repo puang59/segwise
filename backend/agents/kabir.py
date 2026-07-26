@@ -126,12 +126,42 @@ async def run_kabir(state: AgentState) -> AgentState:
     updated["engineered_features"] = engineered
     updated["df_path"] = parquet_path
 
+    # Calculate Pearson Correlation Matrix for Heatmap
+    import numpy as np
+    numeric_df = df.select_dtypes(include=[np.number])
+    correlation_chart = None
+    if not numeric_df.empty:
+        feats_to_corr = [f for f in engineered if f in numeric_df.columns]
+        if len(feats_to_corr) < 6:
+            additional = [c for c in numeric_df.columns if c not in feats_to_corr and not c.endswith('_id')]
+            feats_to_corr.extend(additional[:8 - len(feats_to_corr)])
+        
+        if len(feats_to_corr) > 0:
+            corr_matrix = numeric_df[feats_to_corr].corr().round(2).fillna(0)
+            heatmap_data = []
+            for row_name in feats_to_corr:
+                row_data = {"name": row_name}
+                for col_name in feats_to_corr:
+                    row_data[col_name] = float(corr_matrix.loc[row_name, col_name])
+                heatmap_data.append(row_data)
+
+            correlation_chart = {
+                "id": f"kabir_corr_{conv_id}",
+                "type": "heatmap",
+                "title": "Feature Correlation Matrix",
+                "produced_by": "kabir",
+                "categoryKey": "name",
+                "dataKeys": feats_to_corr,
+                "data": heatmap_data,
+            }
+
     tool_outputs = dict(state.get("tool_outputs") or {})
     tool_outputs["kabir"] = {
         "engineered_features": engineered,
         "df_path": parquet_path,
         "row_count": len(df),
         "feature_summary": feature_summary,
+        "correlation_chart": correlation_chart,
     }
     updated["tool_outputs"] = tool_outputs
 
