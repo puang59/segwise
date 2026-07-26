@@ -52,7 +52,7 @@ export const AGENT_REGISTRY: Record<AgentName, AgentMeta> = {
     name: 'mosaic',
     displayName: 'Mosaic',
     role: 'Segmentation',
-    color: '#7c3aed',
+    color: '#10b981',
     icon: '◈',
     symbol: '◈',
     description: 'Groups customers into actionable segments.',

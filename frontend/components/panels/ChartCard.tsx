@@ -5,6 +5,17 @@ import { AgentAvatar } from '@/components/agent-trace/AgentAvatar';
 import { Maximize2, X } from 'lucide-react';
 import {
   ResponsiveContainer,
+  BarChart as RechartsBarChart,
+  Bar as RechartsBar,
+  XAxis as RechartsXAxis,
+  YAxis as RechartsYAxis,
+  Tooltip as RechartsTooltip,
+  PieChart as RechartsPieChart,
+  Pie as RechartsPie,
+  Cell,
+} from 'recharts';
+
+import {
   BarChart,
   Bar,
   XAxis,
@@ -12,8 +23,8 @@ import {
   Tooltip,
   PieChart,
   Pie,
-  Cell,
-} from 'recharts';
+} from '@/components/dither-kit';
+import { ChartConfig } from '@/components/dither-kit/chart-context';
 
 interface ChartCardProps {
   chartSpec: ChartSpec;
@@ -43,10 +54,40 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
   
   const chartType = chartSpec.type || (chartSpec as any).chart_type;
 
+  const agentColorMap: Record<string, string> = {
+    atlas: 'blue',
+    scout: 'blue',
+    forge: 'purple',
+    mosaic: 'green',
+    prism: 'red',
+    compass: 'orange',
+    quill: 'green',
+    loom: 'pink',
+  };
+  const baseColor = agentColorMap[chartSpec.produced_by] || 'grey';
+  const allDitherColors = ['purple', 'blue', 'green', 'orange', 'red', 'pink', 'grey'] as const;
+  const baseIndex = Math.max(0, allDitherColors.indexOf(baseColor as any));
+  const ditherColors = [
+    ...allDitherColors.slice(baseIndex),
+    ...allDitherColors.slice(0, baseIndex)
+  ];
+
+  const ditherConfig: ChartConfig = {};
+  if (chartType === 'pie') {
+    chartSpec.data.forEach((row, i) => {
+      const name = String(row[categoryKey] || 'Unknown');
+      ditherConfig[name] = { label: name, color: ditherColors[i % ditherColors.length] };
+    });
+  } else {
+    finalDataKeys.forEach((key, i) => {
+      ditherConfig[key] = { label: key, color: ditherColors[i % ditherColors.length] };
+    });
+  }
+
   const renderChartContent = (height: string | number, isModal: boolean) => (
     <div style={{ width: '100%', height }}>
-      <ResponsiveContainer width="100%" height="100%">
         {chartType === 'heatmap' ? (
+          <ResponsiveContainer width="100%" height="100%">
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: `minmax(${isModal ? '120px' : '80px'}, auto) repeat(${finalDataKeys.length}, 1fr)`, 
@@ -131,91 +172,34 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
               </React.Fragment>
             ))}
           </div>
+          </ResponsiveContainer>
         ) : chartType === 'pie' ? (
-          <PieChart>
-            <Pie
-              data={chartSpec.data}
-              dataKey={finalDataKeys[0] || 'value'}
-              nameKey={categoryKey}
-              cx="50%"
-              cy="50%"
-              outerRadius={isModal ? 120 : 65}
-              isAnimationActive={false}
-            >
-              {chartSpec.data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={defaultColors[index % defaultColors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'var(--surface-2)',
-                borderColor: 'var(--border)',
-                color: 'var(--text-primary)',
-                fontSize: '11px',
-                borderRadius: '8px',
-              }}
-            />
+          <PieChart
+            data={chartSpec.data}
+            config={ditherConfig}
+            dataKey={finalDataKeys[0] || 'value'}
+            nameKey={categoryKey}
+            bloom="aura"
+            className="w-full h-full"
+          >
+            <Pie variant="solid" />
+            <Tooltip />
           </PieChart>
-        ) : chartType === 'horizontal_bar' ? (
-          <BarChart data={chartSpec.data} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-            <XAxis type="number" stroke="var(--text-tertiary)" fontSize={isModal ? 12 : 10} tickLine={false} />
-            <YAxis type="category" dataKey={chartSpec.y_key || categoryKey} stroke="var(--text-tertiary)" fontSize={isModal ? 12 : 10} tickLine={false} width={130} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'var(--surface-2)',
-                borderColor: 'var(--border)',
-                color: 'var(--text-primary)',
-                fontSize: '11px',
-                borderRadius: '8px',
-              }}
-            />
-            {finalDataKeys.map((key: string, idx: number) => (
-              <Bar
-                key={key}
-                dataKey={key}
-                fill={defaultColors[idx % defaultColors.length]}
-                radius={[0, 4, 4, 0]}
-                isAnimationActive={false}
-              />
-            ))}
-          </BarChart>
+
         ) : (
-          <BarChart data={chartSpec.data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-            <XAxis
-              dataKey={categoryKey}
-              stroke="var(--text-tertiary)"
-              fontSize={isModal ? 12 : 10}
-              tickLine={false}
-            />
-            <YAxis
-              stroke="var(--text-tertiary)"
-              fontSize={isModal ? 12 : 10}
-              tickLine={false}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'var(--surface-2)',
-                borderColor: 'var(--border)',
-                color: 'var(--text-primary)',
-                fontSize: '11px',
-                borderRadius: '8px',
-              }}
-            />
-            {finalDataKeys.map((key: string, idx: number) => (
+          <BarChart data={chartSpec.data} config={ditherConfig} bloom="aura" className="w-full h-full">
+            <XAxis dataKey={chartType === 'horizontal_bar' && chartSpec.y_key ? chartSpec.y_key : categoryKey} />
+            <YAxis />
+            <Tooltip />
+            {finalDataKeys.map((key: string) => (
               <Bar
                 key={key}
                 dataKey={key}
-                fill={defaultColors[idx % defaultColors.length]}
-                radius={[4, 4, 0, 0]}
-                isAnimationActive={false}
+                variant="gradient"
               />
             ))}
           </BarChart>
         )}
-      </ResponsiveContainer>
     </div>
   );
 
@@ -234,7 +218,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
             <AgentAvatar agent={chartSpec.produced_by || 'forge'} />
             <button
               onClick={() => setIsExpanded(true)}
-              className="p-1 rounded-md bg-surface-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-3 border border-border text-text-secondary"
+              className="p-1 rounded-md bg-surface-2 transition-opacity hover:bg-surface-3 border border-border text-text-secondary"
               title="Expand Chart"
             >
               <Maximize2 className="w-3.5 h-3.5" />
