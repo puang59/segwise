@@ -6,7 +6,7 @@
 
 # Segwise - A Customer Segmentation & Personalization Copilot
 
-🚀 **Live Demo:** [segwise.vontrix.dev](https://segwise.vontrix.dev)
+🚀 **Live Demo:** [http://178.104.13.205:3005](http://178.104.13.205:3005)
 💻 **GitHub Repository:** [puang59/segwise](https://github.com/puang59/segwise)
 
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
