@@ -123,7 +123,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
             title="Toggle Context Panel"
           >
             <PanelRight size={14} />
-            <span>Stats</span>
+            <span>Records</span>
           </button>
         </div>
       </div>

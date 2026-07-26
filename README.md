@@ -15,6 +15,11 @@
 
 An enterprise-grade, multi-agent AI copilot designed for retail banking analytics. Segwise automates exploratory data analysis (EDA), customer segmentation, SHAP feature importance calculation, churn risk breakdown, and personalized product recommendation strategies on high-volume customer databases (800,000+ accounts).
 
+<p align="center">
+  <img src="media/demo1.png" width="49%" />
+  <img src="media/demo2.png" width="49%" />
+</p>
+
 ---
 
 ## System Architecture
@@ -90,16 +95,17 @@ sequenceDiagram
 
 ### Agent Roles & Responsibilities
 
-| Agent Avatar | Name | Role | Responsibilities |
-| :---: | :--- | :--- | :--- |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Atlas&shapeColor=6366f1" width="32" height="32" /> | **Atlas** | Intent & Planning | Parses user query, determines pipeline requirements, handles HITL clarifications. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Scout&shapeColor=0284c7" width="32" height="32" /> | **Scout** | Data Scout | Queries `bank_sqlite.db`, resolves columns, calculates missing values & statistics. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Forge&shapeColor=9333ea" width="32" height="32" /> | **Forge** | Feature Engineer | Computes SHAP feature importance, balance-to-spend ratios, and digital engagement scores. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Mosaic&shapeColor=10b981" width="32" height="32" /> | **Mosaic** | Segmentation Engine | Executes K-Means clustering and business rule-based customer partitioning. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Prism&shapeColor=f43f5e" width="32" height="32" /> | **Prism** | Explainability | Explains segment membership criteria, persona traits, and churn risk factors. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Compass&shapeColor=d97706" width="32" height="32" /> | **Compass** | Recommendations | Identifies upgrade candidates (Regular → Priority) and cross-sell banking products. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Quill&shapeColor=059669" width="32" height="32" /> | **Quill** | PDF Report Generator | Compiles insights into a formal PDF report. |
-| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Loom&shapeColor=be185d" width="32" height="32" /> | **Loom** | Synthesizer | Compiles all agent outputs into formatted markdown, tables, and executive summaries. |
+
+|                                                   Agent Avatar                                                   | Name        | Role                 | Responsibilities                                                                          |
+| :--------------------------------------------------------------------------------------------------------------: | :---------- | :------------------- | :---------------------------------------------------------------------------------------- |
+|  <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Atlas&shapeColor=6366f1" width="32" height="32" />  | **Atlas**   | Intent & Planning    | Parses user query, determines pipeline requirements, handles HITL clarifications.         |
+|  <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Scout&shapeColor=0284c7" width="32" height="32" />  | **Scout**   | Data Scout           | Queries`bank_sqlite.db`, resolves columns, calculates missing values & statistics.        |
+|  <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Forge&shapeColor=9333ea" width="32" height="32" />  | **Forge**   | Feature Engineer     | Computes SHAP feature importance, balance-to-spend ratios, and digital engagement scores. |
+| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Mosaic&shapeColor=10b981" width="32" height="32" /> | **Mosaic**  | Segmentation Engine  | Executes K-Means clustering and business rule-based customer partitioning.                |
+|  <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Prism&shapeColor=f43f5e" width="32" height="32" />  | **Prism**   | Explainability       | Explains segment membership criteria, persona traits, and churn risk factors.             |
+| <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Compass&shapeColor=d97706" width="32" height="32" /> | **Compass** | Recommendations      | Identifies upgrade candidates (Regular → Priority) and cross-sell banking products.      |
+|  <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Quill&shapeColor=059669" width="32" height="32" />  | **Quill**   | PDF Report Generator | Compiles insights into a formal PDF report.                                               |
+|  <img src="https://api.dicebear.com/10.x/shape-grid/svg?seed=Loom&shapeColor=be185d" width="32" height="32" />  | **Loom**    | Synthesizer          | Compiles all agent outputs into formatted markdown, tables, and executive summaries.      |
 
 ---
 
@@ -109,6 +115,9 @@ sequenceDiagram
 - **Client-Side DiceBear Shape-Grid Avatars**: Local Data URI generation (`@dicebear/core` + `@dicebear/shape-grid`) for 0-latency, 100% offline avatar rendering dynamically matched to agent theme colors.
 - **Dynamic Dither-kit Charts**: Implemented `@dither-kit/cli` composable charts that automatically adapt their color palette to match the generating agent (e.g., Forge uses a purple palette, Mosaic uses emerald green).
 - **Real-Time Agent Execution Trace**: Streaming visual feedback with typewriter caret, dot-bounce indicators, and progress shimmers reflecting Live Agent Statuses.
+- **What-If Churn Simulator**: Interactive modal to simulate customer churn risk dynamically using adjustable sliders for digital engagement, recency, and balance trends.
+- **Agent Live Status UI**: Dynamic agent status indicators tracking the step-by-step progress streams of the multi-agent sequential handoff chain.
+- **Responsive Workspace**: Seamlessly toggleable left sidebar and right context panel, offering a highly dynamic and responsive three-column shell architecture.
 - **Context Panel Controls**: Toggleable right panel displaying interactive dithered charts, customer record tables, and PDF export buttons.
 - **Multi-Model Registry**: Hot-swap between state-of-the-art LLMs (Gemini, Llama 3.1 70B) natively through the backend execution envelope.
 - **Human-In-The-Loop (HITL)**: Interactive clarification cards when ambiguous query parameters are encountered.
@@ -161,11 +170,12 @@ cd segwise
 ### Step 2: Backend Setup (FastAPI)
 
 1. Navigate to the backend directory:
+
    ```bash
    cd backend
    ```
-
 2. Create and activate a Python virtual environment:
+
    ```bash
    # On macOS/Linux
    python3 -m venv venv
@@ -175,24 +185,25 @@ cd segwise
    python -m venv venv
    venv\Scripts\activate
    ```
-
 3. Install backend dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
-
 4. Configure Environment Variables:
    Create a `.env` file inside the `backend` folder (optional for default local models):
+
    ```env
    DEEPINFRA_API_KEY=your_deepinfra_api_key_here
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
-
 5. Start the FastAPI development server:
    From the project root directory (`segwise/`):
+
    ```bash
    uvicorn backend.main:app --reload --port 8000
    ```
+
    *(Or if inside the `backend/` directory: `PYTHONPATH=.. uvicorn main:app --reload --port 8000`)*
 
    The backend API will be live at `http://localhost:8000`. Test endpoint docs at `http://localhost:8000/docs`.
@@ -202,19 +213,21 @@ cd segwise
 ### Step 3: Frontend Setup (Next.js 14)
 
 1. Open a new terminal window and navigate to the frontend directory:
+
    ```bash
    cd frontend
    ```
-
 2. Install Node modules:
+
    ```bash
    npm install
    ```
-
 3. Start the Next.js development server:
+
    ```bash
    npm run dev
    ```
+
    The frontend UI will be live at `http://localhost:3000`.
 
 ---
@@ -224,13 +237,18 @@ cd segwise
 Try entering these natural language prompts into the chat input bar:
 
 1. **Customer Segmentation Query**:
+
    > *"Segment retail customers into priority, regular, and dormant tiers based on balance maintained and transaction frequency."*
-
+   >
 2. **Explainability & Persona Query**:
+
    > *"On what basis were priority customers selected and what are their key traits?"*
-
+   >
 3. **Aggregation & EDA Query**:
-   > *"What is the average transaction size and balance for priority vs regular customers?"*
 
+   > *"What is the average transaction size and balance for priority vs regular customers?"*
+   >
 4. **Recommendation & Cross-Sell Query**:
+
    > *"Which regular customers can be converted into priority customers? What strategy should be used?"*
+   >

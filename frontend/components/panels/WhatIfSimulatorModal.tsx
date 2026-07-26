@@ -69,13 +69,10 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ cust
           className="relative w-full max-w-lg bg-surface border border-border shadow-2xl rounded-2xl overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className="px-5 py-4 border-b border-border bg-surface-2 flex items-center justify-between">
+          <div className="px-5 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
-                <Activity size={18} />
-              </div>
               <div>
-                <h2 className="text-[14px] font-semibold text-text-primary m-0">What-If Churn Simulator</h2>
+                <h2 className="text-[14px] font-semibold text-text-primary m-0">Churn Simulator</h2>
                 <p className="text-[11px] text-text-tertiary m-0 font-mono mt-0.5">
                   Customer ID: {customer.customer_id}
                 </p>
@@ -119,7 +116,6 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ cust
                   <span className="text-[11px] text-text-secondary font-medium">Original: {(initialRisk * 100).toFixed(1)}%</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${isHighRisk ? 'bg-red-500' : 'bg-green-500'} shadow-[0_0_8px_currentColor]`} />
                   <span className="text-[11px] text-text-primary font-bold">Simulated Status: {isHighRisk ? 'HIGH RISK' : 'SAFE'}</span>
                 </div>
               </div>
@@ -170,7 +166,7 @@ export const WhatIfSimulatorModal: React.FC<WhatIfSimulatorModalProps> = ({ cust
             </button>
             <button 
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-900 text-white text-xs font-semibold shadow-sm transition-colors flex items-center gap-2"
             >
               <Save size={14} /> Apply Strategy
             </button>
@@ -201,7 +197,7 @@ const SliderControl = ({
         min={min} max={max} step={step} 
         value={value} 
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-1.5 bg-border rounded-lg appearance-none cursor-pointer accent-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+        className="w-full h-1.5 bg-border rounded-lg appearance-none cursor-pointer accent-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500/30"
       />
     </div>
   );

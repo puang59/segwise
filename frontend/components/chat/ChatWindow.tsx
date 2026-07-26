@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { ChatMessage, AgentName, AgentStatus, SegmentSummary } from '@/lib/types';
 import { MessageBlock } from './MessageBlock';
 import { InputBar } from './InputBar';
-import { Brain, Layers, ShieldCheck, Zap, Sparkles } from 'lucide-react';
+import { Brain, Layers, Activity, Package, Radar } from 'lucide-react';
 
 interface ChatWindowProps {
   messages: ChatMessage[];
@@ -33,21 +33,21 @@ const PRESETS = [
     query: 'Segment retail customers into priority, regular, and dormant tiers based on balance and transaction frequency.',
   },
   {
-    Icon: ShieldCheck,
+    Icon: Activity,
     color: '#1a1a18',
     title: 'Churn Risk Breakdown',
     desc: 'Identify dormant account transitions and risk signals using Prism.',
     query: 'Analyze churn risk across customer segments and highlight key warning indicators.',
   },
   {
-    Icon: Zap,
+    Icon: Package,
     color: '#1a1a18',
     title: 'Product Recommendations',
     desc: 'Get Compass recommendation strategies for high-potential customers.',
     query: 'Which regular customers can be transitioned into priority tier accounts?',
   },
   {
-    Icon: Sparkles,
+    Icon: Radar,
     color: '#1a1a18',
     title: 'Forge Feature Radar',
     desc: 'View SHAP feature importance and Forge radar visualization.',
