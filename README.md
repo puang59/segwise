@@ -1,12 +1,11 @@
 <div align="center">
-  <img src="frontend/public/segwise_logo.png" height="50" alt="Segwise" style="vertical-align: middle;" />
-  <span style="font-size: 28px; font-weight: bold; margin: 0 30px; vertical-align: middle; color: #a1a1aa;">×</span>
-  <img src="frontend/public/sg.png" height="50" alt="SG" style="vertical-align: middle;" />
+  <img src="frontend/public/segwise_logo.png" height="65" alt="Segwise" style="vertical-align: middle; margin-right: 15px;" />
+  <img src="frontend/public/sg.png" height="65" alt="SG" style="vertical-align: middle; margin-left: 15px;" />
 </div>
 
 <br />
 
-# Segwise — Customer Segmentation & Personalization Copilot
+# Segwise - A Customer Segmentation & Personalization Copilot
 
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
