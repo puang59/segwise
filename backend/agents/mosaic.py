@@ -1,5 +1,5 @@
 """
-ISHAAN — Agent 4: Segmentation Agent
+MOSAIC — Agent 4: Segmentation Agent
 
 Performs deterministic rule-based segmentation or unsupervised ML clustering.
 Computes evaluation metrics (silhouette, Davies-Bouldin, Calinski-Harabasz).
@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 TEMP_DIR = Path("/tmp")
 
 
-async def run_ishaan(state: AgentState) -> AgentState:
+async def run_mosaic(state: AgentState) -> AgentState:
     """
-    Ishaan agent node for LangGraph.
-    1. Reads df_path from state (Parquet written by Kabir).
+    Mosaic agent node for LangGraph.
+    1. Reads df_path from state (Parquet written by Forge).
     2. Applies rule-based or ML segmentation based on segmentation_method.
     3. Computes segment stats and evaluation metrics.
     4. Writes segment_assignments, segment_stats, evaluation_metrics, cluster_model_path.
@@ -46,12 +46,12 @@ async def run_ishaan(state: AgentState) -> AgentState:
 
     # Skip for non-segmentation intents
     if intent not in ("segment", "transition", "explain"):
-        logger.info(f"[Ishaan] Skipping — intent='{intent}' does not require segmentation.")
+        logger.info(f"[Mosaic] Skipping — intent='{intent}' does not require segmentation.")
         return state
 
     # Load DataFrame from Parquet
     if not df_path or not os.path.exists(df_path):
-        logger.error(f"[Ishaan] Parquet file not found at: {df_path}")
+        logger.error(f"[Mosaic] Parquet file not found at: {df_path}")
         updated = dict(state)
         updated["segment_assignments"] = {}
         updated["segment_stats"] = {}
@@ -60,9 +60,9 @@ async def run_ishaan(state: AgentState) -> AgentState:
 
     try:
         df = pd.read_parquet(df_path, engine="pyarrow")
-        logger.info(f"[Ishaan] Loaded DataFrame: {df.shape}")
+        logger.info(f"[Mosaic] Loaded DataFrame: {df.shape}")
     except Exception as e:
-        logger.error(f"[Ishaan] Failed to load Parquet: {e}")
+        logger.error(f"[Mosaic] Failed to load Parquet: {e}")
         updated = dict(state)
         updated["segment_stats"] = {}
         updated["evaluation_metrics"] = {"error": str(e)}
@@ -101,7 +101,7 @@ async def run_ishaan(state: AgentState) -> AgentState:
 
         # Store candidates in tool_outputs
         tool_outputs = dict(state.get("tool_outputs") or {})
-        tool_outputs["ishaan"] = {
+        tool_outputs["mosaic"] = {
             "intent": intent,
             "method": "transition",
             "segment_stats": stats,
@@ -125,7 +125,7 @@ async def run_ishaan(state: AgentState) -> AgentState:
         if not safe_labels:
             safe_labels = ["priority", "regular", "dormant"]
 
-        logger.info(f"[Ishaan] Rule-based segmentation: {safe_labels}")
+        logger.info(f"[Mosaic] Rule-based segmentation: {safe_labels}")
         assignments, stats = apply_rule_segmentation(df, safe_labels, filters)
 
         # Map customer_id → segment name
@@ -141,7 +141,7 @@ async def run_ishaan(state: AgentState) -> AgentState:
 
     # ── ML clustering ────────────────────────────────────────────────────────
     else:
-        logger.info(f"[Ishaan] ML clustering: method={method}")
+        logger.info(f"[Mosaic] ML clustering: method={method}")
 
         # Prefer engineered features, fallback to numeric columns
         feat_cols = [f for f in engineered_features if f in df.columns]
@@ -159,18 +159,18 @@ async def run_ishaan(state: AgentState) -> AgentState:
         eval_metrics = metrics
 
         # Save model to disk for SHAP access
-        model_fname = f"ishaan_model_{conv_id}.pkl"
+        model_fname = f"mosaic_model_{conv_id}.pkl"
         model_path = str(TEMP_DIR / model_fname)
         try:
             with open(model_path, "wb") as f:
                 pickle.dump({"model": model, "features": feat_cols}, f)
-            logger.info(f"[Ishaan] Saved model to: {model_path}")
+            logger.info(f"[Mosaic] Saved model to: {model_path}")
         except Exception as e:
-            logger.warning(f"[Ishaan] Failed to save model: {e}")
+            logger.warning(f"[Mosaic] Failed to save model: {e}")
             model_path = None
 
     tool_outputs = dict(state.get("tool_outputs") or {})
-    tool_outputs["ishaan"] = {
+    tool_outputs["mosaic"] = {
         "intent": intent,
         "method": method,
         "segment_labels": list(segment_stats.keys()),
@@ -188,9 +188,9 @@ async def run_ishaan(state: AgentState) -> AgentState:
             stats=segment_stats,
             metrics=eval_metrics,
         )
-        logger.info(f"[Ishaan] Cached segmentation results for session {conv_id}")
+        logger.info(f"[Mosaic] Cached segmentation results for session {conv_id}")
     except Exception as e:
-        logger.error(f"[Ishaan] Failed to cache segmentation results: {e}")
+        logger.error(f"[Mosaic] Failed to cache segmentation results: {e}")
 
     updated = dict(state)
     updated["segment_assignments"] = segment_assignments_dict
@@ -206,5 +206,5 @@ async def run_ishaan(state: AgentState) -> AgentState:
         "stats": segment_stats,
     }
 
-    logger.info(f"[Ishaan] Done. Segments: {list(segment_stats.keys())}")
+    logger.info(f"[Mosaic] Done. Segments: {list(segment_stats.keys())}")
     return updated

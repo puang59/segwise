@@ -24,7 +24,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
 
   if (!chartSpec || !chartSpec.data || !Array.isArray(chartSpec.data)) return null;
 
-  const meta = AGENT_REGISTRY[chartSpec.produced_by] || AGENT_REGISTRY['kabir'];
+  const meta = AGENT_REGISTRY[chartSpec.produced_by] || AGENT_REGISTRY['forge'];
   const defaultColors = ['#6366f1', '#0ea5e9', '#a78bfa', '#f97316', '#22c55e', '#f59e0b', '#ec4899'];
 
   const categoryKey =
@@ -231,7 +231,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
         <div className="flex items-center justify-between pb-2 mb-3 border-b border-border text-xs">
           <span className="font-semibold text-text-primary pr-2 truncate">{chartSpec.title || 'Agent Chart'}</span>
           <div className="flex items-center gap-2 shrink-0">
-            <AgentAvatar agent={chartSpec.produced_by || 'kabir'} />
+            <AgentAvatar agent={chartSpec.produced_by || 'forge'} />
             <button
               onClick={() => setIsExpanded(true)}
               className="p-1 rounded-md bg-surface-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-3 border border-border text-text-secondary"
@@ -267,7 +267,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
             >
               <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border bg-surface-2">
                 <div className="flex items-center gap-3">
-                  <AgentAvatar agent={chartSpec.produced_by || 'kabir'} />
+                  <AgentAvatar agent={chartSpec.produced_by || 'forge'} />
                   <h3 className="font-semibold text-lg text-text-primary">
                     {chartSpec.title || 'Detailed Chart View'}
                   </h3>

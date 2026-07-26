@@ -1,5 +1,5 @@
 """
-ADVAIT — Agent 1: Intent Extractor & Planner
+ATLAS — Agent 1: Intent Extractor & Planner
 
 Parses natural-language user queries into a structured QueryPlan using an LLM.
 Handles both reasoning models (DeepSeek R1, QwQ) and structured-output models.
@@ -15,7 +15,7 @@ from typing import Literal, List, Dict, Any
 
 from backend.agents.state import AgentState
 from backend.config import get_llm_client, AVAILABLE_MODELS
-from backend.prompts.advait_prompt import build_advait_messages
+from backend.prompts.atlas_prompt import build_atlas_messages
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # ── QueryPlan Pydantic Schema ────────────────────────────────────────────────
 
 class QueryPlan(BaseModel):
-    """Structured output schema for Advait's intent extraction."""
+    """Structured output schema for Atlas's intent extraction."""
     intent: Literal["eda", "segment", "feature_eng", "explain", "recommend", "aggregate", "transition"]
     agent_plan: List[str] = Field(default_factory=list)
     filters: Dict[str, Any] = Field(default_factory=dict)
@@ -86,8 +86,8 @@ def _parse_query_plan(data: dict) -> QueryPlan:
 async def _call_structured_output(state: AgentState) -> QueryPlan:
     """Call LLM with Pydantic structured output (works for non-reasoning models)."""
     client = get_llm_client(state.get("session_api_key"), is_async=True)
-    model_id = state.get("session_advait_model")
-    messages = build_advait_messages(state["messages"][-1]["content"])
+    model_id = state.get("session_atlas_model")
+    messages = build_atlas_messages(state["messages"][-1]["content"])
 
     try:
         response = await client.beta.chat.completions.parse(
@@ -100,7 +100,7 @@ async def _call_structured_output(state: AgentState) -> QueryPlan:
         if plan is not None:
             return plan
     except Exception as e:
-        logger.warning(f"[Advait] Structured output failed ({e}), falling back to text parse.")
+        logger.warning(f"[Atlas] Structured output failed ({e}), falling back to text parse.")
 
     # Fallback: regular completion + regex JSON extraction
     return await _call_with_text_parse(state)
@@ -109,8 +109,8 @@ async def _call_structured_output(state: AgentState) -> QueryPlan:
 async def _call_with_text_parse(state: AgentState) -> QueryPlan:
     """Call LLM as regular text completion, then extract JSON via regex."""
     client = get_llm_client(state.get("session_api_key"), is_async=True)
-    model_id = state.get("session_advait_model")
-    messages = build_advait_messages(state["messages"][-1]["content"])
+    model_id = state.get("session_atlas_model")
+    messages = build_atlas_messages(state["messages"][-1]["content"])
 
     extra_kwargs = {}
     model_meta = AVAILABLE_MODELS.get(model_id, {})
@@ -138,11 +138,11 @@ async def _call_with_text_parse(state: AgentState) -> QueryPlan:
     if data:
         return _parse_query_plan(data)
 
-    logger.error(f"[Advait] Failed to parse JSON from model output: {raw_text[:500]}")
+    logger.error(f"[Atlas] Failed to parse JSON from model output: {raw_text[:500]}")
     # Return a safe default fallback plan
     return QueryPlan(
         intent="eda",
-        agent_plan=["vihaan", "myra"],
+        agent_plan=["scout", "loom"],
         filters={},
         segmentation_method=None,
         segment_label_hints=[],
@@ -151,18 +151,18 @@ async def _call_with_text_parse(state: AgentState) -> QueryPlan:
     )
 
 
-# ── Main Advait Node ─────────────────────────────────────────────────────────
+# ── Main Atlas Node ─────────────────────────────────────────────────────────
 
-async def run_advait(state: AgentState) -> AgentState:
+async def run_atlas(state: AgentState) -> AgentState:
     """
-    Advait agent node for LangGraph.
+    Atlas agent node for LangGraph.
     Extracts intent from the latest user message, populates state with QueryPlan fields.
     """
-    model_id = state.get("session_advait_model", "")
+    model_id = state.get("session_atlas_model", "")
     model_meta = AVAILABLE_MODELS.get(model_id, {})
     is_reasoning_model = model_meta.get("reasoning", False)
 
-    logger.info(f"[Advait] Running with model={model_id}, reasoning={is_reasoning_model}")
+    logger.info(f"[Atlas] Running with model={model_id}, reasoning={is_reasoning_model}")
 
     # Reasoning models: use text parse to avoid structured output incompatibility
     if is_reasoning_model:
@@ -170,7 +170,7 @@ async def run_advait(state: AgentState) -> AgentState:
     else:
         plan = await _call_structured_output(state)
 
-    logger.info(f"[Advait] QueryPlan: intent={plan.intent}, method={plan.segmentation_method}, "
+    logger.info(f"[Atlas] QueryPlan: intent={plan.intent}, method={plan.segmentation_method}, "
                 f"clarification={plan.clarification_needed}")
 
     # Write plan results into state
@@ -185,7 +185,7 @@ async def run_advait(state: AgentState) -> AgentState:
 
     # Store in tool_outputs for trace
     tool_outputs = dict(state.get("tool_outputs") or {})
-    tool_outputs["advait"] = {
+    tool_outputs["atlas"] = {
         "intent": plan.intent,
         "agent_plan": plan.agent_plan,
         "filters": plan.filters,

@@ -4,7 +4,7 @@
 
 This master plan provides a granular, deterministic breakdown of every task and subtask required to build the **Customer Segmentation & Personalization Agent**. The system is an end-to-end AI-powered analytics copilot for retail banking that operates directly on `/datasets/bank_sqlite.db` (50k customer profiles, 1M transactions, 75k accounts, 9 tables) and routes queries through a **sequential 7-agent handoff chain (LangGraph)**.
 
-All numerical computations, feature engineering, clustering, explainability calculations, and recommendation rankings are executed in **pure Python** (Pandas/NumPy/Scikit-learn/SHAP/SQLite3). The LLM is restricted exclusively to intent extraction (Advait) and narrative response synthesis (Myra).
+All numerical computations, feature engineering, clustering, explainability calculations, and recommendation rankings are executed in **pure Python** (Pandas/NumPy/Scikit-learn/SHAP/SQLite3). The LLM is restricted exclusively to intent extraction (Atlas) and narrative response synthesis (Loom).
 
 ---
 
@@ -27,25 +27,25 @@ User Query (Natural Language)
 ┌──────────────────────────────────────▼──────────────────────────────────────┐
 │                    LangGraph Agent Handoff Chain (Sequential)               │
 │                                                                             │
-│  1. ADVAIT (Intent Extractor - LLM)                                         │
+│  1. ATLAS (Intent Extractor - LLM)                                         │
 │     Parses NL query → QueryPlan (intent, agent_plan, filters, HITL flag)    │
 │                                                                             │
-│  2. VIHAAN (Data Scout - Pure Python)                                       │
+│  2. SCOUT (Data Scout - Pure Python)                                       │
 │     Scouts bank_sqlite.db table schemas → resolves columns & metadata       │
 │                                                                             │
-│  3. KABIR (Feature Engineer - Pure Python)                                  │
+│  3. FORGE (Feature Engineer - Pure Python)                                  │
 │     Loads features from customer_profile in SQLite → calculates derived     │
 │                                                                             │
-│  4. ISHAAN (Segmentation Agent - Pure Python)                               │
+│  4. MOSAIC (Segmentation Agent - Pure Python)                               │
 │     Rule-based (RULE_TEMPLATES) OR ML-based (KMeans auto-k / HDBSCAN / GMM) │
 │                                                                             │
-│  5. AADHYA (Explainability Agent - Pure Python / SHAP)                      │
+│  5. PRISM (Explainability Agent - Pure Python / SHAP)                      │
 │     Tier 1: Cluster-level batch SHAP (500 sample) | Tier 2: Per-customer    │
 │                                                                             │
-│  6. SAANVI (Recommendation Agent - Pure Python Rule Engine)                 │
+│  6. COMPASS (Recommendation Agent - Pure Python Rule Engine)                 │
 │     Evaluates PRODUCT_RULES engine per segment & ranks recommendations      │
 │                                                                             │
-│  7. MYRA (Response Synthesizer - LLM)                                       │
+│  7. LOOM (Response Synthesizer - LLM)                                       │
 │     Streams narrative response + names ML personas + emits chart specs      │
 └──────────────────────────────────────┬──────────────────────────────────────┘
                                        │
@@ -112,7 +112,7 @@ User Query (Natural Language)
      - DeepSeek: `deepseek-ai/DeepSeek-R1` (reasoning=True), `deepseek-ai/DeepSeek-R1-Distill-Llama-70B` (reasoning=True), `deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` (reasoning=True), `deepseek-ai/DeepSeek-V3`.
      - Qwen: `Qwen/QwQ-32B` (reasoning=True), `Qwen/Qwen2.5-72B-Instruct`, `Qwen/Qwen2.5-32B-Instruct`.
      - Mistral & Microsoft: `mistralai/Mistral-Small-24B-Instruct-2501`, `microsoft/phi-4`.
-  2. Set default model constants: `DEFAULT_MODEL = "google/gemini-3.5-flash"`, `DEFAULT_ADV_MODEL = "google/gemini-3.1-flash-lite"`, `DEFAULT_MYRA_MODEL = "google/gemini-3.1-pro"`.
+  2. Set default model constants: `DEFAULT_MODEL = "google/gemini-3.5-flash"`, `DEFAULT_ADV_MODEL = "google/gemini-3.1-flash-lite"`, `DEFAULT_LOOM_MODEL = "google/gemini-3.1-pro"`.
   3. Implement `get_llm_client(api_key: Optional[str])` helper function that connects to `https://api.deepinfra.com/v1/openai` using user API key or environment fallback.
 
 #### Task 1.2: Agent State Envelope Definition
@@ -120,14 +120,14 @@ User Query (Natural Language)
 * **Objective**: Define the rigid `AgentState` TypedDict used as the state pass-through envelope in LangGraph.
 * **Subtasks**:
   1. Implement `AgentState` TypedDict containing:
-     - Session: `messages`, `conversation_id`, `session_advait_model`, `session_myra_model`, `session_api_key`.
-     - Advait outputs: `intent`, `agent_plan`, `filters`, `segmentation_method`, `segment_label_hints`, `clarification_needed`, `clarification_question`.
-     - Vihaan outputs: `resolved_columns`, `row_count`, `dataset_summary`.
-     - Kabir outputs: `engineered_features`, `df_path`.
-     - Ishaan outputs: `segment_assignments`, `segment_stats`, `cluster_model_path`, `evaluation_metrics`.
-     - Aadhya outputs: `segment_shap`, `explanations`.
-     - Saanvi outputs: `recommendations`.
-     - Myra outputs: `narrative`, `follow_up_chips`, `chart_specs`.
+     - Session: `messages`, `conversation_id`, `session_atlas_model`, `session_loom_model`, `session_api_key`.
+     - Atlas outputs: `intent`, `agent_plan`, `filters`, `segmentation_method`, `segment_label_hints`, `clarification_needed`, `clarification_question`.
+     - Scout outputs: `resolved_columns`, `row_count`, `dataset_summary`.
+     - Forge outputs: `engineered_features`, `df_path`.
+     - Mosaic outputs: `segment_assignments`, `segment_stats`, `cluster_model_path`, `evaluation_metrics`.
+     - Prism outputs: `segment_shap`, `explanations`.
+     - Compass outputs: `recommendations`.
+     - Loom outputs: `narrative`, `follow_up_chips`, `chart_specs`.
      - Cross-turn memory: `current_segments`, `tool_outputs`.
 
 #### Task 1.3: Chain-of-Thinking Stream Extractor
@@ -155,13 +155,13 @@ User Query (Natural Language)
 * **Target File**: `backend/agents/graph.py`
 * **Objective**: Construct the sequential multi-agent execution graph that enforces strict agent handoffs.
 * **Subtasks**:
-  1. Define LangGraph nodes for each named agent: `advait_node`, `vihaan_node`, `kabir_node`, `ishaan_node`, `aadhya_node`, `saanvi_node`, `myra_node`.
-  2. Build sequential graph edges: `START` $\rightarrow$ `advait` $\rightarrow$ `vihaan` $\rightarrow$ `kabir` $\rightarrow$ `ishaan` $\rightarrow$ `aadhya` $\rightarrow$ `saanvi` $\rightarrow$ `myra` $\rightarrow$ `END`.
-  3. Implement dynamic agent skipping edge logic (`router_step`): If `agent_plan` in `AgentState` omits an agent (e.g. `intent == "eda"` omits Ishaan, Aadhya, Saanvi), automatically pass state directly to the next scheduled agent in `agent_plan`.
+  1. Define LangGraph nodes for each named agent: `atlas_node`, `scout_node`, `forge_node`, `mosaic_node`, `prism_node`, `compass_node`, `loom_node`.
+  2. Build sequential graph edges: `START` $\rightarrow$ `atlas` $\rightarrow$ `scout` $\rightarrow$ `forge` $\rightarrow$ `mosaic` $\rightarrow$ `prism` $\rightarrow$ `compass` $\rightarrow$ `loom` $\rightarrow$ `END`.
+  3. Implement dynamic agent skipping edge logic (`router_step`): If `agent_plan` in `AgentState` omits an agent (e.g. `intent == "eda"` omits Mosaic, Prism, Compass), automatically pass state directly to the next scheduled agent in `agent_plan`.
   4. Implement Human-in-the-Loop interrupt condition: If `state['clarification_needed'] == True`, halt graph execution and yield control to the API caller.
 
-#### Task 2.2: Agent 1 — ADVAIT (Intent Extractor & Planner)
-* **Target Files**: `backend/agents/advait.py` & `backend/prompts/advait_prompt.py`
+#### Task 2.2: Agent 1 — ATLAS (Intent Extractor & Planner)
+* **Target Files**: `backend/agents/atlas.py` & `backend/prompts/atlas_prompt.py`
 * **Objective**: Parse natural language user queries into structured `QueryPlan` JSON using an LLM.
 * **Subtasks**:
   1. Define Pydantic schema `QueryPlan`:
@@ -172,14 +172,14 @@ User Query (Natural Language)
      - `segment_label_hints`: `List[str]`
      - `clarification_needed`: `bool`
      - `clarification_question`: `Optional[str]`
-  2. Construct `ADVAIT_PROMPT` with 10 few-shot examples mapping ambiguous/unstructured user queries to target JSON structures.
+  2. Construct `ATLAS_PROMPT` with 10 few-shot examples mapping ambiguous/unstructured user queries to target JSON structures.
   3. Implement dual handling for reasoning vs structured models:
      - Non-reasoning models: Call API with `response_format=QueryPlan`.
      - Reasoning models (DeepSeek R1): Extract JSON block from output using regex after thinking block completes.
   4. Handle HITL logic: If user query specifies ambiguous segment rules (e.g., "segment by VIP"), set `clarification_needed=True` and generate prompt question.
 
-#### Task 2.3: Agent 2 — VIHAAN (Data Scout)
-* **Target Files**: `backend/agents/vihaan.py` & `backend/tools/column_resolver.py`
+#### Task 2.3: Agent 2 — SCOUT (Data Scout)
+* **Target Files**: `backend/agents/scout.py` & `backend/tools/column_resolver.py`
 * **Objective**: Inspect `bank_sqlite.db` schemas via `PRAGMA table_info` and resolve required column names deterministically based on intent.
 * **Subtasks**:
   1. Implement `COLUMN_MAP` dictionary linking feature intent keywords (e.g., "balance", "recency", "churn", "transactions") to explicit columns in `customer_profile`, `accounts_summary`, `transactions`, `cards`, and `loans`.
@@ -187,8 +187,8 @@ User Query (Natural Language)
   3. Compute dataset health summary: Table row count, null percentage for resolved columns, data types, min/max bounds.
   4. Write `resolved_columns`, `row_count`, and `dataset_summary` into `AgentState`.
 
-#### Task 2.4: Agent 3 — KABIR (Feature Engineer)
-* **Target Files**: `backend/agents/kabir.py` & `backend/tools/feature_engineering.py`
+#### Task 2.4: Agent 3 — FORGE (Feature Engineer)
+* **Target Files**: `backend/agents/forge.py` & `backend/tools/feature_engineering.py`
 * **Objective**: Load features from `customer_profile` in `bank_sqlite.db` or compute derived features via SQL / Pandas on demand.
 * **Subtasks**:
   1. Create `FEATURE_REGISTRY` mapping feature names to pure Python vector functions:
@@ -198,10 +198,10 @@ User Query (Natural Language)
      - `savings_ratio`, `credit_utilization`, `recency_score`, `balance_trend`.
   2. Read `resolved_columns` directly from `customer_profile` table in `bank_sqlite.db` into Pandas DataFrame.
   3. Execute required feature transformations from `FEATURE_REGISTRY`.
-  4. Save processed DataFrame to temporary Parquet file (`/tmp/kabir_features_{conv_id}.parquet`) and update `AgentState` with `df_path` and `engineered_features`.
+  4. Save processed DataFrame to temporary Parquet file (`/tmp/forge_features_{conv_id}.parquet`) and update `AgentState` with `df_path` and `engineered_features`.
 
-#### Task 2.5: Agent 4 — ISHAAN (Segmentation Agent)
-* **Target Files**: `backend/agents/ishaan.py`, `backend/tools/segmentation.py`, `backend/models/clustering.py`
+#### Task 2.5: Agent 4 — MOSAIC (Segmentation Agent)
+* **Target Files**: `backend/agents/mosaic.py`, `backend/tools/segmentation.py`, `backend/models/clustering.py`
 * **Objective**: Perform deterministic rule-based segmentation or unsupervised ML clustering with evaluation metrics.
 * **Subtasks**:
   1. Implement Rule-Based Engine (`RULE_TEMPLATES`):
@@ -216,8 +216,8 @@ User Query (Natural Language)
   3. Compute Evaluation Metrics: Silhouette Score, Davies-Bouldin Index, Calinski-Harabasz Score, cluster size distribution.
   4. Update `AgentState` with `segment_assignments`, `segment_stats`, and `evaluation_metrics`.
 
-#### Task 2.6: Agent 5 — AADHYA (Explainability Agent)
-* **Target Files**: `backend/agents/aadhya.py` & `backend/tools/explainability.py`
+#### Task 2.6: Agent 5 — PRISM (Explainability Agent)
+* **Target Files**: `backend/agents/prism.py` & `backend/tools/explainability.py`
 * **Objective**: Compute SHAP values for ML clusters and detailed rule traces for rule-based segments.
 * **Subtasks**:
   1. Implement Tier 1 Batch SHAP (Cluster-level):
@@ -229,8 +229,8 @@ User Query (Natural Language)
   3. Implement Rule Trace Inspector for rule-based mode:
      - Return exact threshold evaluations (e.g. `avg_balance: 142,000 > 100,000 [TRUE]`) per customer.
 
-#### Task 2.7: Agent 6 — SAANVI (Recommendation Agent)
-* **Target Files**: `backend/agents/saanvi.py` & `backend/tools/recommendation.py`
+#### Task 2.7: Agent 6 — COMPASS (Recommendation Agent)
+* **Target Files**: `backend/agents/compass.py` & `backend/tools/recommendation.py`
 * **Objective**: Match segment profiles and customer financial signals against banking product rules.
 * **Subtasks**:
   1. Construct `PRODUCT_RULES` registry:
@@ -252,12 +252,12 @@ User Query (Natural Language)
   4. Perform `gap_analysis`: Compute specific metric delta required per candidate (e.g., Needs $+₹23,400$ average balance, $+6$ txns/month).
   5. Return top 50 transition candidates with gap details.
 
-#### Task 2.9: Agent 7 — MYRA (Response Synthesizer & Persona Naming)
-* **Target Files**: `backend/agents/myra.py`, `backend/prompts/myra_persona_prompt.py`, `backend/prompts/myra_response_prompt.py`
+#### Task 2.9: Agent 7 — LOOM (Response Synthesizer & Persona Naming)
+* **Target Files**: `backend/agents/loom.py`, `backend/prompts/loom_persona_prompt.py`, `backend/prompts/loom_response_prompt.py`
 * **Objective**: Synthesize all agent outputs into a polished narrative, generate persona names for ML clusters, emit chart specs, and produce follow-up chips.
 * **Subtasks**:
   1. Implement ML Persona Generator: Pass cluster feature statistics to LLM to create human titles (e.g. "Digital Young Professional", "Dormant Saver") with taglines.
-  2. Construct `MYRA_RESPONSE_PROMPT`: Direct LLM to stream markdown narrative based solely on Python results in `AgentState` (LLM does no arithmetic).
+  2. Construct `LOOM_RESPONSE_PROMPT`: Direct LLM to stream markdown narrative based solely on Python results in `AgentState` (LLM does no arithmetic).
   3. Implement SSE event generation for narrative text streaming and chain-of-thought thinking chunks.
   4. Generate 3-4 context-aware follow-up suggestion chips.
   5. Output standard Plotly chart JSON specifications for visual rendering.
@@ -278,10 +278,10 @@ User Query (Natural Language)
 * **Target File**: `backend/routers/chat.py`
 * **Objective**: Implement `POST /chat` streaming endpoint using Server-Sent Events (SSE).
 * **Subtasks**:
-  1. Define request model `ChatRequest(message: str, conversation_id: str, advait_model: Optional[str], myra_model: Optional[str], api_key: Optional[str])`.
+  1. Define request model `ChatRequest(message: str, conversation_id: str, atlas_model: Optional[str], loom_model: Optional[str], api_key: Optional[str])`.
   2. Implement SSE Event Schema dispatcher yielding structured events:
      - `model_info`: `{"model_id": ..., "display": ..., "reasoning": ...}`
-     - `agent_start`: `{"agent": "advait", "role": "Intent"}`
+     - `agent_start`: `{"agent": "atlas", "role": "Intent"}`
      - `intent_detected`: `{"intent": "segment", "agent_plan": [...]}`
      - `columns_resolved`: `{"columns": [...], "row_count": 823411}`
      - `tool_start` / `tool_progress` / `tool_complete` / `tool_error`
@@ -298,8 +298,8 @@ User Query (Natural Language)
 * **Objective**: Provide endpoints to query available LLM models and switch active session models.
 * **Subtasks**:
   1. `GET /models`: Return full `AVAILABLE_MODELS` list grouped by provider.
-  2. `GET /models/recommended`: Return recommended defaults (`advait`: Flash Lite/Llama 8B, `myra`: Gemini 3.1 Pro/Llama 70B).
-  3. `POST /models/select`: Update model selection for session (`scope`: `both` | `advait` | `myra`).
+  2. `GET /models/recommended`: Return recommended defaults (`atlas`: Flash Lite/Llama 8B, `loom`: Gemini 3.1 Pro/Llama 70B).
+  3. `POST /models/select`: Update model selection for session (`scope`: `both` | `atlas` | `loom`).
   4. `GET /models/current`: Return currently active models for session.
 
 #### Task 3.4: Segments & Customer Data API Endpoints
@@ -322,7 +322,7 @@ User Query (Natural Language)
      - Section 3: Data Overview (row counts, null summary).
      - Section 4: EDA Findings (embedded Plotly chart images).
      - Section 5: Customer Segments (persona profiles & radar charts).
-     - Section 6: Cross-sell Opportunities (Saanvi recommendations).
+     - Section 6: Cross-sell Opportunities (Compass recommendations).
      - Section 7: Retention Strategies.
      - Section 8: Transition Candidates (Top 20 candidates table).
      - Section 9: Methodology & Model Evaluation metrics.
@@ -344,13 +344,13 @@ User Query (Natural Language)
 * **Subtasks**:
   1. Configure base color tokens: `--bg: #0a0a0a`, `--surface: #111111`, `--surface-2: #1a1a1a`, `--surface-3: #222222`, `--border: rgba(255,255,255,0.06)`, `--text-primary: #f0f0f0`.
   2. Configure Agent Identity Color Tokens:
-     - `--agent-advait: #6366f1` (Indigo - Intent)
-     - `--agent-vihaan: #0ea5e9` (Sky - Data Scout)
-     - `--agent-kabir: #a78bfa` (Violet - Features)
-     - `--agent-ishaan: #f97316` (Orange - Segmentation)
-     - `--agent-aadhya: #22c55e` (Green - Explainability)
-     - `--agent-saanvi: #f59e0b` (Amber - Recommendations)
-     - `--agent-myra: #ec4899` (Pink - Response Synthesis)
+     - `--agent-atlas: #6366f1` (Indigo - Intent)
+     - `--agent-scout: #0ea5e9` (Sky - Data Scout)
+     - `--agent-forge: #a78bfa` (Violet - Features)
+     - `--agent-mosaic: #f97316` (Orange - Segmentation)
+     - `--agent-prism: #22c55e` (Green - Explainability)
+     - `--agent-compass: #f59e0b` (Amber - Recommendations)
+     - `--agent-loom: #ec4899` (Pink - Response Synthesis)
   3. Define custom cubic-bezier easings:
      - `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`
      - `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`
@@ -385,28 +385,28 @@ User Query (Natural Language)
 * **Objective**: Enable model selection per agent role and custom API key configuration.
 * **Subtasks**:
   1. `ModelSwitcher.tsx`: Sidebar dropdown component with origin-aware open animation (`scale: 0.97->1, opacity: 0->1`).
-  2. Dual Model Selectors: Allow distinct model picking for Advait (Fast intent parsing, e.g. Gemini 3.1 Flash Lite) vs Myra (Rich narrative, e.g. Gemini 3.1 Pro).
+  2. Dual Model Selectors: Allow distinct model picking for Atlas (Fast intent parsing, e.g. Gemini 3.1 Flash Lite) vs Loom (Rich narrative, e.g. Gemini 3.1 Pro).
   3. Model Speed Badges: Color-coded pills (`fastest`=green, `fast`=indigo, `medium`=amber, `slow`=red).
   4. API Key Masked Input: Inline toggle to enter personal DeepInfra API key or default to server key.
-  5. `ModelBadge.tsx`: Display active model in chat header (`✦ Myra · Gemini 3.1 Pro`). Click opens Model Switcher.
+  5. `ModelBadge.tsx`: Display active model in chat header (`✦ Loom · Gemini 3.1 Pro`). Click opens Model Switcher.
 
 #### Task 5.3: Chat Window, Message Blocks & HITL Card
 * **Target Files**: `frontend/components/chat/ChatWindow.tsx`, `MessageBlock.tsx`, `SegmentTable.tsx`, `HitlCard.tsx`, `FollowUpChips.tsx`, `InputBar.tsx`
 * **Objective**: Render full-width document message blocks, dynamic data tables, HITL prompts, and interactive chips.
 * **Subtasks**:
-  1. `MessageBlock.tsx`: Full-width document block with attribution header (`✦ Myra · Llama 3.1 70B`). Animate entrance (`opacity: 0->1, y: 12->0`, 240ms `ease-out`). Render markdown text using `react-markdown`.
+  1. `MessageBlock.tsx`: Full-width document block with attribution header (`✦ Loom · Llama 3.1 70B`). Animate entrance (`opacity: 0->1, y: 12->0`, 240ms `ease-out`). Render markdown text using `react-markdown`.
   2. `SegmentTable.tsx`: Styled interactive table showing segment distribution, customer counts, average balance, transaction frequency, and color-coded status dots.
-  3. `HitlCard.tsx`: Render clarification prompt when `clarification_needed == True`. Header displays `◆ Advait needs input` in indigo. Render choice buttons and custom text response field. Selection triggers immediate message dispatch and card fade-out (`opacity: 1->0`).
+  3. `HitlCard.tsx`: Render clarification prompt when `clarification_needed == True`. Header displays `◆ Atlas needs input` in indigo. Render choice buttons and custom text response field. Selection triggers immediate message dispatch and card fade-out (`opacity: 1->0`).
   4. `FollowUpChips.tsx`: Render horizontally scrolling suggestion chips with staggered entry (`delay: i * 30ms`). Click fills input bar and submits query.
-  5. `InputBar.tsx`: Chat input field featuring active agent indicator pill (`◆ Advait` $\rightarrow$ `◉ Vihaan` $\rightarrow$ `⟳ Ishaan` $\rightarrow$ `✦ Myra`) updating dynamically as SSE events arrive.
+  5. `InputBar.tsx`: Chat input field featuring active agent indicator pill (`◆ Atlas` $\rightarrow$ `◉ Scout` $\rightarrow$ `⟳ Mosaic` $\rightarrow$ `✦ Loom`) updating dynamically as SSE events arrive.
 
 #### Task 5.4: Context Panel & Segment Detail Slide-Over
 * **Target Files**: `frontend/components/panels/ContextPanel.tsx`, `ChartCard.tsx`, `SegmentDetailPanel.tsx`
 * **Objective**: Display real-time Plotly charts, data tables, PDF generation status, and segment drill-down drawer.
 * **Subtasks**:
   1. `ContextPanel.tsx`: Tabbed panel holding **Charts**, **Data**, and **Report** tabs.
-  2. `ChartCard.tsx`: Embed Plotly charts rendered from agent `chart_specs`. Force `isAnimationActive={false}` on charts to prevent internal chart decoration jumps. Show producing agent header (e.g. `⬡ Kabir's feature distribution`).
-  3. `SegmentDetailPanel.tsx`: Slide-over drawer (`x: 40->0, opacity: 0->1`, 280ms `--ease-drawer`) presenting segment deep-dive: Persona title, tagline, key metrics grid, attribute radar chart, Saanvi product recommendations list, and candidate transition table.
+  2. `ChartCard.tsx`: Embed Plotly charts rendered from agent `chart_specs`. Force `isAnimationActive={false}` on charts to prevent internal chart decoration jumps. Show producing agent header (e.g. `⬡ Forge's feature distribution`).
+  3. `SegmentDetailPanel.tsx`: Slide-over drawer (`x: 40->0, opacity: 0->1`, 280ms `--ease-drawer`) presenting segment deep-dive: Persona title, tagline, key metrics grid, attribute radar chart, Compass product recommendations list, and candidate transition table.
   4. Report Tab: "Generate PDF Report" button with loading spinner state transformation.
 
 #### Task 5.5: Shared State, Types & Notifications
@@ -432,8 +432,8 @@ User Query (Natural Language)
 * **Target File**: `backend/tests/test_agents.py`
 * **Objective**: Validate end-to-end execution for three primary query patterns.
 * **Subtasks**:
-  1. Test Query 1 ("Segment customers into priority, regular and dormant"): Verify Advait selects `intent="segment"`, `method="rule"`, Vihaan loads columns, Kabir computes features, Ishaan applies rules, Saanvi recommends products, Myra synthesizes narrative.
-  2. Test Query 2 ("On what basis were priority customers selected?"): Verify Advait selects `intent="explain"`, Aadhya returns rule definitions, Myra streams explanation.
+  1. Test Query 1 ("Segment customers into priority, regular and dormant"): Verify Atlas selects `intent="segment"`, `method="rule"`, Scout loads columns, Forge computes features, Mosaic applies rules, Compass recommends products, Loom synthesizes narrative.
+  2. Test Query 2 ("On what basis were priority customers selected?"): Verify Atlas selects `intent="explain"`, Prism returns rule definitions, Loom streams explanation.
   3. Test Query 3 ("Which regular customers can become priority customers?"): Verify transition predictor returns top 50 candidates with valid `gap_analysis` metrics.
 
 #### Task 6.3: Clustering Model Evaluation Benchmarks
@@ -486,14 +486,14 @@ User Query (Natural Language)
 | **1.3** | Thinking Stream | `backend/agents/thinking.py` | 1.1 | Pure Python |
 | **1.4** | Database | `backend/db/database.py`, `models.py` | 0.1 | SQLite DB |
 | **2.1** | LangGraph Chain | `backend/agents/graph.py` | 1.2 | Orchestration |
-| **2.2** | Agent 1: Advait | `backend/agents/advait.py`, `prompts/` | 1.1, 2.1 | **LLM (Structured / Reasoning)** |
-| **2.3** | Agent 2: Vihaan | `backend/agents/vihaan.py`, `tools/` | 0.4, 2.1 | **Pure Python** |
-| **2.4** | Agent 3: Kabir | `backend/agents/kabir.py`, `tools/` | 2.3 | **Pure Python** |
-| **2.5** | Agent 4: Ishaan | `backend/agents/ishaan.py`, `models/` | 2.4 | **Pure Python** |
-| **2.6** | Agent 5: Aadhya | `backend/agents/aadhya.py`, `tools/` | 2.5 | **Pure Python (SHAP)** |
-| **2.7** | Agent 6: Saanvi | `backend/agents/saanvi.py`, `tools/` | 2.5 | **Pure Python (Rule Engine)** |
+| **2.2** | Agent 1: Atlas | `backend/agents/atlas.py`, `prompts/` | 1.1, 2.1 | **LLM (Structured / Reasoning)** |
+| **2.3** | Agent 2: Scout | `backend/agents/scout.py`, `tools/` | 0.4, 2.1 | **Pure Python** |
+| **2.4** | Agent 3: Forge | `backend/agents/forge.py`, `tools/` | 2.3 | **Pure Python** |
+| **2.5** | Agent 4: Mosaic | `backend/agents/mosaic.py`, `models/` | 2.4 | **Pure Python** |
+| **2.6** | Agent 5: Prism | `backend/agents/prism.py`, `tools/` | 2.5 | **Pure Python (SHAP)** |
+| **2.7** | Agent 6: Compass | `backend/agents/compass.py`, `tools/` | 2.5 | **Pure Python (Rule Engine)** |
 | **2.8** | Transition Tool | `backend/tools/segmentation.py` | 2.5 | **Pure Python** |
-| **2.9** | Agent 7: Myra | `backend/agents/myra.py`, `prompts/` | 2.2..2.8 | **LLM (Narrative & Personas)** |
+| **2.9** | Agent 7: Loom | `backend/agents/loom.py`, `prompts/` | 2.2..2.8 | **LLM (Narrative & Personas)** |
 | **3.1** | FastAPI Core | `backend/main.py` | 0.1 | API Framework |
 | **3.2** | SSE Chat Endpoint | `backend/routers/chat.py` | 2.1, 1.3 | Streaming HTTP |
 | **3.3** | Model Switcher API | `backend/routers/models.py` | 1.1 | REST API |

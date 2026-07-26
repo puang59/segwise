@@ -1,5 +1,5 @@
 """
-Column Resolver Tool for Vihaan (Data Scout Agent).
+Column Resolver Tool for Scout (Data Scout Agent).
 
 Maps intent keywords and feature hints to actual SQLite column names via PRAGMA table_info.
 Computes dataset health summary: null rates, dtypes, min/max bounds.

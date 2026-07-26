@@ -14,7 +14,7 @@ interface TraceStreamProps {
 }
 
 // The canonical ordered pipeline — always shown in full
-const PIPELINE: AgentName[] = ['advait', 'vihaan', 'ishaan', 'kabir', 'saanvi', 'aanav', 'myra'];
+const PIPELINE: AgentName[] = ['atlas', 'scout', 'mosaic', 'forge', 'compass', 'quill', 'loom'];
 
 // Derive status for each agent from the current traceItems array
 function getAgentStatus(agent: AgentName, traceItems: AgentTraceItem[]): 'queued' | 'running' | 'done' | 'error' {
@@ -199,36 +199,7 @@ export const TraceStream: React.FC<TraceStreamProps> = ({
           })}
         </div>
 
-        {/* ── Live ticker ── */}
-        <AnimatePresence mode="wait">
-          {liveStatusText && (
-            <motion.div
-              key={liveStatusText}
-              initial={{ opacity: 0, y: 3 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.14 }}
-              style={{
-                marginTop: 10, paddingTop: 8,
-                borderTop: '1px solid rgba(0,0,0,0.05)',
-                display: 'flex', alignItems: 'center', gap: 7,
-              }}
-            >
-              <span style={{
-                width: 5, height: 5, borderRadius: '50%',
-                background: '#0ea5e9', flexShrink: 0,
-                boxShadow: '0 0 5px rgba(14,165,233,0.5)',
-              }} />
-              <span style={{
-                fontSize: 10.5, color: '#0ea5e9',
-                fontFamily: 'var(--font-mono)',
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              }}>
-                {liveStatusText}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
 
         <style>{`
           @keyframes liveRingPulse {

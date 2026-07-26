@@ -55,42 +55,42 @@ Rather than a single prompt-response LLM, Segwise deploys a **7-agent specialize
 sequenceDiagram
     autonumber
     actor User
-    participant Advait as 1. Advait (Intent Router)
-    participant Vihaan as 2. Vihaan (Data Scout)
-    participant Kabir as 3. Kabir (Feature Eng)
-    participant Ishaan as 4. Ishaan (Segmentation)
-    participant Aadhya as 5. Aadhya (Explainability)
-    participant Saanvi as 6. Saanvi (Recommendations)
-    participant Myra as 7. Myra (Synthesizer)
+    participant Atlas as 1. Atlas (Intent Router)
+    participant Scout as 2. Scout (Data Scout)
+    participant Forge as 3. Forge (Feature Eng)
+    participant Mosaic as 4. Mosaic (Segmentation)
+    participant Prism as 5. Prism (Explainability)
+    participant Compass as 6. Compass (Recommendations)
+    participant Loom as 7. Loom (Synthesizer)
 
-    User->>Advait: "Segment retail customers into priority, regular, & dormant"
-    Note over Advait: Parses query, extracts intent, plans agent pipeline
-    Advait->>Vihaan: Execute EDA on customer balances & transactions
-    Vihaan->>DB: SQL Query (bank_sqlite.db)
-    DB-->>Vihaan: Raw customer records & summary stats
-    Vihaan-->>Kabir: Hand off preprocessed feature vectors
-    Kabir-->>Ishaan: Compute SHAP feature importance metrics
-    Note over Ishaan: Runs K-Means & Rule-Based Clustering
-    Ishaan-->>Aadhya: Partitioned clusters (Priority, Regular, Dormant)
-    Note over Aadhya: Derives personas & explainability profiles
-    Aadhya-->>Saanvi: Cluster interpretation & churn risk metrics
-    Note over Saanvi: Generates cross-sell & upgrade recommendations
-    Saanvi-->>Myra: Recommendations & transition candidate list
-    Note over Myra: Synthesizes final response & formats Markdown tables
-    Myra-->>User: Streaming final response + interactive charts
+    User->>Atlas: "Segment retail customers into priority, regular, & dormant"
+    Note over Atlas: Parses query, extracts intent, plans agent pipeline
+    Atlas->>Scout: Execute EDA on customer balances & transactions
+    Scout->>DB: SQL Query (bank_sqlite.db)
+    DB-->>Scout: Raw customer records & summary stats
+    Scout-->>Forge: Hand off preprocessed feature vectors
+    Forge-->>Mosaic: Compute SHAP feature importance metrics
+    Note over Mosaic: Runs K-Means & Rule-Based Clustering
+    Mosaic-->>Prism: Partitioned clusters (Priority, Regular, Dormant)
+    Note over Prism: Derives personas & explainability profiles
+    Prism-->>Compass: Cluster interpretation & churn risk metrics
+    Note over Compass: Generates cross-sell & upgrade recommendations
+    Compass-->>Loom: Recommendations & transition candidate list
+    Note over Loom: Synthesizes final response & formats Markdown tables
+    Loom-->>User: Streaming final response + interactive charts
 ```
 
 ### Agent Roles & Responsibilities
 
 | Agent Avatar | Name | Role | Responsibilities |
 | :---: | :--- | :--- | :--- |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Advait" width="32" height="32" /> | **Advait** | Intent & Planning | Parses user query, determines pipeline requirements, handles HITL clarifications. |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vihaan" width="32" height="32" /> | **Vihaan** | Data Scout | Queries `bank_sqlite.db`, resolves columns, calculates missing values & statistics. |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Kabir" width="32" height="32" /> | **Kabir** | Feature Engineer | Computes SHAP feature importance, balance-to-spend ratios, and digital engagement scores. |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Ishaan" width="32" height="32" /> | **Ishaan** | Segmentation Engine | Executes K-Means clustering and business rule-based customer partitioning. |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Aadhya" width="32" height="32" /> | **Aadhya** | Explainability | Explains segment membership criteria, persona traits, and churn risk factors. |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Saanvi" width="32" height="32" /> | **Saanvi** | Recommendations | Identifies upgrade candidates (Regular → Priority) and cross-sell banking products. |
-| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Myra" width="32" height="32" /> | **Myra** | Synthesizer | Compiles all agent outputs into formatted markdown, tables, and executive summaries. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Atlas" width="32" height="32" /> | **Atlas** | Intent & Planning | Parses user query, determines pipeline requirements, handles HITL clarifications. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Scout" width="32" height="32" /> | **Scout** | Data Scout | Queries `bank_sqlite.db`, resolves columns, calculates missing values & statistics. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Forge" width="32" height="32" /> | **Forge** | Feature Engineer | Computes SHAP feature importance, balance-to-spend ratios, and digital engagement scores. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Mosaic" width="32" height="32" /> | **Mosaic** | Segmentation Engine | Executes K-Means clustering and business rule-based customer partitioning. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Prism" width="32" height="32" /> | **Prism** | Explainability | Explains segment membership criteria, persona traits, and churn risk factors. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Compass" width="32" height="32" /> | **Compass** | Recommendations | Identifies upgrade candidates (Regular → Priority) and cross-sell banking products. |
+| <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Loom" width="32" height="32" /> | **Loom** | Synthesizer | Compiles all agent outputs into formatted markdown, tables, and executive summaries. |
 
 ---
 
@@ -110,7 +110,7 @@ sequenceDiagram
 ```
 segwise/
 ├── backend/
-│   ├── agents/            # 7 specialized AI agents (Advait..Myra)
+│   ├── agents/            # 7 specialized AI agents (Atlas..Loom)
 │   ├── db/                # SQLite database connection & seed data
 │   ├── routers/           # FastAPI SSE stream & REST endpoints
 │   ├── services/          # PDF report compiler & CSV exporter

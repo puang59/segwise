@@ -1,5 +1,5 @@
 """
-KABIR — Agent 3: Feature Engineer
+FORGE — Agent 3: Feature Engineer
 
 Loads features from customer_profile in bank_sqlite.db and computes derived features
 via the FEATURE_REGISTRY. Saves enriched DataFrame to a temporary Parquet file.
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 TEMP_DIR = Path("/tmp")
 
 
-async def run_kabir(state: AgentState) -> AgentState:
+async def run_forge(state: AgentState) -> AgentState:
     """
-    Kabir agent node for LangGraph.
+    Forge agent node for LangGraph.
     1. Loads resolved_columns from customer_profile in bank_sqlite.db into Pandas DataFrame.
     2. Executes required feature transformations from FEATURE_REGISTRY.
     3. Saves processed DataFrame to a temporary Parquet file.
@@ -37,7 +37,7 @@ async def run_kabir(state: AgentState) -> AgentState:
     conv_id = state.get("conversation_id") or str(uuid.uuid4())
     filters = state.get("filters") or {}
 
-    logger.info(f"[Kabir] Loading {len(resolved_columns)} columns from customer_profile")
+    logger.info(f"[Forge] Loading {len(resolved_columns)} columns from customer_profile")
 
     # Build WHERE clause from filters
     where_clause = ""
@@ -48,7 +48,7 @@ async def run_kabir(state: AgentState) -> AgentState:
         "credit_risk_tier": "credit_risk_tier",
         "min_balance": "total_balance",
         "max_balance": "total_balance",
-        "segment": None,  # handled by ishaan, skip here
+        "segment": None,  # handled by mosaic, skip here
         "from_segment": None,
         "to_segment": None,
     }
@@ -79,9 +79,9 @@ async def run_kabir(state: AgentState) -> AgentState:
             where_clause=where_clause,
             params=params,
         )
-        logger.info(f"[Kabir] Loaded DataFrame: {df.shape[0]} rows × {df.shape[1]} columns")
+        logger.info(f"[Forge] Loaded DataFrame: {df.shape[0]} rows × {df.shape[1]} columns")
     except Exception as e:
-        logger.error(f"[Kabir] Failed to load customer data: {e}")
+        logger.error(f"[Forge] Failed to load customer data: {e}")
         updated = dict(state)
         updated["engineered_features"] = []
         updated["df_path"] = None
@@ -99,16 +99,16 @@ async def run_kabir(state: AgentState) -> AgentState:
         df = run_feature_engineering(df, features_to_compute)
         engineered = [f for f in features_to_compute if f in df.columns]
     except Exception as e:
-        logger.error(f"[Kabir] Feature engineering failed: {e}")
+        logger.error(f"[Forge] Feature engineering failed: {e}")
         engineered = []
 
     # Save to temp Parquet
-    parquet_path = str(TEMP_DIR / f"kabir_features_{conv_id}.parquet")
+    parquet_path = str(TEMP_DIR / f"forge_features_{conv_id}.parquet")
     try:
         df.to_parquet(parquet_path, index=False, engine="pyarrow")
-        logger.info(f"[Kabir] Saved Parquet: {parquet_path} ({len(df)} rows)")
+        logger.info(f"[Forge] Saved Parquet: {parquet_path} ({len(df)} rows)")
     except Exception as e:
-        logger.error(f"[Kabir] Failed to save Parquet: {e}")
+        logger.error(f"[Forge] Failed to save Parquet: {e}")
         parquet_path = None
 
     # Build summary stats for tool_outputs
@@ -146,17 +146,17 @@ async def run_kabir(state: AgentState) -> AgentState:
                 heatmap_data.append(row_data)
 
             correlation_chart = {
-                "id": f"kabir_corr_{conv_id}",
+                "id": f"forge_corr_{conv_id}",
                 "type": "heatmap",
                 "title": "Feature Correlation Matrix",
-                "produced_by": "kabir",
+                "produced_by": "forge",
                 "categoryKey": "name",
                 "dataKeys": feats_to_corr,
                 "data": heatmap_data,
             }
 
     tool_outputs = dict(state.get("tool_outputs") or {})
-    tool_outputs["kabir"] = {
+    tool_outputs["forge"] = {
         "engineered_features": engineered,
         "df_path": parquet_path,
         "row_count": len(df),

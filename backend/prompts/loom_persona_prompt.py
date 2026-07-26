@@ -1,8 +1,8 @@
 """
-MYRA persona naming prompt — generates human-readable cluster names & taglines.
+LOOM persona naming prompt — generates human-readable cluster names & taglines.
 """
 
-MYRA_PERSONA_SYSTEM_PROMPT = """You are Myra, the Response Synthesizer for a banking analytics platform.
+LOOM_PERSONA_SYSTEM_PROMPT = """You are Loom, the Response Synthesizer for a banking analytics platform.
 You have been given statistical profiles of customer clusters. Your job is to give each cluster a
 short, memorable business persona name and a one-sentence tagline.
 
@@ -35,6 +35,6 @@ Now name the following clusters:
 def build_persona_messages(cluster_stats_text: str) -> list:
     """Build the messages for cluster persona generation."""
     return [
-        {"role": "system", "content": MYRA_PERSONA_SYSTEM_PROMPT},
+        {"role": "system", "content": LOOM_PERSONA_SYSTEM_PROMPT},
         {"role": "user", "content": cluster_stats_text},
     ]

@@ -39,16 +39,17 @@ export default function Home() {
   // Active Session Data & SSE Streaming State
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [activeAgent, setActiveAgent] = useState<AgentName>('advait');
+  const [activeAgent, setActiveAgent] = useState<AgentName>('atlas');
   const [liveStatusText, setLiveStatusText] = useState<string>('');
   const [agentStates, setAgentStates] = useState<Record<AgentName, AgentStatus>>({
-    advait: 'queued',
-    vihaan: 'queued',
-    kabir: 'queued',
-    ishaan: 'queued',
-    saanvi: 'queued',
-    aanav: 'queued',
-    myra: 'queued',
+    atlas: 'queued',
+    scout: 'queued',
+    forge: 'queued',
+    mosaic: 'queued',
+    prism: 'queued',
+    compass: 'queued',
+    quill: 'queued',
+    loom: 'queued',
   });
   const [chartSpecs, setChartSpecs] = useState<ChartSpec[]>([]);
   const [selectedSegment, setSelectedSegment] = useState<SegmentSummary | null>(null);
@@ -157,7 +158,7 @@ export default function Home() {
 
   const handleSendMessage = async (queryText: string) => {
     const userMsgId = `msg-user-${Date.now()}`;
-    const assistantMsgId = `msg-myra-${Date.now()}`;
+    const assistantMsgId = `msg-loom-${Date.now()}`;
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     // 1. Append User Message
@@ -170,8 +171,8 @@ export default function Home() {
 
     const assistantMsg: ChatMessage = {
       id: assistantMsgId,
-      sender: 'myra',
-      attribution: `✦ Myra · ${myraModel.split('/').pop() || myraModel}`,
+      sender: 'loom',
+      attribution: `✦ Loom · ${myraModel.split('/').pop() || myraModel}`,
       content: '',
       traceItems: [],
       timestamp,
@@ -180,18 +181,19 @@ export default function Home() {
 
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsStreaming(true);
-    setActiveAgent('advait');
+    setActiveAgent('atlas');
     setLiveStatusText('Deploying multi-agent network...');
 
     // Reset agent states
     setAgentStates({
-      advait: 'queued',
-      vihaan: 'queued',
-      kabir: 'queued',
-      ishaan: 'queued',
-      saanvi: 'queued',
-      aanav: 'queued',
-      myra: 'queued',
+      atlas: 'queued',
+      scout: 'queued',
+      forge: 'queued',
+      mosaic: 'queued',
+      prism: 'queued',
+      compass: 'queued',
+      quill: 'queued',
+      loom: 'queued',
     });
 
     // 3. Initiate SSE Chat Stream
@@ -242,22 +244,22 @@ export default function Home() {
 
               // Dynamic live cyan status text
               const liveMsgs: Record<string, string> = {
-                advait: 'Advait is analysing intent and building an execution plan...',
-                vihaan: 'Vihaan is querying the database to resolve columns...',
-                kabir: 'Kabir is computing SHAP explainability scores...',
-                ishaan: 'Ishaan is running the customer segmentation engine...',
-                saanvi: 'Saanvi is generating personalized product recommendations...',
-                aanav: 'Aanav is compiling executive PDF report sections...',
-                myra: 'Myra is synthesizing the final report and insights...',
+                atlas: 'Atlas is analysing intent and building an execution plan...',
+                scout: 'Scout is querying the database to resolve columns...',
+                forge: 'Forge is computing SHAP explainability scores...',
+                mosaic: 'Mosaic is running the customer segmentation engine...',
+                compass: 'Compass is generating personalized product recommendations...',
+                quill: 'Quill is compiling executive PDF report sections...',
+                loom: 'Loom is synthesizing the final report and insights...',
               };
               const agentSummaries: Record<string, string> = {
-                advait: 'Calculating intent score from user prompt — planning agent pipeline',
-                vihaan: 'Inspecting bank_sqlite.db schema via column_resolver tool',
-                kabir: 'Running shap_explainer tool — computing feature importance scores',
-                ishaan: 'Running segmentation_clustering tool on customer profiles',
-                saanvi: 'Running product_recommendations tool — mapping cross-sell offers',
-                aanav: 'Compiling executive PDF report structure',
-                myra: 'Synthesizing executive narrative and segment markdown report',
+                atlas: 'Calculating intent score from user prompt — planning agent pipeline',
+                scout: 'Inspecting bank_sqlite.db schema via column_resolver tool',
+                forge: 'Running shap_explainer tool — computing feature importance scores',
+                mosaic: 'Running segmentation_clustering tool on customer profiles',
+                compass: 'Running product_recommendations tool — mapping cross-sell offers',
+                quill: 'Compiling executive PDF report structure',
+                loom: 'Synthesizing executive narrative and segment markdown report',
               };
 
               const liveMsg = liveMsgs[agent] || `${AGENT_REGISTRY[agent]?.displayName || agent} is processing...`;
@@ -312,7 +314,7 @@ export default function Home() {
 
               // Human-readable tool descriptions
               const toolDescriptions: Record<string, string> = {
-                advait_intent_extractor: 'intent_extractor — parsing natural language query into a structured QueryPlan',
+                atlas_intent_extractor: 'intent_extractor — parsing natural language query into a structured QueryPlan',
                 column_resolver: 'column_resolver — running PRAGMA table_info on bank_sqlite.db to map columns',
                 compute_features: 'compute_features — aggregating max_monthly_balance, txn_frequency, avg_txn_amount',
                 segmentation_clustering: 'segmentation_clustering — applying rule-based / K-Means clustering on customer profiles',
@@ -321,12 +323,12 @@ export default function Home() {
               };
 
               const toolLiveText: Record<string, string> = {
-                advait_intent_extractor: `Advait → intent_extractor running on "${queryText.slice(0, 40)}${queryText.length > 40 ? '...' : ''}"`,
-                column_resolver: 'Vihaan → column_resolver querying bank_sqlite.db schema...',
-                compute_features: 'Kabir → compute_features building behavioral feature vectors...',
-                segmentation_clustering: 'Ishaan → segmentation_clustering clustering customer profiles...',
-                shap_explainer: 'Aadhya → shap_explainer computing SHAP importance scores...',
-                product_recommendations: 'Saanvi → product_recommendations generating banking product offers...',
+                atlas_intent_extractor: `Atlas → intent_extractor running on "${queryText.slice(0, 40)}${queryText.length > 40 ? '...' : ''}"`,
+                column_resolver: 'Scout → column_resolver querying bank_sqlite.db schema...',
+                compute_features: 'Forge → compute_features building behavioral feature vectors...',
+                segmentation_clustering: 'Mosaic → segmentation_clustering clustering customer profiles...',
+                shap_explainer: 'Prism → shap_explainer computing SHAP importance scores...',
+                product_recommendations: 'Compass → product_recommendations generating banking product offers...',
               };
 
               setLiveStatusText(toolLiveText[tool] || `${AGENT_REGISTRY[agent]?.displayName} → ${tool} running...`);
@@ -351,7 +353,7 @@ export default function Home() {
               const agent = event.data.agent as AgentName;
 
               const toolCompleteSummaries: Record<string, string> = {
-                advait_intent_extractor: 'intent_extractor ✓ — QueryPlan extracted and agent pipeline determined',
+                atlas_intent_extractor: 'intent_extractor ✓ — QueryPlan extracted and agent pipeline determined',
                 column_resolver: 'column_resolver ✓ — resolved schema columns from bank_sqlite.db',
                 compute_features: 'compute_features ✓ — behavioral features computed and written to state',
                 segmentation_clustering: 'segmentation_clustering ✓ — customers clustered into segments',
@@ -401,9 +403,9 @@ export default function Home() {
               const intent = event.data.intent || 'segmentation';
               const method = (event.data as any).segmentation_method || 'rule';
               const plan = (event.data as any).agent_plan || [];
-              setLiveStatusText(`Advait detected intent: ${intent} (${method}-based) — handing off to ${plan[0] || 'Vihaan'}`);
+              setLiveStatusText(`Atlas detected intent: ${intent} (${method}-based) — handing off to ${plan[0] || 'Scout'}`);
               currentTraceItems = currentTraceItems.map((t) =>
-                t.agent === 'advait' && !t.toolName
+                t.agent === 'atlas' && !t.toolName
                   ? {
                       ...t,
                       summary: `Intent detected: "${intent}" (${method}-based segmentation) → pipeline: ${plan.join(' → ')}`,
@@ -416,9 +418,9 @@ export default function Home() {
             case 'columns_resolved': {
               const count = event.data.row_count || 0;
               const cols = (event.data.columns || []).length;
-              setLiveStatusText(`Vihaan resolved ${cols} columns across ${count.toLocaleString()} records`);
+              setLiveStatusText(`Scout resolved ${cols} columns across ${count.toLocaleString()} records`);
               currentTraceItems = currentTraceItems.map((t) =>
-                t.agent === 'vihaan' && !t.toolName
+                t.agent === 'scout' && !t.toolName
                   ? {
                       ...t,
                       summary: `Resolved ${cols} database columns across ${count.toLocaleString()} customer records`,
@@ -462,13 +464,14 @@ export default function Home() {
               setLiveStatusText('');
               // Reset agent states to done on completion
               setAgentStates({
-                advait: 'done',
-                vihaan: 'done',
-                kabir: 'done',
-                ishaan: 'done',
-                saanvi: 'done',
-                aanav: 'done',
-                myra: 'done',
+                atlas: 'done',
+                scout: 'done',
+                forge: 'done',
+                mosaic: 'done',
+                prism: 'done',
+                compass: 'done',
+                quill: 'done',
+                loom: 'done',
               });
               // Final message update — set isStreaming false
               setMessages((prev) =>

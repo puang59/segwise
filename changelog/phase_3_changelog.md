@@ -17,11 +17,11 @@ Phase 3 completes the implementation of the core FastAPI backend application (`s
 
 ### 2. SSE Real-Time Streaming Chat Endpoint
 - **File**: `backend/routers/chat.py`
-- Defined `ChatRequest` schema (`message`, `conversation_id`, `advait_model`, `myra_model`, `api_key`).
+- Defined `ChatRequest` schema (`message`, `conversation_id`, `atlas_model`, `loom_model`, `api_key`).
 - Implemented `POST /chat` streaming endpoint yielding structured Server-Sent Events (SSE) over `text/event-stream`.
 - Dispatched complete SSE event stream payload:
   - `model_info`: `{"model_id": ..., "display": ..., "reasoning": ...}`
-  - `agent_start`: `{"agent": "advait", "role": ...}`
+  - `agent_start`: `{"agent": "atlas", "role": ...}`
   - `intent_detected`: `{"intent": ..., "agent_plan": [...]}`
   - `columns_resolved`: `{"columns": [...], "row_count": ...}`
   - `tool_start` / `tool_progress` / `tool_complete` / `tool_error`
@@ -36,8 +36,8 @@ Phase 3 completes the implementation of the core FastAPI backend application (`s
 ### 3. Dynamic Model Switcher Endpoints
 - **File**: `backend/routers/models.py`
 - `GET /models`: Returns full `AVAILABLE_MODELS` list (20+ DeepInfra/Google/Meta models) grouped by LLM provider.
-- `GET /models/recommended`: Returns recommended defaults (`advait`: Gemini 3.1 Flash Lite / Llama 8B, `myra`: Gemini 3.1 Pro / Llama 70B).
-- `POST /models/select`: Updates model selection per active session (`scope`: `both` | `advait` | `myra`).
+- `GET /models/recommended`: Returns recommended defaults (`atlas`: Gemini 3.1 Flash Lite / Llama 8B, `loom`: Gemini 3.1 Pro / Llama 70B).
+- `POST /models/select`: Updates model selection per active session (`scope`: `both` | `atlas` | `loom`).
 - `GET /models/current`: Returns currently active models for a session ID.
 
 ### 4. Segments Analytics REST API Endpoints
@@ -48,7 +48,7 @@ Phase 3 completes the implementation of the core FastAPI backend application (`s
 ### 5. Customers Directory REST API Endpoints
 - **File**: `backend/routers/customers.py`
 - `GET /customers`: Returns paginated list of customers with filtering by `segment`, `city`, `min_balance`, `max_balance`, and `search` query.
-- `GET /customers/{id}`: Returns complete customer profile including raw demographic features, engineered composite features, segment label assignment, SHAP explanation breakdown, and Saanvi product recommendations.
+- `GET /customers/{id}`: Returns complete customer profile including raw demographic features, engineered composite features, segment label assignment, SHAP explanation breakdown, and Compass product recommendations.
 
 ### 6. Executive PDF & CSV Export Engine
 - **File**: `backend/routers/export.py`
@@ -59,14 +59,14 @@ Phase 3 completes the implementation of the core FastAPI backend application (`s
   3. Data Overview (row counts, null summary)
   4. EDA Findings
   5. Customer Segments (persona profiles & stats)
-  6. Cross-sell Opportunities (Saanvi recommendations)
+  6. Cross-sell Opportunities (Compass recommendations)
   7. Retention & Re-activation Strategies
   8. High-Potential Transition Candidates (Top 10 table)
   9. Methodology & Model Evaluation metrics
 
 ### 7. Database Session & Persistence Layer Updates
 - **File**: `backend/db/database.py`
-- Added `get_session(session_id)` and `update_session_models(session_id, advait_model, myra_model)`.
+- Added `get_session(session_id)` and `update_session_models(session_id, atlas_model, loom_model)`.
 - Updated `create_session` to handle session existence checks gracefully, preventing duplicate primary key errors during repeated chat requests.
 
 ---

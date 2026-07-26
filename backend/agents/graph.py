@@ -2,7 +2,7 @@
 LangGraph Chain Orchestrator — Multi-Agent Handoff State Machine.
 
 Builds the sequential agent execution graph:
-  START → advait → vihaan → kabir → ishaan → aadhya → saanvi → myra → END
+  START → atlas → scout → forge → mosaic → prism → compass → loom → END
 
 Implements:
 - Dynamic agent skipping via router_step (agents not in agent_plan are bypassed)
@@ -17,28 +17,28 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
 
 from backend.agents.state import AgentState
-from backend.agents.advait import run_advait
-from backend.agents.vihaan import run_vihaan
-from backend.agents.kabir import run_kabir
-from backend.agents.ishaan import run_ishaan
-from backend.agents.aadhya import run_aadhya
-from backend.agents.saanvi import run_saanvi
-from backend.agents.myra import run_myra
+from backend.agents.atlas import run_atlas
+from backend.agents.scout import run_scout
+from backend.agents.forge import run_forge
+from backend.agents.mosaic import run_mosaic
+from backend.agents.prism import run_prism
+from backend.agents.compass import run_compass
+from backend.agents.loom import run_loom
 
 logger = logging.getLogger(__name__)
 
-# ── Agent Names (must match agent_plan values from Advait) ───────────────────
+# ── Agent Names (must match agent_plan values from Atlas) ───────────────────
 
-AGENT_NAMES = ["advait", "vihaan", "kabir", "ishaan", "aadhya", "saanvi", "myra"]
+AGENT_NAMES = ["atlas", "scout", "forge", "mosaic", "prism", "compass", "loom"]
 
 
 # ── Router Functions ─────────────────────────────────────────────────────────
 
-def router_after_advait(state: AgentState) -> Literal["vihaan", "hitl", "__end__"]:
+def router_after_atlas(state: AgentState) -> Literal["scout", "hitl", "__end__"]:
     """
-    After Advait runs:
+    After Atlas runs:
     - If clarification_needed → interrupt (HITL)
-    - If vihaan is in agent_plan → proceed to vihaan
+    - If scout is in agent_plan → proceed to scout
     - Otherwise → end (edge case: empty plan)
     """
     if state.get("clarification_needed"):
@@ -46,48 +46,48 @@ def router_after_advait(state: AgentState) -> Literal["vihaan", "hitl", "__end__
         return "hitl"
 
     agent_plan = state.get("agent_plan") or []
-    if "vihaan" in agent_plan:
-        return "vihaan"
+    if "scout" in agent_plan:
+        return "scout"
     return "__end__"
 
 
-def router_after_vihaan(state: AgentState) -> Literal["kabir", "myra", "__end__"]:
-    """After Vihaan: skip kabir if not in agent_plan (e.g. eda, aggregate, recommend)."""
+def router_after_scout(state: AgentState) -> Literal["forge", "loom", "__end__"]:
+    """After Scout: skip forge if not in agent_plan (e.g. eda, aggregate, recommend)."""
     agent_plan = state.get("agent_plan") or []
-    if "kabir" in agent_plan:
-        return "kabir"
-    if "myra" in agent_plan:
-        return "myra"
+    if "forge" in agent_plan:
+        return "forge"
+    if "loom" in agent_plan:
+        return "loom"
     return "__end__"
 
 
-def router_after_kabir(state: AgentState) -> Literal["ishaan", "myra", "__end__"]:
-    """After Kabir: skip ishaan if intent is feature_eng only."""
+def router_after_forge(state: AgentState) -> Literal["mosaic", "loom", "__end__"]:
+    """After Forge: skip mosaic if intent is feature_eng only."""
     agent_plan = state.get("agent_plan") or []
-    if "ishaan" in agent_plan:
-        return "ishaan"
-    if "myra" in agent_plan:
-        return "myra"
+    if "mosaic" in agent_plan:
+        return "mosaic"
+    if "loom" in agent_plan:
+        return "loom"
     return "__end__"
 
 
-def router_after_ishaan(state: AgentState) -> Literal["aadhya", "myra", "__end__"]:
-    """After Ishaan: skip aadhya if not in plan."""
+def router_after_mosaic(state: AgentState) -> Literal["prism", "loom", "__end__"]:
+    """After Mosaic: skip prism if not in plan."""
     agent_plan = state.get("agent_plan") or []
-    if "aadhya" in agent_plan:
-        return "aadhya"
-    if "myra" in agent_plan:
-        return "myra"
+    if "prism" in agent_plan:
+        return "prism"
+    if "loom" in agent_plan:
+        return "loom"
     return "__end__"
 
 
-def router_after_aadhya(state: AgentState) -> Literal["saanvi", "myra", "__end__"]:
-    """After Aadhya: skip saanvi if not in plan (e.g., transition, explain)."""
+def router_after_prism(state: AgentState) -> Literal["compass", "loom", "__end__"]:
+    """After Prism: skip compass if not in plan (e.g., transition, explain)."""
     agent_plan = state.get("agent_plan") or []
-    if "saanvi" in agent_plan:
-        return "saanvi"
-    if "myra" in agent_plan:
-        return "myra"
+    if "compass" in agent_plan:
+        return "compass"
+    if "loom" in agent_plan:
+        return "loom"
     return "__end__"
 
 
@@ -112,12 +112,12 @@ def build_agent_graph(use_checkpointer: bool = False) -> Any:
     Construct the sequential multi-agent LangGraph execution graph.
 
     Graph structure:
-      START → advait → [router] → vihaan/hitl
-      vihaan → [router] → kabir/myra
-      kabir → [router] → ishaan/myra
-      ishaan → [router] → aadhya/myra
-      aadhya → [router] → saanvi/myra
-      saanvi → myra → END
+      START → atlas → [router] → scout/hitl
+      scout → [router] → forge/loom
+      forge → [router] → mosaic/loom
+      mosaic → [router] → prism/loom
+      prism → [router] → compass/loom
+      compass → loom → END
       hitl → END (await user response to resume)
 
     :param use_checkpointer: If True, enables in-memory checkpointing for HITL state persistence.
@@ -126,24 +126,24 @@ def build_agent_graph(use_checkpointer: bool = False) -> Any:
     graph = StateGraph(AgentState)
 
     # ── Add nodes ────────────────────────────────────────────────────────────
-    graph.add_node("advait", run_advait)
-    graph.add_node("vihaan", run_vihaan)
-    graph.add_node("kabir", run_kabir)
-    graph.add_node("ishaan", run_ishaan)
-    graph.add_node("aadhya", run_aadhya)
-    graph.add_node("saanvi", run_saanvi)
-    graph.add_node("myra", run_myra)
+    graph.add_node("atlas", run_atlas)
+    graph.add_node("scout", run_scout)
+    graph.add_node("forge", run_forge)
+    graph.add_node("mosaic", run_mosaic)
+    graph.add_node("prism", run_prism)
+    graph.add_node("compass", run_compass)
+    graph.add_node("loom", run_loom)
     graph.add_node("hitl", hitl_node)
 
     # ── Add edges ────────────────────────────────────────────────────────────
-    graph.add_edge(START, "advait")
+    graph.add_edge(START, "atlas")
 
-    # Advait → (vihaan | hitl | end)
+    # Atlas → (scout | hitl | end)
     graph.add_conditional_edges(
-        "advait",
-        router_after_advait,
+        "atlas",
+        router_after_atlas,
         {
-            "vihaan": "vihaan",
+            "scout": "scout",
             "hitl": "hitl",
             "__end__": END,
         }
@@ -152,55 +152,55 @@ def build_agent_graph(use_checkpointer: bool = False) -> Any:
     # HITL → END (await user re-submission)
     graph.add_edge("hitl", END)
 
-    # Vihaan → (kabir | myra | end)
+    # Scout → (forge | loom | end)
     graph.add_conditional_edges(
-        "vihaan",
-        router_after_vihaan,
+        "scout",
+        router_after_scout,
         {
-            "kabir": "kabir",
-            "myra": "myra",
+            "forge": "forge",
+            "loom": "loom",
             "__end__": END,
         }
     )
 
-    # Kabir → (ishaan | myra | end)
+    # Forge → (mosaic | loom | end)
     graph.add_conditional_edges(
-        "kabir",
-        router_after_kabir,
+        "forge",
+        router_after_forge,
         {
-            "ishaan": "ishaan",
-            "myra": "myra",
+            "mosaic": "mosaic",
+            "loom": "loom",
             "__end__": END,
         }
     )
 
-    # Ishaan → (aadhya | myra | end)
+    # Mosaic → (prism | loom | end)
     graph.add_conditional_edges(
-        "ishaan",
-        router_after_ishaan,
+        "mosaic",
+        router_after_mosaic,
         {
-            "aadhya": "aadhya",
-            "myra": "myra",
+            "prism": "prism",
+            "loom": "loom",
             "__end__": END,
         }
     )
 
-    # Aadhya → (saanvi | myra | end)
+    # Prism → (compass | loom | end)
     graph.add_conditional_edges(
-        "aadhya",
-        router_after_aadhya,
+        "prism",
+        router_after_prism,
         {
-            "saanvi": "saanvi",
-            "myra": "myra",
+            "compass": "compass",
+            "loom": "loom",
             "__end__": END,
         }
     )
 
-    # Saanvi always goes to Myra (final node before END)
-    graph.add_edge("saanvi", "myra")
+    # Compass always goes to Loom (final node before END)
+    graph.add_edge("compass", "loom")
 
-    # Myra → END
-    graph.add_edge("myra", END)
+    # Loom → END
+    graph.add_edge("loom", END)
 
     # Compile with optional checkpointer for HITL
     if use_checkpointer:
@@ -209,7 +209,7 @@ def build_agent_graph(use_checkpointer: bool = False) -> Any:
     else:
         compiled = graph.compile()
 
-    logger.info("[Graph] LangGraph chain compiled: advait→vihaan→kabir→ishaan→aadhya→saanvi→myra")
+    logger.info("[Graph] LangGraph chain compiled: atlas→scout→forge→mosaic→prism→compass→loom")
     return compiled
 
 

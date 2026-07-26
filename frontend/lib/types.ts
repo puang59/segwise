@@ -1,11 +1,12 @@
 export type AgentName =
-  | 'advait'
-  | 'vihaan'
-  | 'ishaan'
-  | 'kabir'
-  | 'saanvi'
-  | 'aanav'
-  | 'myra';
+  | 'atlas'
+  | 'scout'
+  | 'mosaic'
+  | 'forge'
+  | 'prism'
+  | 'compass'
+  | 'quill'
+  | 'loom';
 
 export type AgentStatus = 'queued' | 'running' | 'done' | 'error';
 
@@ -16,64 +17,81 @@ export interface AgentMeta {
   color: string;
   icon: string;
   symbol: string;
+  description: string;
 }
 
 export const AGENT_REGISTRY: Record<AgentName, AgentMeta> = {
-  advait: {
-    name: 'advait',
-    displayName: 'Advait',
-    role: 'Intent Extractor',
+  atlas: {
+    name: 'atlas',
+    displayName: 'Atlas',
+    role: 'Intent & Planning',
     color: '#6366f1',
     icon: '◆',
     symbol: '◆',
+    description: 'Orchestrates the workflow and determines intent.',
   },
-  vihaan: {
-    name: 'vihaan',
-    displayName: 'Vihaan',
-    role: 'SQL Scout & Data Cleaner',
+  scout: {
+    name: 'scout',
+    displayName: 'Scout',
+    role: 'Data Scout',
     color: '#0284c7',
     icon: '◉',
     symbol: '◉',
+    description: 'Fetches and processes raw customer data.',
   },
-  ishaan: {
-    name: 'ishaan',
-    displayName: 'Ishaan',
-    role: 'Segmentation Engineer',
-    color: '#7c3aed',
-    icon: '◈',
-    symbol: '◈',
-  },
-  kabir: {
-    name: 'kabir',
-    displayName: 'Kabir',
-    role: 'SHAP & XAI Specialist',
+  forge: {
+    name: 'forge',
+    displayName: 'Forge',
+    role: 'Feature Engineer',
     color: '#9333ea',
     icon: '⬡',
     symbol: '⬡',
+    description: 'Extracts critical data features for analysis.',
   },
-  saanvi: {
-    name: 'saanvi',
-    displayName: 'Saanvi',
-    role: 'Recommendation Engine',
+  mosaic: {
+    name: 'mosaic',
+    displayName: 'Mosaic',
+    role: 'Segmentation',
+    color: '#7c3aed',
+    icon: '◈',
+    symbol: '◈',
+    description: 'Groups customers into actionable segments.',
+  },
+  prism: {
+    name: 'prism',
+    displayName: 'Prism',
+    role: 'Explainability',
+    color: '#f43f5e',
+    icon: '❖',
+    symbol: '❖',
+    description: 'Provides insights and explains segment logic.',
+  },
+  compass: {
+    name: 'compass',
+    displayName: 'Compass',
+    role: 'Recommendations',
     color: '#d97706',
     icon: '◎',
     symbol: '◎',
+    description: 'Generates personalized strategic recommendations.',
   },
-  aanav: {
-    name: 'aanav',
-    displayName: 'Aanav',
+  quill: {
+    name: 'quill',
+    displayName: 'Quill',
     role: 'PDF Report Generator',
     color: '#059669',
     icon: '◇',
     symbol: '◇',
+    description: 'Compiles insights into a formal PDF report.',
   },
-  myra: {
-    name: 'myra',
-    displayName: 'Myra',
-    role: 'Response Synthesizer',
+  loom: {
+    name: 'loom',
+    displayName: 'Loom',
+    role: 'Synthesizer',
     color: '#be185d',
     icon: '✦',
     symbol: '✦',
+    description: 'Synthesizes information into human-readable text.',
   },
 };
 
@@ -122,7 +140,7 @@ export interface ChartSpec {
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'myra' | string;
+  sender: 'user' | 'loom' | string;
   content: string;
   timestamp: string;
   attribution?: string;

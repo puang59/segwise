@@ -1,5 +1,5 @@
 """
-AADHYA — Agent 5: Explainability Agent
+PRISM — Agent 5: Explainability Agent
 
 Computes SHAP values for ML clusters and detailed rule traces for rule-based segments.
 Tier 1: Batch SHAP (cluster-level, 500 samples/cluster).
@@ -24,9 +24,9 @@ from backend.tools.explainability import (
 logger = logging.getLogger(__name__)
 
 
-async def run_aadhya(state: AgentState) -> AgentState:
+async def run_prism(state: AgentState) -> AgentState:
     """
-    Aadhya agent node for LangGraph.
+    Prism agent node for LangGraph.
     Computes SHAP or rule-trace explanations depending on segmentation method.
     """
     intent = state.get("intent", "segment")
@@ -38,12 +38,12 @@ async def run_aadhya(state: AgentState) -> AgentState:
 
     # Skip for non-explainability intents
     if intent not in ("segment", "explain", "transition"):
-        logger.info(f"[Aadhya] Skipping — intent='{intent}' does not require explainability.")
+        logger.info(f"[Prism] Skipping — intent='{intent}' does not require explainability.")
         return state
 
     # Load DataFrame
     if not df_path or not os.path.exists(df_path):
-        logger.warning("[Aadhya] Parquet file not found, returning empty explanations.")
+        logger.warning("[Prism] Parquet file not found, returning empty explanations.")
         updated = dict(state)
         updated["segment_shap"] = {}
         updated["explanations"] = {}
@@ -52,7 +52,7 @@ async def run_aadhya(state: AgentState) -> AgentState:
     try:
         df = pd.read_parquet(df_path, engine="pyarrow")
     except Exception as e:
-        logger.error(f"[Aadhya] Failed to load Parquet: {e}")
+        logger.error(f"[Prism] Failed to load Parquet: {e}")
         updated = dict(state)
         updated["segment_shap"] = {}
         updated["explanations"] = {}
@@ -69,7 +69,7 @@ async def run_aadhya(state: AgentState) -> AgentState:
 
     if method == "rule":
         # Rule-based: use approximation (mean-difference) instead of true SHAP
-        logger.info("[Aadhya] Computing rule-based feature importance approximation")
+        logger.info("[Prism] Computing rule-based feature importance approximation")
         segment_shap = compute_rule_shap_approximation(df, segment_assignments, feat_cols)
 
         # Generate rule traces for up to 3 sample customers per segment
@@ -86,7 +86,7 @@ async def run_aadhya(state: AgentState) -> AgentState:
     else:
         # ML clustering: use SHAP batch explainability
         if not model_path or not os.path.exists(model_path):
-            logger.warning("[Aadhya] Model file not found, skipping SHAP.")
+            logger.warning("[Prism] Model file not found, skipping SHAP.")
         else:
             try:
                 with open(model_path, "rb") as f:
@@ -115,20 +115,20 @@ async def run_aadhya(state: AgentState) -> AgentState:
                         for seg in list(segment_assignments.values())[:len(df)]
                     ])
 
-                logger.info(f"[Aadhya] Running batch SHAP on {len(set(label_arr))} clusters")
+                logger.info(f"[Prism] Running batch SHAP on {len(set(label_arr))} clusters")
                 segment_shap = explain_segments_batch(
                     df, label_arr, model, available_feats, samples_per_cluster=500
                 )
 
             except Exception as e:
-                logger.error(f"[Aadhya] SHAP batch failed: {e}")
+                logger.error(f"[Prism] SHAP batch failed: {e}")
                 # Fallback to approximation
                 segment_shap = compute_rule_shap_approximation(df, segment_assignments, feat_cols)
 
-    logger.info(f"[Aadhya] Computed explanations for {len(segment_shap)} segments")
+    logger.info(f"[Prism] Computed explanations for {len(segment_shap)} segments")
 
     tool_outputs = dict(state.get("tool_outputs") or {})
-    tool_outputs["aadhya"] = {
+    tool_outputs["prism"] = {
         "method": "shap" if method != "rule" else "rule-approximation",
         "segments_explained": list(segment_shap.keys()),
         "sample_explanations": len(explanations),

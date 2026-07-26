@@ -29,8 +29,8 @@ export async function streamChatQuery(
       body: JSON.stringify({
         message: queryText,
         conversation_id: sessionId,
-        advait_model: advaitModel,
-        myra_model: myraModel,
+        atlas_model: advaitModel,
+        loom_model: myraModel,
         api_key: apiKey || undefined,
       }),
     });
@@ -182,7 +182,7 @@ export async function fetchModels(): Promise<ModelInfo[]> {
 /**
  * Updates model selection preference on the backend.
  */
-export async function selectModel(modelId: string, scope: 'advait' | 'myra'): Promise<any> {
+export async function selectModel(modelId: string, scope: 'atlas' | 'loom'): Promise<any> {
   try {
     const res = await fetch(`${API_BASE_URL}/models/select`, {
       method: 'POST',
@@ -190,8 +190,8 @@ export async function selectModel(modelId: string, scope: 'advait' | 'myra'): Pr
       body: JSON.stringify({
         session_id: 'session-default',
         scope,
-        advait_model: scope === 'advait' ? modelId : undefined,
-        myra_model: scope === 'myra' ? modelId : undefined,
+        atlas_model: scope === 'atlas' ? modelId : undefined,
+        loom_model: scope === 'loom' ? modelId : undefined,
       }),
     });
     return await res.json();

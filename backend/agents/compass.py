@@ -1,5 +1,5 @@
 """
-SAANVI — Agent 6: Recommendation Agent
+COMPASS — Agent 6: Recommendation Agent
 
 Matches segment profiles and customer financial signals against banking PRODUCT_RULES.
 Ranks eligible products by priority score.
@@ -16,9 +16,9 @@ from backend.tools.recommendation import recommend_for_segments, recommend_produ
 logger = logging.getLogger(__name__)
 
 
-async def run_saanvi(state: AgentState) -> AgentState:
+async def run_compass(state: AgentState) -> AgentState:
     """
-    Saanvi agent node for LangGraph.
+    Compass agent node for LangGraph.
     Applies PRODUCT_RULES per segment, ranks eligible products, writes recommendations.
     """
     intent = state.get("intent", "segment")
@@ -27,11 +27,11 @@ async def run_saanvi(state: AgentState) -> AgentState:
 
     # Skip for intents that don't need recommendations
     if intent not in ("segment", "recommend"):
-        logger.info(f"[Saanvi] Skipping — intent='{intent}' does not require recommendations.")
+        logger.info(f"[Compass] Skipping — intent='{intent}' does not require recommendations.")
         return state
 
     if not segment_assignments:
-        logger.warning("[Saanvi] No segment assignments found, skipping recommendations.")
+        logger.warning("[Compass] No segment assignments found, skipping recommendations.")
         updated = dict(state)
         updated["recommendations"] = []
         return updated
@@ -44,11 +44,11 @@ async def run_saanvi(state: AgentState) -> AgentState:
             if os.path.exists(df_path):
                 df = pd.read_parquet(df_path, engine="pyarrow")
                 recommendations = recommend_for_segments(df, segment_assignments, top_n=3)
-                logger.info(f"[Saanvi] Computed recommendations for {len(recommendations)} segments")
+                logger.info(f"[Compass] Computed recommendations for {len(recommendations)} segments")
             else:
                 raise FileNotFoundError(f"df_path not found: {df_path}")
         except Exception as e:
-            logger.error(f"[Saanvi] Failed to compute from DataFrame: {e}")
+            logger.error(f"[Compass] Failed to compute from DataFrame: {e}")
             # Fallback: recommend from segment stats
             segment_stats = state.get("segment_stats") or {}
             for seg, stats in segment_stats.items():
@@ -60,10 +60,10 @@ async def run_saanvi(state: AgentState) -> AgentState:
         for seg, stats in segment_stats.items():
             recs = recommend_products(stats, segment_label=seg, top_n=3)
             recommendations[seg] = recs
-        logger.info(f"[Saanvi] Computed recommendations from segment stats for {len(recommendations)} segments")
+        logger.info(f"[Compass] Computed recommendations from segment stats for {len(recommendations)} segments")
 
     tool_outputs = dict(state.get("tool_outputs") or {})
-    tool_outputs["saanvi"] = {
+    tool_outputs["compass"] = {
         "segments_with_recs": list(recommendations.keys()),
         "total_recommendations": sum(len(v) for v in recommendations.values()),
         "recommendations": recommendations,

@@ -259,7 +259,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-
+        {/* Footer Logo */}
+        <div style={{
+          padding: '16px',
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          borderTop: 'none',
+          flexShrink: 0,
+        }}>
+          <img src="/sg.png" alt="Segwise Logo" style={{ width: '100px', objectFit: 'contain', opacity: 0.9 }} />
+        </div>
       </motion.aside>
     </>
   );

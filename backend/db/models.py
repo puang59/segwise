@@ -15,8 +15,8 @@ class SessionModel(Base):
 
     id = Column(String(36), primary_key=True)
     title = Column(String(255), default="New Customer Segmentation Session")
-    advait_model = Column(String(100), nullable=False)
-    myra_model = Column(String(100), nullable=False)
+    atlas_model = Column(String(100), nullable=False)
+    loom_model = Column(String(100), nullable=False)
     state_data = Column(Text, nullable=True)  # JSON serialized state
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -33,7 +33,7 @@ class MessageModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     session_id = Column(String(36), ForeignKey("sessions.id"), nullable=False, index=True)
     role = Column(String(20), nullable=False)  # "user" | "assistant" | "system"
-    agent_name = Column(String(50), nullable=True)  # e.g., "myra", "advait"
+    agent_name = Column(String(50), nullable=True)  # e.g., "loom", "atlas"
     content = Column(Text, nullable=False)
     extra_data = Column(Text, nullable=True)  # JSON serialized charts, follow-ups, thinking logs
     created_at = Column(DateTime, default=datetime.utcnow)

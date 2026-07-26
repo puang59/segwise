@@ -62,10 +62,6 @@ export const SegmentDetailPanel: React.FC<SegmentDetailPanelProps> = ({
           {/* Header */}
           <div className="p-5 border-b border-border flex items-center justify-between sticky top-0 bg-surface-2/90 backdrop-blur-md z-10">
             <div className="flex items-center gap-2">
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: segment.status_color || '#6366f1' }}
-              />
               <span className="font-bold text-base text-text-primary">
                 {segment.name}
               </span>
@@ -87,7 +83,7 @@ export const SegmentDetailPanel: React.FC<SegmentDetailPanelProps> = ({
                 <span className="text-xs font-semibold text-accent uppercase tracking-wider">
                   {segment.persona || 'Digital High-Value Customer'}
                 </span>
-                <AgentAvatar agent="myra" />
+                <AgentAvatar agent="loom" />
               </div>
               <p className="text-xs text-text-secondary italic">
                 "{segment.tagline || 'Frequent transaction activity, high balance stability, high digital engagement.'}"
@@ -116,14 +112,13 @@ export const SegmentDetailPanel: React.FC<SegmentDetailPanelProps> = ({
               </div>
             </div>
 
-            {/* Kabir's Feature Importance Breakdown */}
+            {/* Forge's Feature Importance Breakdown */}
             <div className="p-4 rounded-xl border border-border bg-surface">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-[#a78bfa]" />
                   Attribute Profile
                 </span>
-                <AgentAvatar agent="kabir" />
+                <AgentAvatar agent="forge" />
               </div>
               <div className="space-y-2.5">
                 {keyAttributes.map((attr) => (
@@ -143,14 +138,13 @@ export const SegmentDetailPanel: React.FC<SegmentDetailPanelProps> = ({
               </div>
             </div>
 
-            {/* Saanvi's Recommendations */}
+            {/* Compass's Recommendations */}
             <div className="p-4 rounded-xl border border-border bg-surface">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#f59e0b]" />
-                  Saanvi's Recommended Products
+                  Compass's Recommended Products
                 </span>
-                <AgentAvatar agent="saanvi" />
+                <AgentAvatar agent="compass" />
               </div>
               <ul className="space-y-2 text-xs text-text-secondary">
                 {recommendations.map((rec, i) => (
@@ -166,10 +160,9 @@ export const SegmentDetailPanel: React.FC<SegmentDetailPanelProps> = ({
             <div className="p-4 rounded-xl border border-border bg-surface">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
                   Candidate Transitions
                 </span>
-                <AgentAvatar agent="ishaan" />
+                <AgentAvatar agent="mosaic" />
               </div>
               <div className="space-y-2 text-xs">
                 {candidateTransitions.map((trans, i) => (

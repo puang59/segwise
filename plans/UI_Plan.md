@@ -38,13 +38,13 @@ Built on Emil Kowalski's design engineering philosophy + Apple's Fluid Interface
   --error:         #ef4444;
 
   /* Agent identity colours */
-  --agent-advait:  #6366f1;   /* indigo  — intent, planning */
-  --agent-vihaan:  #0ea5e9;   /* sky     — data scouting */
-  --agent-kabir:   #a78bfa;   /* violet  — feature engineering */
-  --agent-ishaan:  #f97316;   /* orange  — segmentation */
-  --agent-aadhya:  #22c55e;   /* green   — explainability */
-  --agent-saanvi:  #f59e0b;   /* amber   — recommendation */
-  --agent-myra:    #ec4899;   /* pink    — response synthesis */
+  --agent-atlas:  #6366f1;   /* indigo  — intent, planning */
+  --agent-scout:  #0ea5e9;   /* sky     — data scouting */
+  --agent-forge:   #a78bfa;   /* violet  — feature engineering */
+  --agent-mosaic:  #f97316;   /* orange  — segmentation */
+  --agent-prism:  #22c55e;   /* green   — explainability */
+  --agent-compass:  #f59e0b;   /* amber   — recommendation */
+  --agent-loom:    #ec4899;   /* pink    — response synthesis */
 
   /* Tool colours (subset of agent palette, used in badges) */
   --tool-eda:      #0ea5e9;
@@ -124,19 +124,19 @@ Every user sees exactly what each named agent is doing in real time.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  ● Advait                               planning...  0.8s    │
+│  ● Atlas                               planning...  0.8s    │
 │    Intent: segmentation · rule-based                         │
-│    Calling: Vihaan → Kabir → Ishaan → Myra                   │
+│    Calling: Scout → Forge → Mosaic → Loom                   │
 ├──────────────────────────────────────────────────────────────┤
-│  ✓ Vihaan                                            142ms   │
+│  ✓ Scout                                            142ms   │
 │    Resolved 3 columns: avg_balance, txn_freq, recency        │
 │    Dataset: 823,411 customers                                 │
 │    ▸ Show details                                             │
 ├──────────────────────────────────────────────────────────────┤
-│  ⟳ Ishaan                               running...           │
+│  ⟳ Mosaic                               running...           │
 │    method: rule-based        [▓▓▓▓▓▓░░░░]                   │
 ├──────────────────────────────────────────────────────────────┤
-│  ○ Myra                                 queued                │
+│  ○ Loom                                 queued                │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -144,7 +144,7 @@ Every user sees exactly what each named agent is doing in real time.
 
 Each row has:
 - **Agent colour dot** — left border or dot, using `--agent-{name}` token
-- **Agent name** — e.g. "Vihaan" in the agent's colour
+- **Agent name** — e.g. "Scout" in the agent's colour
 - **Status** — `○ queued` | `⟳ running...` | `✓ done` | `✗ error`
 - **Duration** — muted, appears only after completion
 - **Summary line** — one-line output description
@@ -158,13 +158,13 @@ After the final response arrives: the entire trace collapses to a single `▾ Re
 ```tsx
 // AgentAvatar.tsx
 const AGENT_META = {
-  advait:  { color: '#6366f1', icon: '◆', role: 'Intent'        },
-  vihaan:  { color: '#0ea5e9', icon: '◉', role: 'Data Scout'    },
-  kabir:   { color: '#a78bfa', icon: '⬡', role: 'Features'      },
-  ishaan:  { color: '#f97316', icon: '◈', role: 'Segmentation'  },
-  aadhya:  { color: '#22c55e', icon: '◎', role: 'Explainability'},
-  saanvi:  { color: '#f59e0b', icon: '◇', role: 'Recommendations'},
-  myra:    { color: '#ec4899', icon: '✦', role: 'Response'      },
+  atlas:  { color: '#6366f1', icon: '◆', role: 'Intent'        },
+  scout:  { color: '#0ea5e9', icon: '◉', role: 'Data Scout'    },
+  forge:   { color: '#a78bfa', icon: '⬡', role: 'Features'      },
+  mosaic:  { color: '#f97316', icon: '◈', role: 'Segmentation'  },
+  prism:  { color: '#22c55e', icon: '◎', role: 'Explainability'},
+  compass:  { color: '#f59e0b', icon: '◇', role: 'Recommendations'},
+  loom:    { color: '#ec4899', icon: '✦', role: 'Response'      },
 }
 
 export function AgentAvatar({ agent }: { agent: AgentName }) {
@@ -279,7 +279,7 @@ Full-width document sections, not chat bubbles.
 └──────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────┐
-│ ✦ Myra · Llama 3.1 70B                     11:42 AM      │  ← agent + model attribution
+│ ✦ Loom · Llama 3.1 70B                     11:42 AM      │  ← agent + model attribution
 │ ▾ Reasoning  (4 agents, 1.8s)                            │  ← collapsed trace
 │                                                          │
 │ I segmented 823,411 customers using rule-based logic.    │
@@ -300,7 +300,7 @@ Full-width document sections, not chat bubbles.
 ```
 
 Key differences from v1:
-- Agent attribution line: `✦ Myra · Llama 3.1 70B` — user always knows which model answered
+- Agent attribution line: `✦ Loom · Llama 3.1 70B` — user always knows which model answered
 - Collapsed reasoning shows the agent count: `(4 agents, 1.8s)`
 
 **Entry animation**: `opacity:0→1`, `y:12→0`, 240ms, `ease-out`. Occasional — earns it.
@@ -311,7 +311,7 @@ Key differences from v1:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  ◆ Advait needs input                                    │  ← Advait's colour
+│  ◆ Atlas needs input                                    │  ← Atlas's colour
 │                                                          │
 │  How would you like to define VIP customers?             │
 │                                                          │
@@ -319,14 +319,14 @@ Key differences from v1:
 │  │ Balance > ₹2L    │  │ Income > ₹1L     │             │
 │  └──────────────────┘  └──────────────────┘             │
 │  ┌──────────────────┐  ┌──────────────────┐             │
-│  │ Product owner    │  │ Let Ishaan decide│             │
+│  │ Product owner    │  │ Let Mosaic decide│             │
 │  └──────────────────┘  └──────────────────┘             │
 │                                                          │
 │  Or describe your own definition...        [Send]        │
 └──────────────────────────────────────────────────────────┘
 ```
 
-- Header says "Advait needs input" using Advait's indigo colour — makes HITL feel like a real team handoff
+- Header says "Atlas needs input" using Atlas's indigo colour — makes HITL feel like a real team handoff
 - **Entry animation**: `scale(0.97)→1` + `opacity:0→1`, 220ms, `ease-out`
 - **Exit on selection**: `opacity:1→0` only, 150ms — no movement; the answer already replaced it
 
@@ -364,17 +364,17 @@ chips.map((chip, i) => (
 ### 6. Input Bar
 
 ```
-◆ Advait    ┌──────────────────────────────────────────────────┐
+◆ Atlas    ┌──────────────────────────────────────────────────┐
             │  Ask anything about your customers...             │
             └──────────────────────────────────────────────────┘
                                                       [↑ Send]
 ```
 
 - Left label shows **which agent is currently active** (updating as agents run)
-  - `◆ Advait` (indigo) → planning
-  - `◉ Vihaan` (sky) → scouting data
-  - `⟳ Ishaan` (orange) → segmenting
-  - `✦ Myra` (pink) → responding
+  - `◆ Atlas` (indigo) → planning
+  - `◉ Scout` (sky) → scouting data
+  - `⟳ Mosaic` (orange) → segmenting
+  - `✦ Loom` (pink) → responding
 - Status transitions: crossfade 120ms only — seen constantly, movement would be noise
 - Send button: `scale(0.97)` on `:active`, 120ms, `ease-out`
 - Disabled while agent runs: `opacity: 0.4`, `cursor: not-allowed`
@@ -386,10 +386,10 @@ chips.map((chip, i) => (
 Right column. Three tabs: **Charts** | **Data** | **Report**.
 
 **Charts tab**:
-- Cards appear as Myra emits `chart_spec` SSE events
+- Cards appear as Loom emits `chart_spec` SSE events
 - Card entry: `opacity:0→1` + `y:8→0`, 240ms, `ease-out`
 - Charts internally: `isAnimationActive={false}` — data is for reading, not decoration
-- Each card header shows which agent produced it: `⬡ Kabir's feature distribution`
+- Each card header shows which agent produced it: `⬡ Forge's feature distribution`
 
 **Data tab**:
 - Paginated table of customers in the active segment
@@ -433,7 +433,7 @@ Slides in from right when clicking a segment row or "View in Dashboard".
 ┌──────────────────────────────────────────────────────────┐
 │  ✕                                         ● Priority    │
 │                                                          │
-│  Digital High-Value Customer               ← Myra's name │
+│  Digital High-Value Customer               ← Loom's name │
 │  "Frequent, high-balance, digitally active"              │
 │                                                          │
 │  ┌──────┬────────┬────────┬────────┬───────┐            │
@@ -441,9 +441,9 @@ Slides in from right when clicking a segment row or "View in Dashboard".
 │  │ base │ avg bal│ txn/mo │ prodcts│ eng   │            │
 │  └──────┴────────┴────────┴────────┴───────┘            │
 │                                                          │
-│  [Radar chart — Kabir's features]                        │
+│  [Radar chart — Forge's features]                        │
 │                                                          │
-│  Saanvi's Recommendations                               │  ← agent attribution
+│  Compass's Recommendations                               │  ← agent attribution
 │  · Premium Savings Account                               │
 │  · Mutual Fund SIP                                       │
 │  · Travel Credit Card                                    │
@@ -527,13 +527,13 @@ Every candidate evaluated through: Frequency → Purpose → Speed → Function.
 }
 
 /* Agent colour utilities */
-.agent-advait { color: var(--agent-advait); }
-.agent-vihaan { color: var(--agent-vihaan); }
-.agent-kabir  { color: var(--agent-kabir);  }
-.agent-ishaan { color: var(--agent-ishaan); }
-.agent-aadhya { color: var(--agent-aadhya); }
-.agent-saanvi { color: var(--agent-saanvi); }
-.agent-myra   { color: var(--agent-myra);   }
+.agent-atlas { color: var(--agent-atlas); }
+.agent-scout { color: var(--agent-scout); }
+.agent-forge  { color: var(--agent-forge);  }
+.agent-mosaic { color: var(--agent-mosaic); }
+.agent-prism { color: var(--agent-prism); }
+.agent-compass { color: var(--agent-compass); }
+.agent-loom   { color: var(--agent-loom);   }
 ```
 
 ---
@@ -541,7 +541,7 @@ Every candidate evaluated through: Frequency → Purpose → Speed → Function.
 ## Updated SSE Event Schema (Frontend types)
 
 ```ts
-type AgentName = 'advait' | 'vihaan' | 'kabir' | 'ishaan' | 'aadhya' | 'saanvi' | 'myra'
+type AgentName = 'atlas' | 'scout' | 'forge' | 'mosaic' | 'prism' | 'compass' | 'loom'
 
 type AgentEvent =
   | { type: 'model_info';         data: { model_id: string; display: string } }  // sent first
@@ -591,14 +591,14 @@ frontend/components/
     ChatWindow.tsx           # Message list, scroll management
     MessageBlock.tsx         # Full-width message with agent attribution
     SegmentTable.tsx         # Styled results table (colour-dot per segment)
-    HitlCard.tsx             # Clarification card with "Advait needs input"
+    HitlCard.tsx             # Clarification card with "Atlas needs input"
     FollowUpChips.tsx        # Staggered suggestion chips
     InputBar.tsx             # Input + active-agent label
 
   panels/
     ContextPanel.tsx         # Right column: Charts / Data / Report tabs
     SegmentDetailPanel.tsx   # Slide-over with agent attributions on sections
-    ChartCard.tsx            # Chart + "produced by Kabir" header
+    ChartCard.tsx            # Chart + "produced by Forge" header
 
   sidebar/
     Sidebar.tsx              # Contains: sessions + ModelSwitcher
@@ -613,9 +613,9 @@ frontend/components/
 
 ## What Makes This Stand Out
 
-1. **Trace is always honest** — every named agent (Advait, Vihaan, Kabir...) appears with their role, what they produced, and how long they took. Nothing is hidden behind "Agent is thinking…"
-2. **Model attribution on every message** — `✦ Myra · Llama 3.1 70B` means users always know what powered the answer
+1. **Trace is always honest** — every named agent (Atlas, Scout, Forge...) appears with their role, what they produced, and how long they took. Nothing is hidden behind "Agent is thinking…"
+2. **Model attribution on every message** — `✦ Loom · Llama 3.1 70B` means users always know what powered the answer
 3. **Model switching without reload** — switching models mid-session takes effect on the next message; the model badge updates immediately
-4. **Agent colours are consistent** — Ishaan is always orange, Saanvi always amber — across trace rows, HITL cards, chart headers, and panel sections
+4. **Agent colours are consistent** — Mosaic is always orange, Compass always amber — across trace rows, HITL cards, chart headers, and panel sections
 5. **Zero decorative motion** — every animation has a named justification from the four-gate audit; "it looks cool" is not in the list
 6. **Charts never animate internally** — `isAnimationActive={false}` everywhere; data is for reading

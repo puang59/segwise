@@ -15,7 +15,7 @@ from typing import Dict, Any, List, Optional, Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from backend.config import DEFAULT_ADV_MODEL, DEFAULT_MYRA_MODEL
+from backend.config import DEFAULT_ADV_MODEL, DEFAULT_LOOM_MODEL
 from backend.db.models import Base, SessionModel, MessageModel, SegmentCacheModel, TraceLogModel
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -80,8 +80,8 @@ def get_db_session() -> Generator[Session, None, None]:
 def create_session(
     session_id: Optional[str] = None,
     title: Optional[str] = None,
-    advait_model: str = DEFAULT_ADV_MODEL,
-    myra_model: str = DEFAULT_MYRA_MODEL,
+    atlas_model: str = DEFAULT_ADV_MODEL,
+    loom_model: str = DEFAULT_LOOM_MODEL,
     state_data: Optional[Dict[str, Any]] = None,
     db: Optional[Session] = None
 ) -> Dict[str, Any]:
@@ -97,26 +97,26 @@ def create_session(
             session_obj = SessionModel(
                 id=sid,
                 title=title or f"Session {sid[:8]}",
-                advait_model=advait_model,
-                myra_model=myra_model,
+                atlas_model=atlas_model,
+                loom_model=loom_model,
                 state_data=serialized_state,
             )
             s.add(session_obj)
         else:
             if title:
                 session_obj.title = title
-            if advait_model:
-                session_obj.advait_model = advait_model
-            if myra_model:
-                session_obj.myra_model = myra_model
+            if atlas_model:
+                session_obj.atlas_model = atlas_model
+            if loom_model:
+                session_obj.loom_model = loom_model
             if serialized_state:
                 session_obj.state_data = serialized_state
         s.flush()
         return {
             "id": session_obj.id,
             "title": session_obj.title,
-            "advait_model": session_obj.advait_model,
-            "myra_model": session_obj.myra_model,
+            "atlas_model": session_obj.atlas_model,
+            "loom_model": session_obj.loom_model,
             "created_at": session_obj.created_at.isoformat() if session_obj.created_at else None,
         }
 
@@ -136,8 +136,8 @@ def get_session(session_id: str, db: Optional[Session] = None) -> Optional[Dict[
         return {
             "id": session_obj.id,
             "title": session_obj.title,
-            "advait_model": session_obj.advait_model,
-            "myra_model": session_obj.myra_model,
+            "atlas_model": session_obj.atlas_model,
+            "loom_model": session_obj.loom_model,
             "created_at": session_obj.created_at.isoformat() if session_obj.created_at else None,
             "updated_at": session_obj.updated_at.isoformat() if session_obj.updated_at else None,
         }
@@ -150,8 +150,8 @@ def get_session(session_id: str, db: Optional[Session] = None) -> Optional[Dict[
 
 def update_session_models(
     session_id: str,
-    advait_model: Optional[str] = None,
-    myra_model: Optional[str] = None,
+    atlas_model: Optional[str] = None,
+    loom_model: Optional[str] = None,
     db: Optional[Session] = None
 ) -> Dict[str, Any]:
     """Update selected model configuration for a given session."""
@@ -161,21 +161,21 @@ def update_session_models(
             session_obj = SessionModel(
                 id=session_id,
                 title=f"Session {session_id[:8]}",
-                advait_model=advait_model or DEFAULT_ADV_MODEL,
-                myra_model=myra_model or DEFAULT_MYRA_MODEL,
+                atlas_model=atlas_model or DEFAULT_ADV_MODEL,
+                loom_model=loom_model or DEFAULT_LOOM_MODEL,
             )
             s.add(session_obj)
         else:
-            if advait_model:
-                session_obj.advait_model = advait_model
-            if myra_model:
-                session_obj.myra_model = myra_model
+            if atlas_model:
+                session_obj.atlas_model = atlas_model
+            if loom_model:
+                session_obj.loom_model = loom_model
         s.flush()
         return {
             "id": session_obj.id,
             "title": session_obj.title,
-            "advait_model": session_obj.advait_model,
-            "myra_model": session_obj.myra_model,
+            "atlas_model": session_obj.atlas_model,
+            "loom_model": session_obj.loom_model,
         }
 
     if db:
@@ -205,8 +205,8 @@ def save_message(
             session_obj = SessionModel(
                 id=session_id,
                 title=f"Session {session_id[:8]}",
-                advait_model=DEFAULT_ADV_MODEL,
-                myra_model=DEFAULT_MYRA_MODEL,
+                atlas_model=DEFAULT_ADV_MODEL,
+                loom_model=DEFAULT_LOOM_MODEL,
             )
             s.add(session_obj)
             s.flush()

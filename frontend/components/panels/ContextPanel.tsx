@@ -103,7 +103,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
 
       <aside
         style={{
-          width: 360,
+          width: 540,
           flexShrink: 0,
           display: 'flex',
           flexDirection: 'column',
@@ -282,7 +282,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                       No charts yet
                     </div>
                     <div style={{ fontSize: 11, color: 'rgba(26,26,24,0.35)', lineHeight: 1.5 }}>
-                      Ask a question to trigger the agent pipeline. Ishaan and Kabir will generate segmentation and SHAP charts here.
+                      Ask a question to trigger the agent pipeline. Mosaic and Forge will generate segmentation and SHAP charts here.
                     </div>
                   </div>
                 </div>
@@ -369,7 +369,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                         Waiting for your query
                       </div>
                       <div style={{ fontSize: 11, color: 'rgba(26,26,24,0.32)', lineHeight: 1.55 }}>
-                        Ask a question in the chat. Vihaan will resolve the relevant customer records and display them here.
+                        Ask a question in the chat. Scout will resolve the relevant customer records and display them here.
                       </div>
                     </div>
                   </div>
@@ -418,11 +418,11 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                             <td style={{ padding: '8px 10px', fontSize: 10 }}>{c.segment}</td>
                             <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                               {c.is_high_risk === 1 ? (
-                                <span style={{ padding: '2px 6px', background: '#ebebea', color: '#1a1a18', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
+                                <span style={{ padding: '2px 6px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: 4, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>
                                   High Risk
                                 </span>
                               ) : (
-                                <span style={{ padding: '2px 6px', background: '#f5f5f3', color: '#1a1a18', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
+                                <span style={{ padding: '2px 6px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderRadius: 4, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>
                                   Safe
                                 </span>
                               )}
@@ -475,7 +475,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                     Banking Analytics Executive Summary
                   </h4>
                   <p style={{ fontSize: 11, color: 'rgba(26,26,24,0.55)', margin: 0, lineHeight: 1.5 }}>
-                    Includes segmentation profiles, Saanvi cross-sell strategies, retention opportunities, and SHAP explainability.
+                    Includes segmentation profiles, Compass cross-sell strategies, retention opportunities, and SHAP explainability.
                   </p>
                 </div>
 

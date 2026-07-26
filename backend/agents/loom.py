@@ -1,5 +1,5 @@
 """
-MYRA — Agent 7: Response Synthesizer & Persona Naming
+LOOM — Agent 7: Response Synthesizer & Persona Naming
 
 Synthesizes all agent outputs into a polished narrative, generates persona names for
 ML clusters, emits chart specs, produces follow-up chips, and streams SSE events.
@@ -14,8 +14,8 @@ from typing import AsyncGenerator, Dict, Any, List
 from backend.agents.state import AgentState
 from backend.agents.thinking import stream_with_thinking
 from backend.config import get_llm_client, AVAILABLE_MODELS
-from backend.prompts.myra_response_prompt import build_myra_messages
-from backend.prompts.myra_persona_prompt import build_persona_messages
+from backend.prompts.loom_response_prompt import build_loom_messages
+from backend.prompts.loom_persona_prompt import build_persona_messages
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ async def generate_cluster_personas(
         return {}
 
     client = get_llm_client(state.get("session_api_key"), is_async=True)
-    model_id = state.get("session_myra_model")
+    model_id = state.get("session_loom_model")
 
     # Build cluster stats text
     lines = []
@@ -68,7 +68,7 @@ async def generate_cluster_personas(
         return result
 
     except Exception as e:
-        logger.warning(f"[Myra] Persona generation failed: {e}")
+        logger.warning(f"[Loom] Persona generation failed: {e}")
         return {}
 
 
@@ -103,7 +103,7 @@ def _build_chart_specs(state: AgentState) -> List[Dict[str, Any]]:
             "x_key": "name",
             "bars": [{"key": "count", "color": "#6366f1", "name": "Customers"}],
             "data": size_data,
-            "produced_by": "ishaan",
+            "produced_by": "mosaic",
         })
 
     # Chart 2: Average balance per segment (horizontal bar)
@@ -124,7 +124,7 @@ def _build_chart_specs(state: AgentState) -> List[Dict[str, Any]]:
             "x_key": "name",
             "bars": [{"key": "avg_balance", "color": "#0ea5e9", "name": "Avg Balance"}],
             "data": balance_data,
-            "produced_by": "kabir",
+            "produced_by": "forge",
         })
 
     # Chart 3: SHAP feature importance (if available)
@@ -144,7 +144,7 @@ def _build_chart_specs(state: AgentState) -> List[Dict[str, Any]]:
                 "y_key": "feature",
                 "bars": [{"key": "importance", "color": "#22c55e", "name": "SHAP Score"}],
                 "data": shap_chart_data,
-                "produced_by": "aadhya",
+                "produced_by": "prism",
             })
 
     return charts
@@ -154,7 +154,7 @@ def _build_chart_specs(state: AgentState) -> List[Dict[str, Any]]:
 
 def _extract_follow_up_chips(narrative: str) -> List[str]:
     """
-    Extract follow-up suggestion chips from Myra's narrative.
+    Extract follow-up suggestion chips from Loom's narrative.
     Looks for the standard 'Suggested next steps:' section.
     """
     chips = []
@@ -176,11 +176,11 @@ def _extract_follow_up_chips(narrative: str) -> List[str]:
     return chips[:4]  # max 4 chips
 
 
-# ── Main Myra Streaming Node ─────────────────────────────────────────────────
+# ── Main Loom Streaming Node ─────────────────────────────────────────────────
 
-async def run_myra(state: AgentState) -> AgentState:
+async def run_loom(state: AgentState) -> AgentState:
     """
-    Myra agent node for LangGraph (non-streaming, collects full response).
+    Loom agent node for LangGraph (non-streaming, collects full response).
     Used when graph runs as a batch pipeline.
     """
     method = state.get("segmentation_method") or "rule"
@@ -192,11 +192,11 @@ async def run_myra(state: AgentState) -> AgentState:
         try:
             personas = await generate_cluster_personas(state, segment_stats)
         except Exception as e:
-            logger.warning(f"[Myra] Persona generation failed: {e}")
+            logger.warning(f"[Loom] Persona generation failed: {e}")
 
     # Build narrative via LLM
     client = get_llm_client(state.get("session_api_key"), is_async=True)
-    model_id = state.get("session_myra_model") or "meta-llama/Meta-Llama-3.1-70B-Instruct"
+    model_id = state.get("session_loom_model") or "meta-llama/Meta-Llama-3.1-70B-Instruct"
     model_meta = AVAILABLE_MODELS.get(model_id, {})
 
     extra_kwargs = {}
@@ -208,7 +208,7 @@ async def run_myra(state: AgentState) -> AgentState:
             }
         }
 
-    messages = build_myra_messages(state)
+    messages = build_loom_messages(state)
 
     try:
         response = await client.chat.completions.create(
@@ -221,7 +221,7 @@ async def run_myra(state: AgentState) -> AgentState:
         # Strip thinking blocks
         narrative = re.sub(r'<think>.*?</think>', '', narrative, flags=re.DOTALL).strip()
     except Exception as e:
-        logger.error(f"[Myra] Response generation failed: {e}")
+        logger.error(f"[Loom] Response generation failed: {e}")
         narrative = _build_fallback_narrative(state)
 
     # Extract follow-up chips from narrative
@@ -233,7 +233,7 @@ async def run_myra(state: AgentState) -> AgentState:
     chart_specs = _build_chart_specs(state)
 
     tool_outputs = dict(state.get("tool_outputs") or {})
-    tool_outputs["myra"] = {
+    tool_outputs["loom"] = {
         "model_id": model_id,
         "narrative_length": len(narrative),
         "chips": follow_up_chips,
@@ -250,12 +250,12 @@ async def run_myra(state: AgentState) -> AgentState:
     return updated
 
 
-async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]:
+async def stream_loom(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]:
     """
-    Streaming version of Myra — yields SSE-ready event dicts.
+    Streaming version of Loom — yields SSE-ready event dicts.
     Call this from the FastAPI SSE endpoint.
     """
-    model_id = state.get("session_myra_model") or "meta-llama/Meta-Llama-3.1-70B-Instruct"
+    model_id = state.get("session_loom_model") or "meta-llama/Meta-Llama-3.1-70B-Instruct"
     model_meta = AVAILABLE_MODELS.get(model_id, {})
 
     method = state.get("segmentation_method") or "rule"
@@ -277,13 +277,13 @@ async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]
         try:
             personas = await generate_cluster_personas(state, segment_stats)
             if personas:
-                yield {"type": "structured_output", "data": {"kind": "personas", "payload": personas, "produced_by": "myra"}}
+                yield {"type": "structured_output", "data": {"kind": "personas", "payload": personas, "produced_by": "loom"}}
         except Exception as e:
-            logger.warning(f"[Myra] Streaming persona gen failed: {e}")
+            logger.warning(f"[Loom] Streaming persona gen failed: {e}")
 
     # Stream narrative
     client = get_llm_client(state.get("session_api_key"), is_async=True)
-    messages = build_myra_messages(state)
+    messages = build_loom_messages(state)
 
     extra_kwargs = {}
     if model_meta.get("reasoning") and "gemini" in model_id:
@@ -323,7 +323,7 @@ async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]
             yield {"type": "thinking_end"}
 
     except Exception as e:
-        logger.error(f"[Myra] Streaming failed: {e}")
+        logger.error(f"[Loom] Streaming failed: {e}")
         fallback = _build_fallback_narrative(state)
         full_narrative.append(fallback)
         yield {"type": "text_chunk", "data": {"content": fallback}}
@@ -331,7 +331,7 @@ async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]
     # Emit chart specs
     chart_specs = _build_chart_specs(state)
     for chart in chart_specs:
-        yield {"type": "structured_output", "data": {"kind": "chart", "payload": chart, "produced_by": "myra"}}
+        yield {"type": "structured_output", "data": {"kind": "chart", "payload": chart, "produced_by": "loom"}}
 
     # Emit follow-up chips
     narrative_text = "".join(full_narrative)

@@ -2,7 +2,7 @@
 Customers API Router.
 
 Provides paginated search, filter, and detail endpoints for retail bank customer profiles,
-including engineered features, segment assignments, SHAP explanations, and Saanvi product recommendations.
+including engineered features, segment assignments, SHAP explanations, and Compass product recommendations.
 """
 
 import pandas as pd

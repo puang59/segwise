@@ -14,7 +14,7 @@ interface HitlCardProps {
 export const HitlCard: React.FC<HitlCardProps> = ({
   question,
   options,
-  askingAgent = 'Advait',
+  askingAgent = 'Atlas',
   onRespond,
 }) => {
   const [customResponse, setCustomResponse] = useState('');

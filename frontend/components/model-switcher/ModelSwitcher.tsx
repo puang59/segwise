@@ -29,7 +29,20 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isEditingKey, setIsEditingKey] = useState(false);
   const [tempApiKey, setTempApiKey] = useState(apiKey);
-  const [activeTab, setActiveTab] = useState<'myra' | 'advait'>('myra');
+  const [activeTab, setActiveTab] = useState<'loom' | 'atlas'>('loom');
+  const modalRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   useEffect(() => {
     fetchModels().then((data) => {
@@ -40,16 +53,16 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
   }, []);
 
   const handleSelect = (modelId: string) => {
-    if (activeTab === 'advait') {
+    if (activeTab === 'atlas') {
       onSelectAdvaitModel(modelId);
-      selectModel(modelId, 'advait');
+      selectModel(modelId, 'atlas');
     } else {
       onSelectMyraModel(modelId);
-      selectModel(modelId, 'myra');
+      selectModel(modelId, 'loom');
     }
     setIsOpen(false);
     const selectedModelName = models.find((m) => m.id === modelId)?.name || modelId;
-    showToast.info('Model updated', `Active ${activeTab === 'advait' ? 'Advait' : 'Myra'} model set to ${selectedModelName}`);
+    showToast.info('Model updated', `Active ${activeTab === 'atlas' ? 'Atlas' : 'Loom'} model set to ${selectedModelName}`);
   };
 
   const handleSaveApiKey = () => {
@@ -62,10 +75,11 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
   const activeMyraObj = models.find((m) => m.id === selectedMyraModel);
 
   return (
-    <div style={{ position: 'relative', margin: '0' }}>
+    <div ref={modalRef} style={{ position: 'relative', margin: '0' }}>
 
       {/* Main Switcher Trigger Button */}
       <button
+        type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="pressable"
         style={{
@@ -110,10 +124,10 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
             }}
             transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
           >
-            {/* Tabs to select Advait vs Myra using DiceBear avatars */}
+            {/* Tabs to select Atlas vs Loom using DiceBear avatars */}
             <div style={{ display: 'flex', borderBottom: '1px solid rgba(0,0,0,0.06)', marginBottom: 8 }}>
               <button
-                onClick={() => setActiveTab('myra')}
+                onClick={() => setActiveTab('loom')}
                 style={{
                   flex: 1,
                   padding: '6px 0',
@@ -125,16 +139,16 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
                   gap: 5,
                   background: 'none',
                   border: 'none',
-                  borderBottom: activeTab === 'myra' ? '2px solid #be185d' : '2px solid transparent',
-                  color: activeTab === 'myra' ? '#be185d' : 'rgba(26,26,24,0.4)',
+                  borderBottom: activeTab === 'loom' ? '2px solid #be185d' : '2px solid transparent',
+                  color: activeTab === 'loom' ? '#be185d' : 'rgba(26,26,24,0.4)',
                   cursor: 'pointer',
                 }}
               >
-                <AgentAvatar agent="myra" size={14} showName={false} />
-                Myra
+                <AgentAvatar agent="loom" size={14} showName={false} />
+                Loom
               </button>
               <button
-                onClick={() => setActiveTab('advait')}
+                onClick={() => setActiveTab('atlas')}
                 style={{
                   flex: 1,
                   padding: '6px 0',
@@ -146,21 +160,27 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
                   gap: 5,
                   background: 'none',
                   border: 'none',
-                  borderBottom: activeTab === 'advait' ? '2px solid #4338ca' : '2px solid transparent',
-                  color: activeTab === 'advait' ? '#4338ca' : 'rgba(26,26,24,0.4)',
+                  borderBottom: activeTab === 'atlas' ? '2px solid #4338ca' : '2px solid transparent',
+                  color: activeTab === 'atlas' ? '#4338ca' : 'rgba(26,26,24,0.4)',
                   cursor: 'pointer',
                 }}
               >
-                <AgentAvatar agent="advait" size={14} showName={false} />
-                Advait
+                <AgentAvatar agent="atlas" size={14} showName={false} />
+                Atlas
               </button>
             </div>
 
             {/* Models List */}
             <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {models.map((model) => {
+              {[...models].sort((a, b) => {
+                const aSelected = activeTab === 'atlas' ? selectedAdvaitModel === a.id : selectedMyraModel === a.id;
+                const bSelected = activeTab === 'atlas' ? selectedAdvaitModel === b.id : selectedMyraModel === b.id;
+                if (aSelected && !bSelected) return -1;
+                if (!aSelected && bSelected) return 1;
+                return 0;
+              }).map((model) => {
                 const isSelected =
-                  activeTab === 'advait'
+                  activeTab === 'atlas'
                     ? selectedAdvaitModel === model.id
                     : selectedMyraModel === model.id;
 

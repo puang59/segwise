@@ -30,7 +30,7 @@ interface MainWorkspaceProps {
 export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
   messages,
   isStreaming = false,
-  activeAgent = 'advait',
+  activeAgent = 'atlas',
   liveStatusText = '',
   agentStates,
   isSidebarOpen = true,

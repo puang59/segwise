@@ -26,7 +26,7 @@ DEEPINFRA_BASE_URL = "https://api.deepinfra.com/v1/openai"
 # Default Model Constants
 DEFAULT_MODEL = "google/gemini-3.5-flash"
 DEFAULT_ADV_MODEL = "google/gemini-3.1-flash-lite"
-DEFAULT_MYRA_MODEL = "google/gemini-3.1-pro"
+DEFAULT_LOOM_MODEL = "google/gemini-3.1-pro"
 
 # ── DEEPINFRA MODEL REGISTRY (20+ Models) ───────────────────────────────────
 AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
@@ -38,7 +38,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 1_000_000,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "Latest Gemini Pro — best quality, massive context",
     },
     "google/gemini-3.5-flash": {
@@ -47,7 +47,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 1_000_000,
         "speed": "fastest",
         "reasoning": False,
-        "recommended_for": ["advait", "myra"],
+        "recommended_for": ["atlas", "loom"],
         "description": "Ultra-fast, large context, best for production",
     },
     "google/gemini-3.1-flash-lite": {
@@ -56,7 +56,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 1_000_000,
         "speed": "fastest",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Lowest latency — ideal for intent extraction",
     },
     "google/gemini-2.5-pro": {
@@ -66,7 +66,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "speed": "fast",
         "reasoning": True,
         "thinking_budget": 8192,
-        "recommended_for": ["advait", "myra"],
+        "recommended_for": ["atlas", "loom"],
         "description": "Pro with built-in thinking — great for complex queries",
     },
     "google/gemini-2.5-flash": {
@@ -76,7 +76,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "speed": "fast",
         "reasoning": True,
         "thinking_budget": 4096,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Flash with thinking — fast + reasoning combined",
     },
     "google/gemini-3-pro-image": {
@@ -96,7 +96,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["advait", "myra"],
+        "recommended_for": ["atlas", "loom"],
         "description": "Best open-source instruct model, high throughput",
     },
     "meta-llama/Meta-Llama-3.1-70B-Instruct": {
@@ -105,7 +105,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "Reliable, widely tested 70B model",
     },
     "meta-llama/Meta-Llama-3.1-8B-Instruct": {
@@ -114,7 +114,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fastest",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Fastest open model — for quick intent parsing",
     },
     "meta-llama/Meta-Llama-3.1-405B-Instruct": {
@@ -123,7 +123,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "medium",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "Most capable open model — highest quality responses",
     },
     "meta-llama/Llama-3.2-11B-Vision-Instruct": {
@@ -141,7 +141,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "NVIDIA fine-tune of Llama 3.1 — strong instruction following",
     },
 
@@ -152,7 +152,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 65_536,
         "speed": "slow",
         "reasoning": True,
-        "recommended_for": ["advait", "myra"],
+        "recommended_for": ["atlas", "loom"],
         "description": "Full 671B reasoning model — most thorough analysis",
     },
     "deepseek-ai/DeepSeek-R1-Distill-Llama-70B": {
@@ -161,7 +161,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 65_536,
         "speed": "medium",
         "reasoning": True,
-        "recommended_for": ["advait", "myra"],
+        "recommended_for": ["atlas", "loom"],
         "description": "R1 reasoning distilled into Llama 70B — balanced",
     },
     "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B": {
@@ -170,7 +170,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 65_536,
         "speed": "medium",
         "reasoning": True,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "R1 reasoning distilled into Qwen 32B — compact reasoning",
     },
     "deepseek-ai/DeepSeek-R1-Distill-Llama-8B": {
@@ -179,7 +179,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 65_536,
         "speed": "fast",
         "reasoning": True,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Smallest R1 distill — fast reasoning for simple intent",
     },
     "deepseek-ai/DeepSeek-V3": {
@@ -188,7 +188,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "High-quality non-reasoning model from DeepSeek",
     },
 
@@ -199,7 +199,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "medium",
         "reasoning": True,
-        "recommended_for": ["advait", "myra"],
+        "recommended_for": ["atlas", "loom"],
         "description": "Qwen reasoning model — strong math and logic",
     },
     "Qwen/Qwen2.5-72B-Instruct": {
@@ -208,7 +208,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "Best Qwen instruct model — excellent reasoning without CoT",
     },
     "Qwen/Qwen2.5-32B-Instruct": {
@@ -217,7 +217,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Compact Qwen — good speed/quality tradeoff",
     },
     "Qwen/Qwen2.5-7B-Instruct": {
@@ -226,7 +226,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 131_072,
         "speed": "fastest",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Smallest Qwen — very fast, basic tasks",
     },
     "Qwen/Qwen2.5-Coder-32B-Instruct": {
@@ -246,7 +246,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 32_768,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Mistral's latest small model — good instruction following",
     },
     "mistralai/Mixtral-8x7B-Instruct-v0.1": {
@@ -255,7 +255,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 32_768,
         "speed": "fast",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "MoE architecture — fast, strong at structured tasks",
     },
     "mistralai/Mistral-7B-Instruct-v0.3": {
@@ -264,7 +264,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 32_768,
         "speed": "fastest",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Baseline fast model — lowest cost",
     },
 
@@ -275,7 +275,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 16_384,
         "speed": "fastest",
         "reasoning": False,
-        "recommended_for": ["advait"],
+        "recommended_for": ["atlas"],
         "description": "Small but surprisingly capable — efficient intent extraction",
     },
     "microsoft/WizardLM-2-8x22B": {
@@ -284,7 +284,7 @@ AVAILABLE_MODELS: Dict[str, Dict[str, Any]] = {
         "context_window": 65_536,
         "speed": "medium",
         "reasoning": False,
-        "recommended_for": ["myra"],
+        "recommended_for": ["loom"],
         "description": "Large MoE — high quality narrative generation",
     },
 }
@@ -331,7 +331,7 @@ def get_model_metadata(model_id: str) -> Dict[str, Any]:
 
 def get_recommended_models(agent_name: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Filter available models recommended for a specific agent ('advait' or 'myra').
+    Filter available models recommended for a specific agent ('atlas' or 'loom').
     If agent_name is None, returns all models.
     """
     results = []

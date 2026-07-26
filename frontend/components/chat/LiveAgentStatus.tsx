@@ -12,38 +12,38 @@ interface LiveAgentStatusProps {
 }
 
 export const LiveAgentStatus: React.FC<LiveAgentStatusProps> = ({
-  activeAgent = 'advait',
+  activeAgent = 'atlas',
   isStreaming = false,
   statusText,
 }) => {
   if (!isStreaming && !statusText) return null;
 
-  const meta = AGENT_REGISTRY[activeAgent] || AGENT_REGISTRY['advait'];
+  const meta = AGENT_REGISTRY[activeAgent] || AGENT_REGISTRY['atlas'];
 
   // Format default live status string matching the user screenshot if no specific statusText given
   let displayText = statusText;
   if (!displayText) {
     switch (activeAgent) {
-      case 'advait':
-        displayText = 'Advait is trying to understand the intent ....';
+      case 'atlas':
+        displayText = 'Atlas is trying to understand the intent ....';
         break;
-      case 'vihaan':
-        displayText = 'Vihaan is querying the database to resolve columns...';
+      case 'scout':
+        displayText = 'Scout is querying the database to resolve columns...';
         break;
-      case 'ishaan':
-        displayText = 'Ishaan is running the customer segmentation engine...';
+      case 'mosaic':
+        displayText = 'Mosaic is running the customer segmentation engine...';
         break;
-      case 'kabir':
-        displayText = 'Kabir is resolving SHAP feature importance matrix...';
+      case 'forge':
+        displayText = 'Forge is resolving SHAP feature importance matrix...';
         break;
-      case 'saanvi':
-        displayText = 'Saanvi is calculating segment centroids and propensity models...';
+      case 'compass':
+        displayText = 'Compass is calculating segment centroids and propensity models...';
         break;
-      case 'aanav':
-        displayText = 'Aanav is compiling executive PDF report sections...';
+      case 'quill':
+        displayText = 'Quill is compiling executive PDF report sections...';
         break;
-      case 'myra':
-        displayText = 'Myra is synthesizing recommendations for priority accounts...';
+      case 'loom':
+        displayText = 'Loom is synthesizing recommendations for priority accounts...';
         break;
       default:
         displayText = `${meta.displayName} is processing your request...`;
@@ -52,7 +52,7 @@ export const LiveAgentStatus: React.FC<LiveAgentStatusProps> = ({
 
   // Highlight agent name in text if present
   const renderFormattedText = (text: string) => {
-    const nameMatch = text.match(/^(Advait|Vihaan|Saanvi|Kabir|Aanav|Myra|Ishaan)/i);
+    const nameMatch = text.match(/^(Atlas|Scout|Compass|Forge|Quill|Loom|Mosaic)/i);
     if (nameMatch) {
       const name = nameMatch[0];
       const rest = text.slice(name.length);

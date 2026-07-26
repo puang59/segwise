@@ -73,8 +73,8 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({
     );
   }
 
-  // Parse clean agent name (default to 'myra')
-  const agentName: AgentName = message.sender === 'advait' ? 'advait' : 'myra';
+  // Parse clean agent name (default to 'loom')
+  const agentName: AgentName = message.sender === 'atlas' ? 'atlas' : 'loom';
 
   return (
     <motion.div

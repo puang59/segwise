@@ -1,8 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { createAvatar } from '@dicebear/core';
-import * as lorelei from '@dicebear/lorelei';
+import React from 'react';
 import { AgentName, AGENT_REGISTRY } from '@/lib/types';
 
 interface AgentAvatarProps {
@@ -14,8 +12,7 @@ interface AgentAvatarProps {
 }
 
 /**
- * Renders a client-side Data URI DiceBear Lorelei avatar for each agent,
- * matching exact data:image/svg+xml format and eliminating network requests.
+ * Renders a DiceBear Shape Grid avatar for each agent using the HTTP API.
  */
 export const AgentAvatar: React.FC<AgentAvatarProps> = ({
   agent,
@@ -32,17 +29,7 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
     role: 'Agent',
   };
 
-  // Generate Data URI client-side without external network dependency
-  const avatarDataUri = useMemo(() => {
-    try {
-      const avatar = createAvatar(lorelei, {
-        seed: meta.displayName,
-      });
-      return avatar.toDataUri();
-    } catch {
-      return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="${encodeURIComponent(meta.color)}"/></svg>`;
-    }
-  }, [meta.displayName, meta.color]);
+  const avatarUrl = `https://api.dicebear.com/10.x/shape-grid/svg?seed=${encodeURIComponent(meta.displayName)}&shapeColor=${meta.color.replace('#', '')}`;
 
   return (
     <span
@@ -55,13 +42,11 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
         style={{
           width: size,
           height: size,
-          background: `${meta.color}14`,
-          border: `1px solid ${meta.color}28`,
           flexShrink: 0,
         }}
       >
         <img
-          src={avatarDataUri}
+          src={avatarUrl}
           alt={meta.displayName}
           width={size}
           height={size}

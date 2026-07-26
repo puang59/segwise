@@ -33,7 +33,7 @@ class ExportPDFRequest(BaseModel):
     report_title: str = Field("Executive Customer Segmentation & Growth Report", description="Title of report")
     narrative_summary: Optional[str] = Field(
         None,
-        description="LLM narrative summary from Myra agent turn"
+        description="LLM narrative summary from Loom agent turn"
     )
 
 from backend.routers.customers import _load_full_customer_dataset
@@ -95,7 +95,7 @@ REPORT_HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="cover-meta">
         <strong>Generated On:</strong> {{ date }}<br>
         <strong>Orchestrated By:</strong> Segwise Multi-Agent Banking Engine<br>
-        <strong>Agents Active:</strong> Advait, Vihaan, Kabir, Ishaan, Aadhya, Saanvi, Myra<br>
+        <strong>Agents Active:</strong> Atlas, Scout, Forge, Mosaic, Prism, Compass, Loom<br>
         <strong>Session ID:</strong> {{ session_id }}
     </div>
 </div>
@@ -142,7 +142,7 @@ REPORT_HTML_TEMPLATE = """<!DOCTYPE html>
 
 <!-- SECTION 6: CROSS-SELL OPPORTUNITIES -->
 <div class="section-title">5. Strategic Cross-Sell Opportunities</div>
-<p>Targeted product recommendations mapped by Saanvi recommendation agent based on segment eligibility rules:</p>
+<p>Targeted product recommendations mapped by Compass recommendation agent based on segment eligibility rules:</p>
 <ul>
     {% for seg_name, recs in segment_recommendations.items() %}
     <li><strong>{{ seg_name|capitalize }} Segment:</strong> Recommended Products: {{ recs|map(attribute='product')|join(', ') }}</li>

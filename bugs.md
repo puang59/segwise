@@ -40,7 +40,7 @@ narrative_text = fallback_state.get("narrative") or "Analysis completed."
 ```
 
 ## 4. Backend: `resolve_columns` Expected `str`, got `str | None`
-**Location**: `backend/agents/vihaan.py`, Line 30
+**Location**: `backend/agents/scout.py`, Line 30
 **Bug**: `resolve_columns(state.get("db_path"))` where `db_path` might be `None`. 
 **Impact**: The tool will fail if the DB path is missing.
 **Fix**: 
@@ -51,7 +51,7 @@ resolve_columns(db_path)
 ```
 
 ## 5. Backend: Dictionary `get` with `None` Key
-**Location**: `backend/agents/myra.py`, Lines 200, 259
+**Location**: `backend/agents/loom.py`, Lines 200, 259
 **Bug**: `intent = state.get("intent")`, which can be `None`, is then used in a dictionary lookup: `INTENT_MAPPING.get(intent)`.
 **Impact**: Fails to lookup properly or raises warnings.
 **Fix**:
@@ -68,8 +68,8 @@ intent = state.get("intent") or "segment"
 Instead of managing mutable variables like `currentTraceItems` inside the function block, it's safer to manage these using functional state updates or a `useReducer` to guarantee that every event always computes the next state from the strictly previous state, removing the need for `flushSync`.
 
 ## 7. Backend: Unused Variables & Imports (Code Quality)
-**Location**: Across multiple files (`kabir.py`, `clustering.py`, `aadhya.py`)
-**Bug**: Variables like `where_parts` (kabir.py:48), `e` (clustering.py:220, 225) are assigned but never used. Multiple unused imports like `pandas as pd` (kabir.py, tools/column_resolver.py). 
+**Location**: Across multiple files (`forge.py`, `clustering.py`, `prism.py`)
+**Bug**: Variables like `where_parts` (forge.py:48), `e` (clustering.py:220, 225) are assigned but never used. Multiple unused imports like `pandas as pd` (forge.py, tools/column_resolver.py). 
 **Impact**: Messy codebase, potential confusion, slightly increased memory overhead.
 **Fix**:
 Clean up imports and remove unused variables using `autoflake` or manual deletion as flagged by `flake8`.

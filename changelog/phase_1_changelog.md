@@ -18,21 +18,21 @@
 - Defined default model constants:
   - `DEFAULT_MODEL = "google/gemini-3.5-flash"`
   - `DEFAULT_ADV_MODEL = "google/gemini-3.1-flash-lite"`
-  - `DEFAULT_MYRA_MODEL = "google/gemini-3.1-pro"`
+  - `DEFAULT_LOOM_MODEL = "google/gemini-3.1-pro"`
 - Implemented `get_llm_client(api_key: Optional[str], is_async: bool)` helper connecting to `https://api.deepinfra.com/v1/openai` with automatic environment variable fallback (`DEEPINFRA_API_KEY` or `OPENAI_API_KEY`).
 - Added utility helpers `get_model_metadata()` and `get_recommended_models(agent_name)`.
 - Created [`.env.example`](/.env.example) and [`.env`](/.env) files for local API key configuration.
 
 ### Task 1.2: Agent State Envelope Definition ([`backend/agents/state.py`](/backend/agents/state.py))
 - Defined rigid `AgentState` TypedDict used as pass-through state envelope across LangGraph multi-agent chain:
-  - **Session & Context**: `messages`, `conversation_id`, `session_advait_model`, `session_myra_model`, `session_api_key`.
-  - **Advait (Intent Extractor)**: `intent`, `agent_plan`, `filters`, `segmentation_method`, `segment_label_hints`, `clarification_needed`, `clarification_question`.
-  - **Vihaan (Data Scout)**: `resolved_columns`, `row_count`, `dataset_summary`.
-  - **Kabir (Feature Engineer)**: `engineered_features`, `df_path`.
-  - **Ishaan (Segmentation Engine)**: `segment_assignments`, `segment_stats`, `cluster_model_path`, `evaluation_metrics`.
-  - **Aadhya (Explainability & SHAP)**: `segment_shap`, `explanations`.
-  - **Saanvi (Recommendations)**: `recommendations`.
-  - **Myra (Response Synthesizer)**: `narrative`, `follow_up_chips`, `chart_specs`.
+  - **Session & Context**: `messages`, `conversation_id`, `session_atlas_model`, `session_loom_model`, `session_api_key`.
+  - **Atlas (Intent Extractor)**: `intent`, `agent_plan`, `filters`, `segmentation_method`, `segment_label_hints`, `clarification_needed`, `clarification_question`.
+  - **Scout (Data Scout)**: `resolved_columns`, `row_count`, `dataset_summary`.
+  - **Forge (Feature Engineer)**: `engineered_features`, `df_path`.
+  - **Mosaic (Segmentation Engine)**: `segment_assignments`, `segment_stats`, `cluster_model_path`, `evaluation_metrics`.
+  - **Prism (Explainability & SHAP)**: `segment_shap`, `explanations`.
+  - **Compass (Recommendations)**: `recommendations`.
+  - **Loom (Response Synthesizer)**: `narrative`, `follow_up_chips`, `chart_specs`.
   - **Cross-turn Memory**: `current_segments`, `tool_outputs`.
 - Implemented `create_initial_state()` factory helper function.
 
@@ -45,7 +45,7 @@
 
 ### Task 1.4: Database Layer & Persistence ([`backend/db/models.py`](/backend/db/models.py) & [`backend/db/database.py`](/backend/db/database.py))
 - Defined SQLAlchemy declarative models:
-  - `SessionModel`: session ID, title, advait_model, myra_model, state_data, timestamps.
+  - `SessionModel`: session ID, title, atlas_model, loom_model, state_data, timestamps.
   - `MessageModel`: message ID, session ID, role, agent_name, content, extra_data (JSON charts/chips), timestamp.
   - `SegmentCacheModel`: cache ID, session ID, segmentation_method, features_used, assignments, stats, metrics.
   - `TraceLogModel`: trace ID, session ID, conversation ID, agent_name, event_type, input/output JSON, latency_ms.
@@ -87,7 +87,7 @@
 --- 1. Testing Task 1.1: Multi-Model Configuration & Registry ---
   [PASS] Registered LLM models count: 27 (Required: >= 20)
   [PASS] Default model constants verified.
-  [PASS] Recommended models lookup: Advait (17 models), Myra (13 models).
+  [PASS] Recommended models lookup: Atlas (17 models), Loom (13 models).
   [PASS] Gemini 2.5 Pro reasoning metadata verified.
   [PASS] DeepInfra OpenAI client initialization verified.
 

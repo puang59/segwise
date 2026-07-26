@@ -2,7 +2,7 @@
 SSE Streaming Chat API Router.
 
 Provides `POST /chat` streaming SSE endpoint using Server-Sent Events (SSE) to execute the multi-agent
-handoff workflow (Advait -> Vihaan -> Kabir -> Ishaan -> Aadhya -> Saanvi -> Myra) and yield structured real-time events.
+handoff workflow (Atlas -> Scout -> Forge -> Mosaic -> Prism -> Compass -> Loom) and yield structured real-time events.
 """
 
 import json
@@ -13,15 +13,15 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from backend.config import AVAILABLE_MODELS, DEFAULT_ADV_MODEL, DEFAULT_MYRA_MODEL
+from backend.config import AVAILABLE_MODELS, DEFAULT_ADV_MODEL, DEFAULT_LOOM_MODEL
 from backend.agents.state import create_initial_state, AgentState
-from backend.agents.advait import run_advait
-from backend.agents.vihaan import run_vihaan
-from backend.agents.kabir import run_kabir
-from backend.agents.ishaan import run_ishaan
-from backend.agents.aadhya import run_aadhya
-from backend.agents.saanvi import run_saanvi
-from backend.agents.myra import stream_myra, run_myra
+from backend.agents.atlas import run_atlas
+from backend.agents.scout import run_scout
+from backend.agents.forge import run_forge
+from backend.agents.mosaic import run_mosaic
+from backend.agents.prism import run_prism
+from backend.agents.compass import run_compass
+from backend.agents.loom import stream_loom, run_loom
 from backend.db.database import save_message, create_session, log_trace
 
 logger = logging.getLogger(__name__)
@@ -33,8 +33,8 @@ class ChatRequest(BaseModel):
     message: Optional[str] = Field(None, description="Natural language user query")
     prompt: Optional[str] = Field(None, description="Alternative field name for natural language query")
     conversation_id: Optional[str] = Field("session-default", description="Unique conversation or session ID")
-    advait_model: Optional[str] = Field(None, description="Optional model ID override for Advait Intent agent")
-    myra_model: Optional[str] = Field(None, description="Optional model ID override for Myra Synthesis agent")
+    atlas_model: Optional[str] = Field(None, description="Optional model ID override for Atlas Intent agent")
+    loom_model: Optional[str] = Field(None, description="Optional model ID override for Loom Synthesis agent")
     api_key: Optional[str] = Field(None, description="Optional DeepInfra / OpenAI API key override")
 
 
@@ -95,18 +95,18 @@ async def chat_stream_endpoint(req: ChatRequest):
         raise HTTPException(status_code=400, detail="Query message or prompt is required")
     conv_id = req.conversation_id or "session-default"
 
-    adv_model = req.advait_model or DEFAULT_ADV_MODEL
-    myra_m = req.myra_model or DEFAULT_MYRA_MODEL
+    adv_model = req.atlas_model or DEFAULT_ADV_MODEL
+    loom_m = req.loom_model or DEFAULT_LOOM_MODEL
 
-    create_session(session_id=conv_id, advait_model=adv_model, myra_model=myra_m)
+    create_session(session_id=conv_id, atlas_model=adv_model, loom_model=loom_m)
     save_message(session_id=conv_id, role="user", content=user_msg)
 
     async def sse_event_generator() -> AsyncGenerator[str, None]:
         state: AgentState = create_initial_state(
             user_message=user_msg,
             conversation_id=conv_id,
-            advait_model=adv_model,
-            myra_model=myra_m,
+            atlas_model=adv_model,
+            loom_model=loom_m,
             api_key=req.api_key,
         )
 
@@ -122,15 +122,15 @@ async def chat_stream_endpoint(req: ChatRequest):
         yield f": {' ' * 8192}\n\n"
         await asyncio.sleep(0)
 
-        # ── 1. ADVAIT (Intent Extractor & Planner) ───────────────────────────
-        yield _format_sse("agent_start", {"agent": "advait", "role": "Intent & Planning"})
-        yield _format_sse("tool_start", {"tool": "advait_intent_extractor", "agent": "advait"})
+        # ── 1. ATLAS (Intent Extractor & Planner) ───────────────────────────
+        yield _format_sse("agent_start", {"agent": "atlas", "role": "Intent & Planning"})
+        yield _format_sse("tool_start", {"tool": "atlas_intent_extractor", "agent": "atlas"})
         yield f": {' ' * 2048}\n\n"  # Flush buffer again
         await asyncio.sleep(0.35)  # Realistic live pipeline pacing
 
         try:
-            state = await run_advait(state)
-            yield _format_sse("tool_complete", {"tool": "advait_intent_extractor", "agent": "advait"})
+            state = await run_atlas(state)
+            yield _format_sse("tool_complete", {"tool": "atlas_intent_extractor", "agent": "atlas"})
             yield _format_sse("intent_detected", {
                 "intent": state.get("intent"),
                 "agent_plan": state.get("agent_plan", []),
@@ -138,14 +138,14 @@ async def chat_stream_endpoint(req: ChatRequest):
                 "segmentation_method": state.get("segmentation_method"),
             })
             yield _format_sse("agent_complete", {
-                "agent": "advait",
+                "agent": "atlas",
                 "duration_ms": 350,
                 "summary": f"Intent: {state.get('intent', 'segment')} ({state.get('segmentation_method', 'rule')}-based)",
             })
-            log_trace(conv_id, conv_id, "advait", "intent_detected", output_data=state.get("intent"))
+            log_trace(conv_id, conv_id, "atlas", "intent_detected", output_data=state.get("intent"))
         except Exception as e:
-            logger.error(f"[Chat SSE] Advait failed: {e}")
-            yield _format_sse("tool_error", {"tool": "advait_intent_extractor", "agent": "advait", "error": str(e)})
+            logger.error(f"[Chat SSE] Atlas failed: {e}")
+            yield _format_sse("tool_error", {"tool": "atlas_intent_extractor", "agent": "atlas", "error": str(e)})
 
         await asyncio.sleep(0.35)
 
@@ -154,81 +154,81 @@ async def chat_stream_endpoint(req: ChatRequest):
             yield _format_sse("clarification", {
                 "question": state.get("clarification_question", "Please clarify your request:"),
                 "options": state.get("clarification_options", ["Rule-based", "ML Clustering", "Explore EDA"]),
-                "asking_agent": "advait",
+                "asking_agent": "atlas",
             })
             yield _format_sse("done", {"status": "clarification_required"})
             return
 
-        agent_plan = state.get("agent_plan") or ["vihaan", "kabir", "ishaan", "aadhya", "saanvi", "myra"]
+        agent_plan = state.get("agent_plan") or ["scout", "forge", "mosaic", "prism", "compass", "loom"]
 
-        # ── 2. VIHAAN (Data Scout & Column Resolver) ─────────────────────────
-        if "vihaan" in agent_plan:
-            yield _format_sse("agent_start", {"agent": "vihaan", "role": "Data Scout & Schema Resolution"})
-            yield _format_sse("tool_start", {"tool": "column_resolver", "agent": "vihaan"})
+        # ── 2. SCOUT (Data Scout & Column Resolver) ─────────────────────────
+        if "scout" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "scout", "role": "Data Scout"})
+            yield _format_sse("tool_start", {"tool": "column_resolver", "agent": "scout"})
             await asyncio.sleep(0.35)
             try:
-                state = await run_vihaan(state)
-                yield _format_sse("tool_complete", {"tool": "column_resolver", "agent": "vihaan"})
+                state = await run_scout(state)
+                yield _format_sse("tool_complete", {"tool": "column_resolver", "agent": "scout"})
                 yield _format_sse("columns_resolved", {
                     "columns": state.get("resolved_columns") or [],
                     "row_count": state.get("row_count", 0),
                 })
                 yield _format_sse("agent_complete", {
-                    "agent": "vihaan",
+                    "agent": "scout",
                     "duration_ms": 350,
                     "summary": f"Resolved {len(state.get('resolved_columns') or [])} columns across {state.get('row_count', 0):,} records",
                 })
             except Exception as e:
-                logger.error(f"[Chat SSE] Vihaan failed: {e}")
-                yield _format_sse("tool_error", {"tool": "column_resolver", "agent": "vihaan", "error": str(e)})
+                logger.error(f"[Chat SSE] Scout failed: {e}")
+                yield _format_sse("tool_error", {"tool": "column_resolver", "agent": "scout", "error": str(e)})
 
             await asyncio.sleep(0.35)
 
-        # ── 3. KABIR (Feature Engineering & SHAP Radar) ───────────────────────
-        if "kabir" in agent_plan:
-            yield _format_sse("agent_start", {"agent": "kabir", "role": "Composite Feature Engineering"})
-            yield _format_sse("tool_start", {"tool": "compute_features", "agent": "kabir"})
+        # ── 3. FORGE (Feature Engineering & SHAP Radar) ───────────────────────
+        if "forge" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "forge", "role": "Feature Engineer"})
+            yield _format_sse("tool_start", {"tool": "compute_features", "agent": "forge"})
             await asyncio.sleep(0.35)
             try:
-                state = await run_kabir(state)
-                yield _format_sse("tool_complete", {"tool": "compute_features", "agent": "kabir"})
+                state = await run_forge(state)
+                yield _format_sse("tool_complete", {"tool": "compute_features", "agent": "forge"})
                 features = state.get("engineered_features") or []
                 yield _format_sse("tool_progress", {
-                    "agent": "kabir",
+                    "agent": "forge",
                     "tool": "compute_features",
                     "progress": 100,
                     "message": f"Engineered {len(features)} behavioral features",
                 })
                 
                 # Emit Correlation Heatmap if generated
-                kabir_outputs = state.get("tool_outputs", {}).get("kabir", {})
-                corr_chart = kabir_outputs.get("correlation_chart")
+                forge_outputs = state.get("tool_outputs", {}).get("forge", {})
+                corr_chart = forge_outputs.get("correlation_chart")
                 if corr_chart:
                     yield _format_sse("structured_output", {
                         "kind": "chart",
                         "payload": corr_chart,
-                        "produced_by": "kabir",
+                        "produced_by": "forge",
                     })
 
                 yield _format_sse("agent_complete", {
-                    "agent": "kabir",
+                    "agent": "forge",
                     "duration_ms": 350,
                     "summary": f"Engineered {len(features)} behavioral features ({', '.join(features[:3])}...)",
                 })
             except Exception as e:
-                logger.error(f"[Chat SSE] Kabir failed: {e}")
-                yield _format_sse("tool_error", {"tool": "compute_features", "agent": "kabir", "error": str(e)})
+                logger.error(f"[Chat SSE] Forge failed: {e}")
+                yield _format_sse("tool_error", {"tool": "compute_features", "agent": "forge", "error": str(e)})
 
             await asyncio.sleep(0.35)
 
-        # ── 4. ISHAAN (Customer Segmentation Engine) ─────────────────────────
-        if "ishaan" in agent_plan:
-            yield _format_sse("agent_start", {"agent": "ishaan", "role": "Customer Segmentation Engine"})
-            yield _format_sse("tool_start", {"tool": "segmentation_clustering", "agent": "ishaan"})
+        # ── 4. MOSAIC (Customer Segmentation Engine) ─────────────────────────
+        if "mosaic" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "mosaic", "role": "Segmentation"})
+            yield _format_sse("tool_start", {"tool": "segmentation_clustering", "agent": "mosaic"})
             await asyncio.sleep(0.4)
             try:
-                state = await run_ishaan(state)
-                yield _format_sse("tool_complete", {"tool": "segmentation_clustering", "agent": "ishaan"})
+                state = await run_mosaic(state)
+                yield _format_sse("tool_complete", {"tool": "segmentation_clustering", "agent": "mosaic"})
 
                 seg_stats = state.get("segment_stats") or {}
                 if seg_stats:
@@ -253,88 +253,88 @@ async def chat_stream_endpoint(req: ChatRequest):
                     yield _format_sse("structured_output", {
                         "kind": "table",
                         "payload": formatted_segments,
-                        "produced_by": "ishaan",
+                        "produced_by": "mosaic",
                     })
 
                 yield _format_sse("agent_complete", {
-                    "agent": "ishaan",
+                    "agent": "mosaic",
                     "duration_ms": 400,
                     "summary": f"Clustered {state.get('row_count', 0):,} customer profiles into {len(seg_stats)} segments",
                 })
             except Exception as e:
-                logger.error(f"[Chat SSE] Ishaan failed: {e}")
-                yield _format_sse("tool_error", {"tool": "segmentation_clustering", "agent": "ishaan", "error": str(e)})
+                logger.error(f"[Chat SSE] Mosaic failed: {e}")
+                yield _format_sse("tool_error", {"tool": "segmentation_clustering", "agent": "mosaic", "error": str(e)})
 
             await asyncio.sleep(0.35)
 
-        # ── 5. AADHYA (Explainability Engine) ─────────────────────────────────
-        if "aadhya" in agent_plan:
-            yield _format_sse("agent_start", {"agent": "aadhya", "role": "Explainable AI (SHAP)"})
-            yield _format_sse("tool_start", {"tool": "shap_explainer", "agent": "aadhya"})
+        # ── 5. PRISM (Explainability Engine) ─────────────────────────────────
+        if "prism" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "prism", "role": "Explainability"})
+            yield _format_sse("tool_start", {"tool": "shap_explainer", "agent": "prism"})
             await asyncio.sleep(0.4)
-            from backend.agents.aadhya import run_aadhya
+            from backend.agents.prism import run_prism
             try:
-                state = await run_aadhya(state)
-                yield _format_sse("tool_complete", {"tool": "shap_explainer", "agent": "aadhya"})
+                state = await run_prism(state)
+                yield _format_sse("tool_complete", {"tool": "shap_explainer", "agent": "prism"})
                 yield _format_sse("agent_complete", {
-                    "agent": "aadhya",
+                    "agent": "prism",
                     "duration_ms": 380,
                     "summary": "Computed SHAP feature importance values for segments",
                 })
             except Exception as e:
-                logger.error(f"[Chat SSE] Aadhya failed: {e}")
-                yield _format_sse("tool_error", {"tool": "shap_explainer", "agent": "aadhya", "error": str(e)})
+                logger.error(f"[Chat SSE] Prism failed: {e}")
+                yield _format_sse("tool_error", {"tool": "shap_explainer", "agent": "prism", "error": str(e)})
 
             await asyncio.sleep(0.35)
 
-        # ── 6. SAANVI (Recommendation Engine) ───────────────────────────────
-        if "saanvi" in agent_plan:
-            yield _format_sse("agent_start", {"agent": "saanvi", "role": "Banking Product Recommendations"})
-            yield _format_sse("tool_start", {"tool": "product_recommendations", "agent": "saanvi"})
+        # ── 6. COMPASS (Recommendation Engine) ───────────────────────────────
+        if "compass" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "compass", "role": "Recommendations"})
+            yield _format_sse("tool_start", {"tool": "product_recommendations", "agent": "compass"})
             await asyncio.sleep(0.35)
             try:
-                state = await run_saanvi(state)
-                yield _format_sse("tool_complete", {"tool": "product_recommendations", "agent": "saanvi"})
+                state = await run_compass(state)
+                yield _format_sse("tool_complete", {"tool": "product_recommendations", "agent": "compass"})
                 yield _format_sse("agent_complete", {
-                    "agent": "saanvi",
+                    "agent": "compass",
                     "duration_ms": 350,
                     "summary": "Generated personalized banking product recommendations & candidate transitions",
                 })
             except Exception as e:
-                logger.error(f"[Chat SSE] Saanvi failed: {e}")
-                yield _format_sse("tool_error", {"tool": "product_recommendations", "agent": "saanvi", "error": str(e)})
+                logger.error(f"[Chat SSE] Compass failed: {e}")
+                yield _format_sse("tool_error", {"tool": "product_recommendations", "agent": "compass", "error": str(e)})
 
             await asyncio.sleep(0.35)
 
-        # ── 6. AANAV (Executive Report Generator) ────────────────────────────
-        yield _format_sse("agent_start", {"agent": "aanav", "role": "PDF Report Generator"})
-        yield _format_sse("tool_start", {"tool": "pdf_report_compiler", "agent": "aanav"})
+        # ── 6. QUILL (Executive Report Generator) ────────────────────────────
+        yield _format_sse("agent_start", {"agent": "quill", "role": "PDF Report Generator"})
+        yield _format_sse("tool_start", {"tool": "pdf_report_compiler", "agent": "quill"})
         await asyncio.sleep(0.3)
-        yield _format_sse("tool_complete", {"tool": "pdf_report_compiler", "agent": "aanav"})
+        yield _format_sse("tool_complete", {"tool": "pdf_report_compiler", "agent": "quill"})
         yield _format_sse("agent_complete", {
-            "agent": "aanav",
+            "agent": "quill",
             "duration_ms": 300,
             "summary": "Compiled executive report structure & PDF export schemas",
         })
 
         await asyncio.sleep(0.35)
 
-        # ── 7. MYRA (Response Synthesizer & Narrative Streaming) ─────────────
-        if "myra" in agent_plan:
-            yield _format_sse("agent_start", {"agent": "myra", "role": "Response Synthesis"})
+        # ── 7. LOOM (Response Synthesizer & Narrative Streaming) ─────────────
+        if "loom" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "loom", "role": "Synthesizer"})
             full_narrative_chunks = []
             try:
-                async for event in stream_myra(state):
+                async for event in stream_loom(state):
                     ev_type = event.get("type")
                     ev_data = event.get("data", {})
                     if ev_type == "model_info":
                         yield _format_sse("model_info", ev_data)
                     elif ev_type == "thinking_start":
-                        yield _format_sse("thinking_start", {"agent": "myra"})
+                        yield _format_sse("thinking_start", {"agent": "loom"})
                     elif ev_type == "thought_chunk":
                         yield _format_sse("thinking_chunk", ev_data)
                     elif ev_type == "thinking_end":
-                        yield _format_sse("thinking_end", {"agent": "myra"})
+                        yield _format_sse("thinking_end", {"agent": "loom"})
                     elif ev_type == "text_chunk":
                         full_narrative_chunks.append(ev_data.get("content", ""))
                         yield _format_sse("text_chunk", ev_data)
@@ -348,26 +348,26 @@ async def chat_stream_endpoint(req: ChatRequest):
                 ]
                 yield _format_sse("suggestions", {"chips": chips})
                 yield _format_sse("agent_complete", {
-                    "agent": "myra",
+                    "agent": "loom",
                     "duration_ms": 420,
                     "summary": "Synthesized executive narrative and formatted segment insights",
                 })
 
                 final_text = "".join(full_narrative_chunks)
                 if final_text:
-                    save_message(session_id=conv_id, role="assistant", agent_name="myra", content=final_text)
+                    save_message(session_id=conv_id, role="assistant", agent_name="loom", content=final_text)
 
             except Exception as e:
-                logger.error(f"[Chat SSE] Myra streaming failed, running non-streaming fallback: {e}")
-                fallback_state = await run_myra(state)
+                logger.error(f"[Chat SSE] Loom streaming failed, running non-streaming fallback: {e}")
+                fallback_state = await run_loom(state)
                 narrative_text = fallback_state.get("narrative") or "Analysis completed."
                 yield _format_sse("text_chunk", {"content": narrative_text})
                 yield _format_sse("agent_complete", {
-                    "agent": "myra",
+                    "agent": "loom",
                     "duration_ms": 350,
                     "summary": "Synthesized executive narrative via fallback",
                 })
-                save_message(session_id=conv_id, role="assistant", agent_name="myra", content=narrative_text)
+                save_message(session_id=conv_id, role="assistant", agent_name="loom", content=narrative_text)
 
         yield _format_sse("done", {"status": "success", "conversation_id": conv_id})
 

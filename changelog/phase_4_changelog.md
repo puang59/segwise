@@ -19,13 +19,13 @@ Phase 4 completes the initial frontend architecture for the Banking Analytics Co
 - **Files**: `frontend/app/globals.css` & `frontend/app/layout.tsx`
 - **Base Color Tokens**: Defined near-black dark mode variables (`--bg: #0a0a0a`, `--surface: #111111`, `--surface-2: #1a1a1a`, `--surface-3: #222222`, `--border: rgba(255,255,255,0.06)`, `--text-primary: #f0f0f0`) and crisp light mode variables (`--bg: #f8fafc`, `--surface: #ffffff`, `--surface-2: #f1f5f9`, `--surface-3: #e2e8f0`).
 - **Agent Identity Color Palette**:
-  - Advait (Intent): `--agent-advait: #6366f1` (Indigo)
-  - Vihaan (Data Scout): `--agent-vihaan: #0ea5e9` (Sky)
-  - Kabir (Feature Engineering): `--agent-kabir: #a78bfa` (Violet)
-  - Ishaan (Segmentation): `--agent-ishaan: #f97316` (Orange)
-  - Aadhya (Explainability): `--agent-aadhya: #22c55e` (Green)
-  - Saanvi (Recommendations): `--agent-saanvi: #f59e0b` (Amber)
-  - Myra (Response Synthesis): `--agent-myra: #ec4899` (Pink)
+  - Atlas (Intent): `--agent-atlas: #6366f1` (Indigo)
+  - Scout (Data Scout): `--agent-scout: #0ea5e9` (Sky)
+  - Forge (Feature Engineering): `--agent-forge: #a78bfa` (Violet)
+  - Mosaic (Segmentation): `--agent-mosaic: #f97316` (Orange)
+  - Prism (Explainability): `--agent-prism: #22c55e` (Green)
+  - Compass (Recommendations): `--agent-compass: #f59e0b` (Amber)
+  - Loom (Response Synthesis): `--agent-loom: #ec4899` (Pink)
 - **Animation Easings & Micro-Interactions**:
   - Custom easings: `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`, `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`.
   - Defined `.pressable:active` micro-interaction class scaling elements to `0.97`.
@@ -43,7 +43,7 @@ Phase 4 completes the initial frontend architecture for the Banking Analytics Co
 - Built 240px fixed-width left column containing:
   - Segwise logo branding, version tag (`v2.0`), and Theme Switcher.
   - "New Analysis Session" action trigger button.
-  - Active model indicator card showing current Advait (`Gemini 3.1 Flash Lite`) and Myra (`Gemini 3.1 Pro`) model configurations.
+  - Active model indicator card showing current Atlas (`Gemini 3.1 Flash Lite`) and Loom (`Gemini 3.1 Pro`) model configurations.
   - Session history list with active selection highlight.
   - Live backend connection status indicator (`FastAPI Online :8000`).
 

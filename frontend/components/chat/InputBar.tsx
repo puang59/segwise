@@ -23,7 +23,7 @@ interface InputBarProps {
 }
 
 export const InputBar: React.FC<InputBarProps> = ({
-  activeAgent = 'advait',
+  activeAgent = 'atlas',
   isStreaming = false,
   liveStatusText = '',
   onSendMessage,

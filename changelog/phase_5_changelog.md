@@ -27,26 +27,26 @@ Phase 5 delivers the complete interactive UI component layer for the Banking Ana
 
 ### 3. Task 5.2: Model Switcher & API Key Component
 - **Files**: `frontend/components/model-switcher/ModelSwitcher.tsx`, `ModelBadge.tsx`
-- **`ModelSwitcher.tsx`**: Sidebar dropdown component featuring origin-aware open animation (`scale: 0.97->1, opacity: 0->1`). Supports dual model picking for Advait (Fast intent parsing) vs Myra (Rich response synthesis), color-coded speed badges (`fastest`=green, `fast`=indigo, `medium`=amber, `slow`=red), and an inline toggle for personal DeepInfra API key overrides.
-- **`ModelBadge.tsx`**: Compact active model indicator pill displayed in the workspace header (`✦ Myra · Gemini 3.1 Pro`). Clicking opens the sidebar model switcher.
+- **`ModelSwitcher.tsx`**: Sidebar dropdown component featuring origin-aware open animation (`scale: 0.97->1, opacity: 0->1`). Supports dual model picking for Atlas (Fast intent parsing) vs Loom (Rich response synthesis), color-coded speed badges (`fastest`=green, `fast`=indigo, `medium`=amber, `slow`=red), and an inline toggle for personal DeepInfra API key overrides.
+- **`ModelBadge.tsx`**: Compact active model indicator pill displayed in the workspace header (`✦ Loom · Gemini 3.1 Pro`). Clicking opens the sidebar model switcher.
 
 ---
 
 ### 4. Task 5.3: Chat Window, Message Blocks & HITL Card
 - **Files**: `frontend/components/chat/MessageBlock.tsx`, `SegmentTable.tsx`, `HitlCard.tsx`, `FollowUpChips.tsx`, `InputBar.tsx`, `ChatWindow.tsx`, `MainWorkspace.tsx`
-- **`MessageBlock.tsx`**: Full-width document message block with attribution header (`✦ Myra · Llama 3.1 70B`). Animated entrance (`opacity: 0->1, y: 12->0`, 240ms `ease-out`). Renders formatted markdown using `react-markdown`.
+- **`MessageBlock.tsx`**: Full-width document message block with attribution header (`✦ Loom · Llama 3.1 70B`). Animated entrance (`opacity: 0->1, y: 12->0`, 240ms `ease-out`). Renders formatted markdown using `react-markdown`.
 - **`SegmentTable.tsx`**: Styled interactive table presenting segment population percentages, customer counts, average balance, transaction frequency, and color-coded status dots. Row clicks trigger segment deep-dive.
-- **`HitlCard.tsx`**: Clarification prompt card when `clarification` events arrive. Displays `◆ Advait needs input` in indigo (`#6366f1`), choice option buttons, and custom response text field. Selection dispatches response and animates card exit (`opacity: 1->0`).
+- **`HitlCard.tsx`**: Clarification prompt card when `clarification` events arrive. Displays `◆ Atlas needs input` in indigo (`#6366f1`), choice option buttons, and custom response text field. Selection dispatches response and animates card exit (`opacity: 1->0`).
 - **`FollowUpChips.tsx`**: Horizontally scrolling suggestion chips with staggered entrance (`delay: i * 30ms`). Clicking populates and dispatches the query.
-- **`InputBar.tsx`**: Floating input bar featuring dynamic active agent pill (`◆ Advait` $\rightarrow$ `◉ Vihaan` $\rightarrow$ `⟳ Ishaan` $\rightarrow$ `✦ Myra`) updating in real-time as SSE events arrive.
+- **`InputBar.tsx`**: Floating input bar featuring dynamic active agent pill (`◆ Atlas` $\rightarrow$ `◉ Scout` $\rightarrow$ `⟳ Mosaic` $\rightarrow$ `✦ Loom`) updating in real-time as SSE events arrive.
 - **`ChatWindow.tsx` & `MainWorkspace.tsx`**: Full chat history viewport managing welcome state, preset query chips, scrolling behavior, and header integrations.
 
 ---
 
 ### 5. Task 5.4: Context Panel & Segment Detail Slide-Over
 - **Files**: `frontend/components/panels/ChartCard.tsx`, `SegmentDetailPanel.tsx`, `ContextPanel.tsx`
-- **`ChartCard.tsx`**: Recharts container with `isAnimationActive={false}` for zero decoration jumps. Renders producing agent header (`⬡ Kabir's feature distribution`).
-- **`SegmentDetailPanel.tsx`**: Slide-over drawer panel (`x: 40->0, opacity: 0->1`, 280ms `--ease-drawer`) showing segment persona title, tagline, key metrics grid, attribute importance breakdown, Saanvi product recommendations list, and candidate transition opportunities.
+- **`ChartCard.tsx`**: Recharts container with `isAnimationActive={false}` for zero decoration jumps. Renders producing agent header (`⬡ Forge's feature distribution`).
+- **`SegmentDetailPanel.tsx`**: Slide-over drawer panel (`x: 40->0, opacity: 0->1`, 280ms `--ease-drawer`) showing segment persona title, tagline, key metrics grid, attribute importance breakdown, Compass product recommendations list, and candidate transition opportunities.
 - **`ContextPanel.tsx`**: Tabbed right column hosting **Charts**, **Data**, and **Report** tabs. Supports executive PDF generation with loading spinner state transformation and CSV export actions.
 
 ---

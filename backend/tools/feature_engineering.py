@@ -1,5 +1,5 @@
 """
-Feature Engineering Tool for Kabir Agent.
+Feature Engineering Tool for Forge Agent.
 
 Implements FEATURE_REGISTRY with pure Python vector functions.
 All formulas are deterministic — no LLM involvement.

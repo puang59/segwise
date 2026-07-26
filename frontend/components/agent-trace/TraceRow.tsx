@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AgentTraceItem, AGENT_REGISTRY, AgentName } from '@/lib/types';
-import { ChevronDown, ChevronRight, AlertCircle, Wrench, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface TraceRowProps {
   item: AgentTraceItem;
@@ -13,7 +13,7 @@ interface TraceRowProps {
 
 /** Highlight agent names in cyan */
 const renderHighlightedSummary = (summaryText: string) => {
-  const agentNames = ['Advait', 'Vihaan', 'Saanvi', 'Kabir', 'Aadhya', 'Ishaan', 'Myra'];
+  const agentNames = ['Atlas', 'Scout', 'Compass', 'Forge', 'Prism', 'Mosaic', 'Loom'];
   const regex = new RegExp(`\\b(${agentNames.join('|')})\\b`, 'gi');
   const parts = summaryText.split(regex);
 
@@ -142,13 +142,32 @@ export const TraceRow: React.FC<TraceRowProps> = ({ item, index = 0, isLast = fa
           marginBottom: isLast ? 4 : 8,
         }}
       >
-        {/* Tool icon + dot */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, marginTop: 2 }}>
-          <Wrench
-            size={9}
-            color={item.status === 'done' ? 'rgba(22,163,74,0.7)' : 'rgba(14,165,233,0.8)'}
-            style={{ flexShrink: 0 }}
-          />
+        {/* Vertical line connecting from parent to this tool row */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 5,
+            top: 0,
+            bottom: isLast ? 'calc(100% - 9px)' : -8,
+            width: 0,
+            borderLeft: '1.5px dotted rgba(26,26,24,0.3)',
+            zIndex: 1,
+          }}
+        />
+        {/* Horizontal branch elbow to the tool dot */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 6,
+            top: 9,
+            width: 22,
+            borderTop: '1.5px dotted rgba(26,26,24,0.3)',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Tool dot */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, marginTop: 5 }}>
           {renderStatusNode()}
         </div>
 

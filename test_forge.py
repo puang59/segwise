@@ -1,6 +1,6 @@
 import asyncio
 from backend.agents.state import create_initial_state
-from backend.agents.kabir import run_kabir
+from backend.agents.forge import run_forge
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -12,7 +12,7 @@ async def main():
         "credit_score", "customer_tenure_days", "total_accounts",
         "has_loan", "has_Credit", "has_Debit", "credit_risk_tier"
     ]
-    state = await run_kabir(state)
+    state = await run_forge(state)
     print("Engineered features:", state.get("engineered_features"))
     print("df_path:", state.get("df_path"))
 
