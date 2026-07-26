@@ -1,20 +1,35 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '@/components/sidebar/Sidebar';
 import { MainWorkspace } from '@/components/chat/MainWorkspace';
 import { ContextPanel } from '@/components/panels/ContextPanel';
 import { SegmentDetailPanel } from '@/components/panels/SegmentDetailPanel';
-import { ChatMessage, AgentTraceItem, AgentName, AgentStatus, ChartSpec, SegmentSummary, AGENT_REGISTRY } from '@/lib/types';
+import { ChatMessage, AgentTraceItem, AgentName, AgentStatus, ChartSpec, SegmentSummary, AGENT_REGISTRY, ChatSession } from '@/lib/types';
 import { streamChatQuery } from '@/lib/api';
 import { showToast } from '@/components/shared/ToastProvider';
+
+const STORAGE_SESSIONS_KEY = 'segwise_chat_sessions_v1';
+const STORAGE_CURRENT_ID_KEY = 'segwise_current_session_id';
+
+const INITIAL_SESSIONS: ChatSession[] = [
+  {
+    id: 'session-default',
+    title: 'HNW Wealth Retention & Product Recommendations',
+    updatedAt: 'Just now',
+    messages: [],
+    chartSpecs: [],
+  },
+];
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isContextPanelOpen, setIsContextPanelOpen] = useState(true);
-  const [currentSessionId, setCurrentSessionId] = useState('session-default');
+
+  // Sessions and Active Session State
+  const [sessions, setSessions] = useState<ChatSession[]>(INITIAL_SESSIONS);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('session-default');
 
   // Model Selection State
   const [advaitModel, setAdvaitModel] = useState('google/gemini-3.1-flash-lite');
@@ -31,12 +46,78 @@ export default function Home() {
     vihaan: 'queued',
     kabir: 'queued',
     ishaan: 'queued',
-    aadhya: 'queued',
     saanvi: 'queued',
+    aanav: 'queued',
     myra: 'queued',
   });
   const [chartSpecs, setChartSpecs] = useState<ChartSpec[]>([]);
   const [selectedSegment, setSelectedSegment] = useState<SegmentSummary | null>(null);
+
+  const isInitialMount = useRef(true);
+
+  // 1. Load Sessions from localStorage on Mount
+  useEffect(() => {
+    try {
+      const storedSessions = localStorage.getItem(STORAGE_SESSIONS_KEY);
+      const storedId = localStorage.getItem(STORAGE_CURRENT_ID_KEY);
+
+      if (storedSessions) {
+        const parsed: ChatSession[] = JSON.parse(storedSessions);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSessions(parsed);
+          const activeId = storedId && parsed.some((s) => s.id === storedId) ? storedId : parsed[0].id;
+          setCurrentSessionId(activeId);
+          const activeSession = parsed.find((s) => s.id === activeId);
+          if (activeSession) {
+            setMessages(activeSession.messages || []);
+            setChartSpecs(activeSession.chartSpecs || []);
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[LocalStorage Load Error]', err);
+    }
+  }, []);
+
+  // 2. Persist Messages & Session Updates to LocalStorage
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (!currentSessionId) return;
+
+    setSessions((prevSessions) => {
+      const updated = prevSessions.map((s) => {
+        if (s.id === currentSessionId) {
+          let title = s.title;
+          const firstUserMsg = messages.find((m) => m.sender === 'user');
+          if (firstUserMsg && (title === 'New Analysis Session' || title === 'HNW Wealth Retention & Product Recommendations' || !title)) {
+            title = firstUserMsg.content.length > 36 ? `${firstUserMsg.content.slice(0, 36)}…` : firstUserMsg.content;
+          }
+
+          return {
+            ...s,
+            title,
+            updatedAt: 'Just now',
+            messages,
+            chartSpecs,
+          };
+        }
+        return s;
+      });
+
+      try {
+        localStorage.setItem(STORAGE_SESSIONS_KEY, JSON.stringify(updated));
+        localStorage.setItem(STORAGE_CURRENT_ID_KEY, currentSessionId);
+      } catch (err) {
+        console.warn('[LocalStorage Save Error]', err);
+      }
+      return updated;
+    });
+  }, [messages, chartSpecs, currentSessionId]);
 
   // Keyboard shortcut listener for Cmd+B / Ctrl+B
   useEffect(() => {
@@ -94,8 +175,8 @@ export default function Home() {
       vihaan: 'queued',
       kabir: 'queued',
       ishaan: 'queued',
-      aadhya: 'queued',
       saanvi: 'queued',
+      aanav: 'queued',
       myra: 'queued',
     });
 
@@ -149,19 +230,19 @@ export default function Home() {
               const liveMsgs: Record<string, string> = {
                 advait: 'Advait is analysing intent and building an execution plan...',
                 vihaan: 'Vihaan is querying the database to resolve columns...',
-                kabir: 'Kabir is engineering composite behavioral features...',
+                kabir: 'Kabir is computing SHAP explainability scores...',
                 ishaan: 'Ishaan is running the customer segmentation engine...',
-                aadhya: 'Aadhya is computing SHAP explainability scores...',
                 saanvi: 'Saanvi is generating personalized product recommendations...',
+                aanav: 'Aanav is compiling executive PDF report sections...',
                 myra: 'Myra is synthesizing the final report and insights...',
               };
               const agentSummaries: Record<string, string> = {
                 advait: 'Calculating intent score from user prompt — planning agent pipeline',
                 vihaan: 'Inspecting bank_sqlite.db schema via column_resolver tool',
-                kabir: 'Running compute_features tool — building behavioral feature vectors',
+                kabir: 'Running shap_explainer tool — computing feature importance scores',
                 ishaan: 'Running segmentation_clustering tool on customer profiles',
-                aadhya: 'Running shap_explainer tool — computing feature importance scores',
                 saanvi: 'Running product_recommendations tool — mapping cross-sell offers',
+                aanav: 'Compiling executive PDF report structure',
                 myra: 'Synthesizing executive narrative and segment markdown report',
               };
 
@@ -371,8 +452,8 @@ export default function Home() {
                 vihaan: 'done',
                 kabir: 'done',
                 ishaan: 'done',
-                aadhya: 'done',
                 saanvi: 'done',
+                aanav: 'done',
                 myra: 'done',
               });
               // Final message update — set isStreaming false
@@ -431,18 +512,88 @@ export default function Home() {
     );
   };
 
-  const handleSelectSession = (id: string) => {
-    setCurrentSessionId(id);
+  const handleSelectSession = (targetId: string) => {
+    if (targetId === currentSessionId) return;
+
+    // Save current session state before switching
+    setSessions((prev) => {
+      const saved = prev.map((s) => (s.id === currentSessionId ? { ...s, messages, chartSpecs } : s));
+      try {
+        localStorage.setItem(STORAGE_SESSIONS_KEY, JSON.stringify(saved));
+      } catch {}
+      return saved;
+    });
+
+    setCurrentSessionId(targetId);
+    try {
+      localStorage.setItem(STORAGE_CURRENT_ID_KEY, targetId);
+    } catch {}
+
+    const targetSession = sessions.find((s) => s.id === targetId);
+    if (targetSession) {
+      setMessages(targetSession.messages || []);
+      setChartSpecs(targetSession.chartSpecs || []);
+    } else {
+      setMessages([]);
+      setChartSpecs([]);
+    }
+
     setIsMobileSidebarOpen(false);
   };
 
   const handleNewSession = () => {
     const newId = `session-${Date.now()}`;
+    const newSession: ChatSession = {
+      id: newId,
+      title: 'New Analysis Session',
+      updatedAt: 'Just now',
+      messages: [],
+      chartSpecs: [],
+    };
+
+    const updatedSessions = [newSession, ...sessions];
+    setSessions(updatedSessions);
     setCurrentSessionId(newId);
     setMessages([]);
     setChartSpecs([]);
     setIsMobileSidebarOpen(false);
-    showToast.info('New Session Started', 'Cleared session messages');
+
+    try {
+      localStorage.setItem(STORAGE_SESSIONS_KEY, JSON.stringify(updatedSessions));
+      localStorage.setItem(STORAGE_CURRENT_ID_KEY, newId);
+    } catch {}
+
+    showToast.info('New Session Started', 'Workspace ready for new prompt');
+  };
+
+  const handleDeleteSession = (targetId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const remaining = sessions.filter((s) => s.id !== targetId);
+    const nextSessions = remaining.length > 0 ? remaining : [
+      {
+        id: `session-${Date.now()}`,
+        title: 'New Analysis Session',
+        updatedAt: 'Just now',
+        messages: [],
+        chartSpecs: [],
+      }
+    ];
+
+    setSessions(nextSessions);
+
+    if (currentSessionId === targetId) {
+      const nextActive = nextSessions[0];
+      setCurrentSessionId(nextActive.id);
+      setMessages(nextActive.messages || []);
+      setChartSpecs(nextActive.chartSpecs || []);
+    }
+
+    try {
+      localStorage.setItem(STORAGE_SESSIONS_KEY, JSON.stringify(nextSessions));
+    } catch {}
+
+    showToast.info('Session Deleted', 'Removed chat history');
   };
 
   const handleExportCsv = (segmentName?: string) => {
@@ -462,9 +613,11 @@ export default function Home() {
       <Sidebar
         isOpen={isSidebarOpen}
         onToggleSidebar={handleToggleSidebar}
+        sessions={sessions}
         currentSessionId={currentSessionId}
         onSelectSession={handleSelectSession}
         onNewSession={handleNewSession}
+        onDeleteSession={handleDeleteSession}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         selectedAdvaitModel={advaitModel}
@@ -497,6 +650,7 @@ export default function Home() {
         isOpen={isContextPanelOpen}
         onClose={() => setIsContextPanelOpen(false)}
         chartSpecs={chartSpecs}
+        sessionId={currentSessionId}
         onExportCsv={() => handleExportCsv()}
       />
 

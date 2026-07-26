@@ -30,14 +30,17 @@ export const LiveAgentStatus: React.FC<LiveAgentStatusProps> = ({
       case 'vihaan':
         displayText = 'Vihaan is querying the database to resolve columns...';
         break;
-      case 'saanvi':
-        displayText = 'Saanvi is calculating segment centroids and propensity models...';
+      case 'ishaan':
+        displayText = 'Ishaan is running the customer segmentation engine...';
         break;
       case 'kabir':
         displayText = 'Kabir is resolving SHAP feature importance matrix...';
         break;
-      case 'aadhya':
-        displayText = 'Aadhya is identifying dormant transition churn risks...';
+      case 'saanvi':
+        displayText = 'Saanvi is calculating segment centroids and propensity models...';
+        break;
+      case 'aanav':
+        displayText = 'Aanav is compiling executive PDF report sections...';
         break;
       case 'myra':
         displayText = 'Myra is synthesizing recommendations for priority accounts...';
@@ -49,7 +52,7 @@ export const LiveAgentStatus: React.FC<LiveAgentStatusProps> = ({
 
   // Highlight agent name in text if present
   const renderFormattedText = (text: string) => {
-    const nameMatch = text.match(/^(Advait|Vihaan|Saanvi|Kabir|Aadhya|Myra|Ishaan)/i);
+    const nameMatch = text.match(/^(Advait|Vihaan|Saanvi|Kabir|Aanav|Myra|Ishaan)/i);
     if (nameMatch) {
       const name = nameMatch[0];
       const rest = text.slice(name.length);
