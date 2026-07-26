@@ -305,3 +305,21 @@ Try entering these natural language prompts into the chat input bar:
 
    > *"Which regular customers can be converted into priority customers? What strategy should be used?"*
    >
+
+---
+
+## 🤖 Disclosures & AI Assistance
+
+In compliance with hackathon regulations, the following external tools, APIs, and AI assistants were utilized in the creation of this platform:
+
+1. **AI Coding Assistance:**
+   - **Antigravity (Agentic AI):** Used extensively as an agentic pair-programmer to assist with Next.js frontend scaffolding, FastAPI backend architecture, and rapid prototyping of the multi-agent orchestration logic.
+2. **LLM APIs (Free Tier / Open Source):**
+   - **DeepInfra API:** Utilized to query the open-source `Meta-Llama-3.1-70B-Instruct` model for intent parsing, agent reasoning, and narrative synthesis.
+   - **Google Gemini API:** Utilized as a fallback LLM for fast reasoning tasks.
+3. **Open-Source Machine Learning Libraries:**
+   - **scikit-learn & HDBSCAN:** Used for data clustering and segmenting algorithms.
+   - **SHAP (SHapley Additive exPlanations):** Used for providing mathematical explainability and feature importance for the ML models.
+4. **Open-Source UI/UX Libraries:**
+   - **DiceBear:** Free library for dynamic, generated agent avatars.
+   - **Recharts & Framer Motion:** Used for building the dynamic Heatmaps, charts, and smooth animations in the Next.js frontend.
