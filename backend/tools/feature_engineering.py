@@ -207,8 +207,6 @@ SEGMENTATION_FEATURES = [
     "recency_score",
     "balance_trend",
     "product_diversity",
-    "churn_risk_score",
-    "is_high_risk",
 ]
 
 # Features for EDA only

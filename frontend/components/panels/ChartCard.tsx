@@ -40,11 +40,13 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
         Object.keys(chartSpec.data[0] || {}).filter((k) => k !== categoryKey && typeof chartSpec.data[0][k] === 'number');
 
   const finalDataKeys: string[] = rawDataKeys && rawDataKeys.length > 0 ? rawDataKeys : ['value', 'count', 'importance'];
+  
+  const chartType = chartSpec.type || (chartSpec as any).chart_type;
 
   const renderChartContent = (height: string | number, isModal: boolean) => (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer width="100%" height="100%">
-        {chartSpec.type === 'heatmap' ? (
+        {chartType === 'heatmap' ? (
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: `minmax(${isModal ? '120px' : '80px'}, auto) repeat(${finalDataKeys.length}, 1fr)`, 
@@ -129,7 +131,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
               </React.Fragment>
             ))}
           </div>
-        ) : chartSpec.type === 'pie' ? (
+        ) : chartType === 'pie' ? (
           <PieChart>
             <Pie
               data={chartSpec.data}
@@ -157,6 +159,29 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
               }}
             />
           </PieChart>
+        ) : chartType === 'horizontal_bar' ? (
+          <BarChart data={chartSpec.data} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+            <XAxis type="number" stroke="var(--text-tertiary)" fontSize={isModal ? 12 : 10} tickLine={false} />
+            <YAxis type="category" dataKey={chartSpec.y_key || categoryKey} stroke="var(--text-tertiary)" fontSize={isModal ? 12 : 10} tickLine={false} width={130} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--surface-2)',
+                borderColor: 'var(--border)',
+                color: 'var(--text-primary)',
+                fontSize: '11px',
+                borderRadius: '8px',
+              }}
+            />
+            {finalDataKeys.map((key: string, idx: number) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                fill={defaultColors[idx % defaultColors.length]}
+                radius={[0, 4, 4, 0]}
+                isAnimationActive={false}
+              />
+            ))}
+          </BarChart>
         ) : (
           <BarChart data={chartSpec.data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
             <XAxis

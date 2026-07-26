@@ -265,7 +265,27 @@ async def chat_stream_endpoint(req: ChatRequest):
 
             await asyncio.sleep(0.35)
 
-        # ── 5. SAANVI (Recommendation Engine) ───────────────────────────────
+        # ── 5. AADHYA (Explainability Engine) ─────────────────────────────────
+        if "aadhya" in agent_plan:
+            yield _format_sse("agent_start", {"agent": "aadhya", "role": "Explainable AI (SHAP)"})
+            yield _format_sse("tool_start", {"tool": "shap_explainer", "agent": "aadhya"})
+            await asyncio.sleep(0.4)
+            from backend.agents.aadhya import run_aadhya
+            try:
+                state = await run_aadhya(state)
+                yield _format_sse("tool_complete", {"tool": "shap_explainer", "agent": "aadhya"})
+                yield _format_sse("agent_complete", {
+                    "agent": "aadhya",
+                    "duration_ms": 380,
+                    "summary": "Computed SHAP feature importance values for segments",
+                })
+            except Exception as e:
+                logger.error(f"[Chat SSE] Aadhya failed: {e}")
+                yield _format_sse("tool_error", {"tool": "shap_explainer", "agent": "aadhya", "error": str(e)})
+
+            await asyncio.sleep(0.35)
+
+        # ── 6. SAANVI (Recommendation Engine) ───────────────────────────────
         if "saanvi" in agent_plan:
             yield _format_sse("agent_start", {"agent": "saanvi", "role": "Banking Product Recommendations"})
             yield _format_sse("tool_start", {"tool": "product_recommendations", "agent": "saanvi"})

@@ -109,10 +109,14 @@ export interface SegmentSummary {
 export interface ChartSpec {
   id: string;
   type: 'bar' | 'pie' | 'line' | string;
+  chart_type?: string;
   title: string;
   produced_by: AgentName;
   categoryKey?: string;
   dataKeys?: string[];
+  x_key?: string;
+  y_key?: string;
+  bars?: any[];
   data: any[];
 }
 
