@@ -79,18 +79,8 @@ export const AgentLiveBar: React.FC<AgentLiveBarProps> = ({
         }}
         title="View live status of all 7 Agents"
       >
-        <span
-          style={{
-            display: 'inline-block',
-            width: 7,
-            height: 7,
-            borderRadius: '50%',
-            background: isStreaming ? '#0ea5e9' : '#22c55e',
-            boxShadow: isStreaming ? '0 0 8px #0ea5e9' : '0 0 4px #22c55e',
-          }}
-        />
         <span style={{ fontSize: 11, fontWeight: 500, color: '#1a1a18' }}>
-          {isStreaming ? 'Agents Active' : '7 Agents Online'}
+          {isStreaming ? 'Agent Status' : 'Agent Status'}
         </span>
         <ChevronDown
           size={12}

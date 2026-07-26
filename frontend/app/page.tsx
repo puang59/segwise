@@ -23,9 +23,9 @@ const INITIAL_SESSIONS: ChatSession[] = [
 ];
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isContextPanelOpen, setIsContextPanelOpen] = useState(true);
+  const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
 
   // Sessions and Active Session State
   const [sessions, setSessions] = useState<ChatSession[]>(INITIAL_SESSIONS);
@@ -650,7 +650,12 @@ export default function Home() {
         liveStatusText={liveStatusText}
         agentStates={agentStates}
         isSidebarOpen={isSidebarOpen}
+        selectedAdvaitModel={advaitModel}
         selectedMyraModel={myraModel}
+        onSelectAdvaitModel={setAdvaitModel}
+        onSelectMyraModel={setMyraModel}
+        apiKey={apiKey}
+        onApiKeyChange={setApiKey}
         onToggleSidebar={handleToggleSidebar}
         onToggleContextPanel={() => setIsContextPanelOpen((prev) => !prev)}
         onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}

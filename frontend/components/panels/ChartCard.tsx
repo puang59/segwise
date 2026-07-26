@@ -202,18 +202,19 @@ export const ChartCard: React.FC<ChartCardProps> = ({ chartSpec }) => {
         transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
         className="w-full p-4 rounded-xl border border-border bg-surface shadow-sm my-3 relative group"
       >
-        <button
-          onClick={() => setIsExpanded(true)}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-surface-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-3 border border-border text-text-secondary"
-          title="Expand Chart"
-        >
-          <Maximize2 className="w-3.5 h-3.5" />
-        </button>
-
         {/* Header with producing agent attribution */}
         <div className="flex items-center justify-between pb-2 mb-3 border-b border-border text-xs">
-          <span className="font-semibold text-text-primary pr-8">{chartSpec.title || 'Agent Chart'}</span>
-          <AgentAvatar agent={chartSpec.produced_by || 'kabir'} />
+          <span className="font-semibold text-text-primary pr-2 truncate">{chartSpec.title || 'Agent Chart'}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <AgentAvatar agent={chartSpec.produced_by || 'kabir'} />
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="p-1 rounded-md bg-surface-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-3 border border-border text-text-secondary"
+              title="Expand Chart"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Recharts chart area */}

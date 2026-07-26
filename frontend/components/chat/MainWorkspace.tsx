@@ -20,6 +20,11 @@ interface MainWorkspaceProps {
   onSendMessage: (query: string) => void;
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
+  selectedAdvaitModel?: string;
+  onSelectAdvaitModel?: (model: string) => void;
+  onSelectMyraModel?: (model: string) => void;
+  apiKey?: string;
+  onApiKeyChange?: (key: string) => void;
 }
 
 export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
@@ -30,6 +35,11 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
   agentStates,
   isSidebarOpen = true,
   selectedMyraModel = 'Gemini 3.1 Pro',
+  selectedAdvaitModel,
+  onSelectAdvaitModel,
+  onSelectMyraModel,
+  apiKey,
+  onApiKeyChange,
   onToggleSidebar,
   onToggleContextPanel,
   onOpenMobileSidebar,
@@ -48,67 +58,44 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       overflow: 'hidden',
       position: 'relative',
     }}>
-      {/* Header with Sidebar Toggle & Agent Live Network Status */}
-      <header style={{
-        height: 52,
-        padding: '0 20px',
+      {/* Floating Controls Overlay (Replaces solid Top Bar) */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '16px 20px',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'space-between',
-        flexShrink: 0,
         zIndex: 30,
-        background: 'rgba(253,253,252,0.9)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(0,0,0,0.06)',
+        pointerEvents: 'none',
       }}>
-        {/* Left: Sidebar Toggle Button & Workspace Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+        {/* Left: Sidebar Toggle Button */}
+        <div style={{ pointerEvents: 'auto' }}>
           <button
             onClick={onToggleSidebar}
             className="pressable"
             style={{
-              padding: 6,
-              borderRadius: 7,
-              background: 'none',
-              border: 'none',
+              padding: 8,
+              borderRadius: 8,
+              background: '#ffffff',
+              border: '1px solid rgba(0,0,0,0.08)',
               color: 'rgba(26,26,24,0.6)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             }}
             title={isSidebarOpen ? 'Hide Left Sidebar (⌘B)' : 'Show Left Sidebar (⌘B)'}
           >
-            <PanelLeft size={18} />
+            <PanelLeft size={16} />
           </button>
-          
-          <div style={{ minWidth: 0 }}>
-            <div style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#1a1a18',
-              letterSpacing: '-0.01em',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}>
-              Customer Segmentation Workspace
-            </div>
-            <div style={{
-              fontSize: 11,
-              color: 'rgba(26,26,24,0.38)',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              fontFamily: 'var(--font-mono)',
-            }}>
-              bank_sqlite.db
-            </div>
-          </div>
         </div>
 
         {/* Right: Agent Live Bar & Context Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
           <AgentLiveBar
             activeAgent={activeAgent}
             isStreaming={isStreaming}
@@ -120,22 +107,26 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
             onClick={onToggleContextPanel}
             className="pressable"
             style={{
-              padding: 6,
-              borderRadius: 7,
-              background: 'none',
-              border: 'none',
-              color: 'rgba(26,26,24,0.5)',
+              padding: '6px 12px',
+              borderRadius: 8,
+              background: '#ffffff',
+              border: '1px solid rgba(0,0,0,0.08)',
+              color: 'rgba(26,26,24,0.7)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              gap: 6,
+              fontSize: 12,
+              fontWeight: 500,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             }}
             title="Toggle Context Panel"
           >
-            <PanelRight size={17} />
+            <PanelRight size={14} />
+            <span>Stats</span>
           </button>
         </div>
-      </header>
+      </div>
 
       {/* Chat */}
       <ChatWindow
@@ -147,6 +138,12 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
         onSendMessage={onSendMessage}
         onSelectSegment={onSelectSegment}
         onRespondHitl={onRespondHitl}
+        selectedAdvaitModel={selectedAdvaitModel}
+        selectedMyraModel={selectedMyraModel}
+        onSelectAdvaitModel={onSelectAdvaitModel}
+        onSelectMyraModel={onSelectMyraModel}
+        apiKey={apiKey}
+        onApiKeyChange={onApiKeyChange}
       />
     </main>
   );

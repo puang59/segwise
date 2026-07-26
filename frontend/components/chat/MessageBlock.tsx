@@ -83,19 +83,6 @@ export const MessageBlock: React.FC<MessageBlockProps> = ({
       transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
       style={{ margin: '16px 0' }}
     >
-      {/* Clean Agent Header — DiceBear avatar + Agent Name (no model names) */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
-        padding: '0 2px',
-      }}>
-        <AgentAvatar agent={agentName} size={22} showName={true} />
-        <span style={{ fontSize: 11, color: 'rgba(26,26,24,0.35)', marginLeft: 'auto', fontFamily: 'var(--font-mono)' }}>
-          {message.timestamp}
-        </span>
-      </div>
 
       {/* Content card */}
       <div style={{

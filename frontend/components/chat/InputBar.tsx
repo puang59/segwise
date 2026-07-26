@@ -5,6 +5,8 @@ import { AgentName } from '@/lib/types';
 import { LiveAgentStatus } from './LiveAgentStatus';
 import { Sparkles, ArrowUp, Loader2 } from 'lucide-react';
 import { showToast } from '@/components/shared/ToastProvider';
+import { ModelSwitcher } from '@/components/model-switcher/ModelSwitcher';
+import { enhancePrompt } from '@/lib/api';
 
 interface InputBarProps {
   activeAgent?: AgentName;
@@ -12,6 +14,12 @@ interface InputBarProps {
   liveStatusText?: string;
   onSendMessage: (text: string) => void;
   presetText?: string;
+  selectedAdvaitModel?: string;
+  selectedMyraModel?: string;
+  onSelectAdvaitModel?: (model: string) => void;
+  onSelectMyraModel?: (model: string) => void;
+  apiKey?: string;
+  onApiKeyChange?: (key: string) => void;
 }
 
 export const InputBar: React.FC<InputBarProps> = ({
@@ -20,9 +28,16 @@ export const InputBar: React.FC<InputBarProps> = ({
   liveStatusText = '',
   onSendMessage,
   presetText = '',
+  selectedAdvaitModel,
+  selectedMyraModel,
+  onSelectAdvaitModel,
+  onSelectMyraModel,
+  apiKey,
+  onApiKeyChange,
 }) => {
   const [text, setText] = useState(presetText);
   const [focused, setFocused] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   React.useEffect(() => {
     if (presetText) setText(presetText);
@@ -35,13 +50,25 @@ export const InputBar: React.FC<InputBarProps> = ({
     setText('');
   };
 
-  const handleEnhancePrompt = () => {
+  const handleEnhancePrompt = async () => {
     if (!text.trim()) {
-      setText('Segment retail customers into priority, regular, and dormant tiers based on balance maintained and transaction frequency.');
-      showToast.info('Prompt Enhanced', 'Added high-value customer segmentation criteria');
-    } else {
-      setText((prev) => `${prev} Filter by minimum balance > $10,000 and calculate SHAP feature importance.`);
-      showToast.success('Prompt Enhanced', 'Appended feature importance analysis parameters');
+      showToast.info('Enhance Prompt', 'Please type a prompt first to enhance it.');
+      return;
+    }
+    
+    setIsEnhancing(true);
+    try {
+      const enhanced = await enhancePrompt(text, selectedAdvaitModel, apiKey);
+      if (enhanced && enhanced !== text) {
+        setText(enhanced);
+        showToast.success('Prompt Enhanced', 'Your prompt was rewritten for clarity');
+      } else {
+        showToast.info('No changes needed', 'Your prompt looks good!');
+      }
+    } catch (err) {
+      showToast.error('Enhance Failed', 'Could not reach the enhance service');
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -104,30 +131,47 @@ export const InputBar: React.FC<InputBarProps> = ({
           justifyContent: 'space-between',
           paddingTop: 4,
         }}>
-          {/* Bottom Left: Enhance Pill Button */}
-          <button
-            type="button"
-            onClick={handleEnhancePrompt}
-            disabled={isStreaming}
-            className="pressable"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 5,
-              padding: '5px 12px',
-              borderRadius: 20,
-              border: '1px solid rgba(0,0,0,0.14)',
-              background: '#ffffff',
-              color: '#333331',
-              fontSize: 12,
-              fontWeight: 500,
-              cursor: isStreaming ? 'not-allowed' : 'pointer',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-            }}
-          >
-            <Sparkles size={13} color="#444" />
-            <span>Enhance</span>
-          </button>
+          {/* Bottom Left: Model Switcher and Enhance Pill Button */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <ModelSwitcher
+              selectedAdvaitModel={selectedAdvaitModel || 'google/gemini-3.1-flash-lite'}
+              selectedMyraModel={selectedMyraModel || 'meta-llama/Meta-Llama-3.1-70B-Instruct'}
+              onSelectAdvaitModel={onSelectAdvaitModel || (() => {})}
+              onSelectMyraModel={onSelectMyraModel || (() => {})}
+              apiKey={apiKey || ''}
+              onApiKeyChange={onApiKeyChange || (() => {})}
+            />
+
+            <button
+              type="button"
+              onClick={handleEnhancePrompt}
+              disabled={isStreaming || isEnhancing || !hasText}
+              className="pressable"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '5px 12px',
+                borderRadius: 20,
+                border: '1px solid rgba(0,0,0,0.14)',
+                background: '#ffffff',
+                color: '#333331',
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: (isStreaming || isEnhancing || !hasText) ? 'not-allowed' : 'pointer',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+                marginLeft: 12,
+                opacity: (!hasText || isStreaming) ? 0.5 : 1,
+              }}
+            >
+              {isEnhancing ? (
+                <Loader2 size={13} color="#444" style={{ animation: 'spin 1s linear infinite' }} />
+              ) : (
+                <Sparkles size={13} color="#444" />
+              )}
+              <span>{isEnhancing ? 'Enhancing...' : 'Enhance'}</span>
+            </button>
+          </div>
 
           {/* Bottom Right: Send Pill Button */}
           <button
@@ -155,7 +199,7 @@ export const InputBar: React.FC<InputBarProps> = ({
             ) : (
               <ArrowUp size={13} />
             )}
-            <span>Send</span>
+            <span className="hidden sm:inline">Send</span>
           </button>
         </div>
       </form>

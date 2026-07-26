@@ -52,13 +52,18 @@ def _extract_json_from_text(text: str) -> Optional[dict]:
         except json.JSONDecodeError:
             pass
 
-    # Try raw JSON extraction
-    match = RAW_JSON_RE.search(text)
-    if match:
-        try:
-            return json.loads(match.group(0))
-        except json.JSONDecodeError:
-            pass
+    # Try raw JSON extraction by finding boundaries
+    start_idx = text.find('{')
+    while start_idx != -1:
+        end_idx = text.rfind('}')
+        if end_idx > start_idx:
+            try:
+                return json.loads(text[start_idx:end_idx+1])
+            except json.JSONDecodeError:
+                # Move to the next { and try again
+                start_idx = text.find('{', start_idx + 1)
+        else:
+            break
 
     return None
 

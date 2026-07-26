@@ -16,6 +16,12 @@ interface ChatWindowProps {
   onSendMessage: (query: string) => void;
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
+  selectedAdvaitModel?: string;
+  selectedMyraModel?: string;
+  onSelectAdvaitModel?: (model: string) => void;
+  onSelectMyraModel?: (model: string) => void;
+  apiKey?: string;
+  onApiKeyChange?: (key: string) => void;
 }
 
 const PRESETS = [
@@ -58,6 +64,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   onSendMessage,
   onSelectSegment,
   onRespondHitl,
+  selectedAdvaitModel,
+  selectedMyraModel,
+  onSelectAdvaitModel,
+  onSelectMyraModel,
+  apiKey,
+  onApiKeyChange,
 }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +90,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       background: '#FDFDFC',
     }}>
       {/* Scroll area */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '64px 32px 24px' }}>
         {messages.length === 0 ? (
           /* Welcome State */
           <div style={{
@@ -190,35 +202,46 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             </div>
           </div>
         ) : (
-          messages.map((msg) => (
-            <MessageBlock
-              key={msg.id}
-              message={msg}
-              liveStatusText={msg.isStreaming ? liveStatusText : undefined}
-              onSelectSegment={onSelectSegment}
-              onRespondHitl={onRespondHitl}
-              onSelectSuggestion={handleSelectSuggestion}
-            />
-          ))
+          <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
+            {messages.map((msg) => (
+              <MessageBlock
+                key={msg.id}
+                message={msg}
+                liveStatusText={msg.isStreaming ? liveStatusText : undefined}
+                onSelectSegment={onSelectSegment}
+                onRespondHitl={onRespondHitl}
+                onSelectSuggestion={handleSelectSuggestion}
+              />
+            ))}
+            <div ref={bottomRef} />
+          </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input bar — frosted glass bottom */}
       <div style={{
         padding: '12px 32px 16px',
-        borderTop: '1px solid rgba(0,0,0,0.06)',
         background: 'rgba(253,253,252,0.92)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         flexShrink: 0,
+        display: 'flex',
+        justifyContent: 'center',
       }}>
+        <div style={{ maxWidth: 800, width: '100%' }}>
         <InputBar
           activeAgent={activeAgent}
           isStreaming={isStreaming}
           liveStatusText={liveStatusText}
           onSendMessage={onSendMessage}
+          selectedAdvaitModel={selectedAdvaitModel}
+          selectedMyraModel={selectedMyraModel}
+          onSelectAdvaitModel={onSelectAdvaitModel}
+          onSelectMyraModel={onSelectMyraModel}
+          apiKey={apiKey}
+          onApiKeyChange={onApiKeyChange}
         />
+        </div>
       </div>
     </div>
   );

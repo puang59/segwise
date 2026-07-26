@@ -36,7 +36,8 @@ def run_kmeans(
         model = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)
         labels = model.fit_predict(X)
         try:
-            sil = float(silhouette_score(X, labels))
+            sample_sz = 10000 if len(X) > 10000 else None
+            sil = float(silhouette_score(X, labels, sample_size=sample_sz, random_state=random_state))
         except Exception:
             sil = float("nan")
 
@@ -58,7 +59,9 @@ def run_kmeans(
         try:
             km = KMeans(n_clusters=k, random_state=random_state, n_init=10)
             lbs = km.fit_predict(X)
-            sil = float(silhouette_score(X, lbs))
+            # Use sample_size to avoid O(N^2) memory/time blowup on large datasets
+            sample_sz = 10000 if len(X) > 10000 else None
+            sil = float(silhouette_score(X, lbs, sample_size=sample_sz, random_state=random_state))
             all_scores[k] = round(sil, 4)
             logger.debug(f"[KMeans] k={k}, silhouette={sil:.4f}")
             if sil > best_score:
@@ -112,7 +115,8 @@ def run_hdbscan(
         mask = labels != -1
         if mask.sum() > n_clusters:
             try:
-                sil = float(silhouette_score(X[mask], labels[mask]))
+                sample_sz = 10000 if len(X[mask]) > 10000 else None
+                sil = float(silhouette_score(X[mask], labels[mask], sample_size=sample_sz))
             except Exception:
                 pass
 
@@ -167,7 +171,8 @@ def run_gmm(
     sil = float("nan")
     if best_n >= 2:
         try:
-            sil = float(silhouette_score(X, labels))
+            sample_sz = 10000 if len(X) > 10000 else None
+            sil = float(silhouette_score(X, labels, sample_size=sample_sz))
         except Exception:
             pass
 
@@ -210,7 +215,8 @@ def compute_cluster_metrics(
         return {"error": "Need at least 2 clusters for metrics", "n_clusters": n_clusters}
 
     try:
-        metrics["silhouette_score"] = round(float(silhouette_score(X_valid, labels_valid)), 4)
+        sample_sz = 10000 if len(X_valid) > 10000 else None
+        metrics["silhouette_score"] = round(float(silhouette_score(X_valid, labels_valid, sample_size=sample_sz)), 4)
     except Exception as e:
         metrics["silhouette_score"] = None
         logger.warning(f"[Metrics] Silhouette failed: {e}")

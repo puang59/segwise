@@ -312,3 +312,31 @@ export async function exportCustomersCsv(options?: {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Enhances a user's prompt by rewriting it with an LLM for clarity.
+ */
+export async function enhancePrompt(prompt: string, model?: string, apiKey?: string): Promise<string> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/chat/enhance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        model,
+        api_key: apiKey || undefined,
+      }),
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to enhance prompt: ${res.status}`);
+    }
+    
+    const data = await res.json();
+    return data.enhanced_prompt || prompt;
+  } catch (err) {
+    console.error('[enhancePrompt] Error:', err);
+    return prompt;
+  }
+}
+

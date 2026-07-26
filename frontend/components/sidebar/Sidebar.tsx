@@ -201,17 +201,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Model Switcher */}
-        <div style={{ padding: '0 12px 8px' }}>
-          <ModelSwitcher
-            selectedAdvaitModel={selectedAdvaitModel}
-            selectedMyraModel={selectedMyraModel}
-            onSelectAdvaitModel={onSelectAdvaitModel}
-            onSelectMyraModel={onSelectMyraModel}
-            apiKey={apiKey}
-            onApiKeyChange={onApiKeyChange}
-          />
-        </div>
+
 
         {/* Sessions */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 8px' }}>

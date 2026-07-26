@@ -62,57 +62,46 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
   const activeMyraObj = models.find((m) => m.id === selectedMyraModel);
 
   return (
-    <div style={{ position: 'relative', margin: '8px 0' }}>
-      <div style={{ fontSize: 10, fontWeight: 500, color: 'rgba(26,26,24,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6, padding: '0 4px' }}>
-        Model Engine
-      </div>
+    <div style={{ position: 'relative', margin: '0' }}>
 
       {/* Main Switcher Trigger Button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className="pressable"
         style={{
-          width: '100%',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '8px 10px',
-          borderRadius: 8,
-          border: '1px solid rgba(0,0,0,0.07)',
+          gap: 5,
+          padding: '5px 12px',
+          borderRadius: 20,
+          border: '1px solid rgba(0,0,0,0.14)',
           background: '#ffffff',
+          color: '#333331',
+          fontSize: 12,
+          fontWeight: 500,
           cursor: 'pointer',
-          textAlign: 'left',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+          whiteSpace: 'nowrap',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
-          <Cpu size={14} color="#4f46e5" style={{ flexShrink: 0 }} />
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span style={{ fontSize: 11.5, fontWeight: 500, color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {activeMyraObj?.name || 'Gemini 3.1 Pro'}
-            </span>
-            <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Advait: {activeAdvaitObj?.name || 'Flash Lite'}
-            </span>
-          </div>
-        </div>
-
-        <ChevronDown size={13} color="rgba(26,26,24,0.4)" style={{ flexShrink: 0 }} />
+        <span>{activeMyraObj?.name || 'Llama 3.1 70B'}</span>
+        <ChevronDown size={13} color="rgba(26,26,24,0.5)" />
       </button>
 
       {/* Dropdown Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.97, y: -4 }}
+            initial={{ opacity: 0, scale: 0.97, y: 4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97 }}
             style={{
               position: 'absolute',
-              top: '100%',
+              bottom: '100%',
               left: 0,
-              right: 0,
+              width: 240,
               zIndex: 50,
-              marginTop: 4,
+              marginBottom: 8,
               padding: 8,
               borderRadius: 10,
               border: '1px solid rgba(0,0,0,0.08)',
@@ -204,58 +193,6 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
               })}
             </div>
 
-            {/* API Key */}
-            <div style={{ marginTop: 8, paddingTop: 6, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.4)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Key size={10} color="#d97706" /> API Key
-                </span>
-                <button
-                  onClick={() => setIsEditingKey((prev) => !prev)}
-                  style={{ fontSize: 10, color: '#4f46e5', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  {isEditingKey ? 'Cancel' : apiKey ? 'Edit' : 'Custom'}
-                </button>
-              </div>
-
-              {isEditingKey ? (
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <input
-                    type="password"
-                    placeholder="sk-deepinfra-..."
-                    value={tempApiKey}
-                    onChange={(e) => setTempApiKey(e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: '4px 6px',
-                      borderRadius: 4,
-                      border: '1px solid rgba(0,0,0,0.1)',
-                      fontSize: 10,
-                      outline: 'none',
-                    }}
-                  />
-                  <button
-                    onClick={handleSaveApiKey}
-                    style={{
-                      padding: '4px 8px',
-                      background: '#4f46e5',
-                      color: '#ffffff',
-                      borderRadius: 4,
-                      border: 'none',
-                      fontSize: 10,
-                      fontWeight: 500,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Save
-                  </button>
-                </div>
-              ) : (
-                <div style={{ fontSize: 10, color: 'rgba(26,26,24,0.35)', fontFamily: 'var(--font-mono)' }}>
-                  {apiKey ? `••••••••${apiKey.slice(-4)}` : 'Default Server Key'}
-                </div>
-              )}
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

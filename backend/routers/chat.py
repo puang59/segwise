@@ -43,6 +43,45 @@ def _format_sse(event_type: str, data: Any) -> str:
     payload = {"type": event_type, "data": data}
     return f"event: {event_type}\ndata: {json.dumps(payload)}\n\n"
 
+class EnhanceRequest(BaseModel):
+    prompt: str
+    model: Optional[str] = Field(None, description="Model ID")
+    api_key: Optional[str] = Field(None, description="API Key")
+
+@router.post("/enhance", summary="Enhance a prompt for better segmentation analysis")
+async def enhance_prompt_endpoint(req: EnhanceRequest):
+    if not req.prompt or not req.prompt.strip():
+        return {"enhanced_prompt": ""}
+        
+    from backend.config import get_llm_client, DEFAULT_ADV_MODEL
+    model = req.model or DEFAULT_ADV_MODEL
+    client = get_llm_client(req.api_key)
+    
+    system_prompt = (
+        "You are an expert prompt engineer for a banking customer segmentation AI. "
+        "Your task is to take the user's rough query and rewrite it into a clear, "
+        "professional, and highly specific analytical prompt. "
+        "Ensure the intention is clear and relevant to bring out optimal results from the agents. "
+        "Keep it concise. Do not add any introductory or concluding remarks. Just output the enhanced prompt."
+    )
+    
+    try:
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": req.prompt}
+            ],
+            temperature=0.7,
+            max_tokens=150,
+        )
+        enhanced = response.choices[0].message.content.strip()
+        return {"enhanced_prompt": enhanced}
+    except Exception as e:
+        logger.error(f"[Enhance] Failed to enhance prompt: {e}")
+        return {"enhanced_prompt": req.prompt + " (Enhanced for clarity)"}
+
+
 
 @router.post("", summary="Stream multi-agent chat execution via Server-Sent Events (SSE)")
 async def chat_stream_endpoint(req: ChatRequest):
