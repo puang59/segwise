@@ -25,14 +25,14 @@
   --text-tertiary:  rgba(26, 26, 24, 0.36);
 
   /* Accent */
-  --accent:       #4f46e5;
-  --accent-dim:   rgba(79, 70, 229, 0.07);
-  --accent-hover: rgba(79, 70, 229, 0.12);
+  --accent:       #1a1a18;
+  --accent-dim:   rgba(26, 26, 24, 0.05);
+  --accent-hover: rgba(26, 26, 24, 0.12);
 
   /* Status */
-  --success: #16a34a;
-  --warning: #d97706;
-  --error:   #dc2626;
+  --success: #1a1a18;
+  --warning: #1a1a18;
+  --error:   #1a1a18;
 
   /* Agent colours — saturated for light backgrounds */
   --agent-advait: #4338ca;
@@ -110,6 +110,11 @@ body {
 @keyframes blink-caret {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
+}
+
+/* Spin animation for loaders */
+@keyframes spin {
+  100% { transform: rotate(360deg); }
 }
 
 /* Three-dot bounce — agent thinking */

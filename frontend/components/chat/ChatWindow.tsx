@@ -27,28 +27,28 @@ interface ChatWindowProps {
 const PRESETS = [
   {
     Icon: Layers,
-    color: '#c2410c',
+    color: '#1a1a18',
     title: 'Rule-Based & K-Means Segmentation',
     desc: 'Segment 800k+ accounts into Priority, Regular, and Dormant groups.',
     query: 'Segment retail customers into priority, regular, and dormant tiers based on balance and transaction frequency.',
   },
   {
     Icon: ShieldCheck,
-    color: '#15803d',
+    color: '#1a1a18',
     title: 'Churn Risk Breakdown',
     desc: 'Identify dormant account transitions and risk signals using Aadhya.',
     query: 'Analyze churn risk across customer segments and highlight key warning indicators.',
   },
   {
     Icon: Zap,
-    color: '#92400e',
+    color: '#1a1a18',
     title: 'Product Recommendations',
     desc: 'Get Saanvi recommendation strategies for high-potential customers.',
     query: 'Which regular customers can be transitioned into priority tier accounts?',
   },
   {
     Icon: Sparkles,
-    color: '#7c3aed',
+    color: '#1a1a18',
     title: 'Kabir Feature Radar',
     desc: 'View SHAP feature importance and Kabir radar visualization.',
     query: 'Explain SHAP feature importance for priority digital banking customers.',
@@ -106,18 +106,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: 'rgba(79,70,229,0.07)',
-                border: '1px solid rgba(79,70,229,0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
                 marginBottom: 20,
               }}
             >
-              <Brain size={20} color="#4f46e5" />
+              <img src="/segwise_logo.png" alt="Segwise Logo" style={{ width: 44, height: 44, objectFit: 'contain' }} />
             </motion.div>
 
             <motion.h2

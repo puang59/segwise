@@ -149,7 +149,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                 fontWeight: 500,
                 border: 'none',
                 background: activeTab === 'charts' ? '#ffffff' : 'transparent',
-                color: activeTab === 'charts' ? '#4f46e5' : 'rgba(26,26,24,0.5)',
+                color: activeTab === 'charts' ? '#1a1a18' : 'rgba(26,26,24,0.5)',
                 boxShadow: activeTab === 'charts' ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
                 cursor: 'pointer',
               }}
@@ -171,7 +171,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                 fontWeight: 500,
                 border: 'none',
                 background: activeTab === 'data' ? '#ffffff' : 'transparent',
-                color: activeTab === 'data' ? '#4f46e5' : 'rgba(26,26,24,0.5)',
+                color: activeTab === 'data' ? '#1a1a18' : 'rgba(26,26,24,0.5)',
                 boxShadow: activeTab === 'data' ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
                 cursor: 'pointer',
               }}
@@ -193,7 +193,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                 fontWeight: 500,
                 border: 'none',
                 background: activeTab === 'report' ? '#ffffff' : 'transparent',
-                color: activeTab === 'report' ? '#4f46e5' : 'rgba(26,26,24,0.5)',
+                color: activeTab === 'report' ? '#1a1a18' : 'rgba(26,26,24,0.5)',
                 boxShadow: activeTab === 'report' ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
                 cursor: 'pointer',
               }}
@@ -243,7 +243,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   margin: 0,
                   flex: 1,
                 }}>
-                  <BarChart3 size={13} color="#4f46e5" />
+                  <BarChart3 size={13} color="#1a1a18" />
                   Agent Output Charts
                 </h3>
                 {activeCharts.length > 0 && (
@@ -270,12 +270,12 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                     width: 36,
                     height: 36,
                     borderRadius: 10,
-                    background: 'rgba(79,70,229,0.07)',
+                    background: 'rgba(26,26,24,0.05)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                    <ScanSearch size={17} color="rgba(79,70,229,0.5)" />
+                    <ScanSearch size={17} color="rgba(26,26,24,0.5)" />
                   </div>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(26,26,24,0.5)', marginBottom: 4 }}>
@@ -309,7 +309,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   margin: 0,
                   flex: 1,
                 }}>
-                  <Table size={13} color="#4f46e5" />
+                  <Table size={13} color="#1a1a18" />
                   Customer Records Explorer
                 </h3>
                 {resolvedFilter ? (
@@ -321,7 +321,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                       padding: '2px 6px',
                       borderRadius: 5,
                       border: '1px solid rgba(79,70,229,0.25)',
-                      background: 'rgba(79,70,229,0.07)',
+                      background: 'rgba(26,26,24,0.05)',
                       color: '#4f46e5',
                       fontSize: 10,
                       fontWeight: 500,
@@ -359,10 +359,10 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   }}>
                     <div style={{
                       width: 36, height: 36, borderRadius: 10,
-                      background: 'rgba(79,70,229,0.06)',
+                      background: 'rgba(26,26,24,0.05)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <ScanSearch size={17} color="rgba(79,70,229,0.45)" />
+                      <ScanSearch size={17} color="rgba(26,26,24,0.45)" />
                     </div>
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(26,26,24,0.45)', marginBottom: 4 }}>
@@ -381,10 +381,10 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   }}>
                     <div style={{
                       width: 36, height: 36, borderRadius: 10,
-                      background: 'rgba(79,70,229,0.07)',
+                      background: 'rgba(26,26,24,0.05)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <Table size={17} color="rgba(79,70,229,0.5)" />
+                      <Table size={17} color="rgba(26,26,24,0.5)" />
                     </div>
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(26,26,24,0.5)', marginBottom: 4 }}>
@@ -411,23 +411,23 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                       <tbody style={{ color: 'rgba(26,26,24,0.6)' }}>
                         {customers.map((c) => (
                           <tr key={c.customer_id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                            <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', color: '#4f46e5' }}>
+                            <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', color: '#1a1a18' }}>
                               <div>{c.full_name || c.customer_id}</div>
                               <div style={{ fontSize: 9, color: 'rgba(26,26,24,0.35)' }}>{c.customer_id}</div>
                             </td>
                             <td style={{ padding: '8px 10px', fontSize: 10 }}>{c.segment}</td>
                             <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                               {c.is_high_risk === 1 ? (
-                                <span style={{ padding: '2px 6px', background: '#fee2e2', color: '#ef4444', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
+                                <span style={{ padding: '2px 6px', background: '#ebebea', color: '#1a1a18', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
                                   High Risk
                                 </span>
                               ) : (
-                                <span style={{ padding: '2px 6px', background: '#dcfce7', color: '#22c55e', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
+                                <span style={{ padding: '2px 6px', background: '#f5f5f3', color: '#1a1a18', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
                                   Safe
                                 </span>
                               )}
                             </td>
-                            <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#16a34a', fontWeight: 500 }}>
+                            <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#1a1a18', fontWeight: 500 }}>
                               ₹{c.avg_balance.toLocaleString()}
                             </td>
                           </tr>
@@ -455,7 +455,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   margin: 0,
                   flex: 1,
                 }}>
-                  <FileText size={13} color="#4f46e5" />
+                  <FileText size={13} color="#1a1a18" />
                   Executive PDF Report
                 </h3>
                 <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>9 Sections</span>
@@ -491,7 +491,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                       justifyContent: 'center',
                       gap: 6,
                       padding: '8px 12px',
-                      background: '#4f46e5',
+                      background: '#1a1a18',
                       color: '#ffffff',
                       borderRadius: 8,
                       border: 'none',

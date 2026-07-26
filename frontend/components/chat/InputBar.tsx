@@ -165,7 +165,7 @@ export const InputBar: React.FC<InputBarProps> = ({
               }}
             >
               {isEnhancing ? (
-                <Loader2 size={13} color="#444" style={{ animation: 'spin 1s linear infinite' }} />
+                <Loader2 size={13} color="#444" className="animate-spin" />
               ) : (
                 <Sparkles size={13} color="#444" />
               )}
@@ -195,7 +195,7 @@ export const InputBar: React.FC<InputBarProps> = ({
             }}
           >
             {isStreaming ? (
-              <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={13} className="animate-spin" />
             ) : (
               <ArrowUp size={13} />
             )}

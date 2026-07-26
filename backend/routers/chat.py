@@ -73,9 +73,11 @@ async def enhance_prompt_endpoint(req: EnhanceRequest):
                 {"role": "user", "content": req.prompt}
             ],
             temperature=0.7,
-            max_tokens=150,
+            max_tokens=2048,
         )
+        import re
         enhanced = response.choices[0].message.content.strip()
+        enhanced = re.sub(r'<think>.*?</think>', '', enhanced, flags=re.DOTALL).strip()
         return {"enhanced_prompt": enhanced}
     except Exception as e:
         logger.error(f"[Enhance] Failed to enhance prompt: {e}")

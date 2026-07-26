@@ -34,9 +34,9 @@ const S = {
   textPri:   '#1a1a18',
   textSec:   'rgba(26,26,24,0.58)',
   textTer:   'rgba(26,26,24,0.36)',
-  accent:    '#4f46e5',
-  accentDim: 'rgba(79,70,229,0.07)',
-  success:   '#16a34a',
+  accent:    '#1a1a18',
+  accentDim: 'rgba(26,26,24,0.05)',
+  success:   '#1a1a18',
 };
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -112,13 +112,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden' }}>
             <div style={{
               width: 28, height: 28,
-              borderRadius: 8,
-              background: S.accentDim,
-              border: `1px solid ${S.border}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <Brain size={13} color={S.accent} />
+              <img src="/segwise_logo.png" alt="Segwise" style={{ width: 28, height: 28, objectFit: 'contain' }} />
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{
@@ -131,17 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 gap: 6,
               }}>
                 Segwise
-                <span style={{
-                  fontSize: 10,
-                  padding: '1px 5px',
-                  borderRadius: 4,
-                  background: S.accentDim,
-                  color: S.accent,
-                  border: `1px solid rgba(79,70,229,0.2)`,
-                  fontFamily: 'var(--font-mono)',
-                }}>v2</span>
               </div>
-              <div style={{ fontSize: 11, color: S.textTer }}>Banking Analytics</div>
             </div>
           </div>
           
@@ -165,13 +152,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <PanelLeftClose size={16} />
               </button>
             )}
-            <button
-              onClick={onCloseMobile}
-              className="lg:hidden pressable"
-              style={{ padding: 4, borderRadius: 6, color: S.textSec, background: 'none', border: 'none' }}
-            >
-              <X size={15} />
-            </button>
           </div>
         </div>
 
@@ -228,7 +208,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     textAlign: 'left',
                     padding: '8px 10px',
                     borderRadius: 8,
-                    border: isActive ? `1px solid rgba(79,70,229,0.2)` : '1px solid transparent',
+                    border: isActive ? `1px solid rgba(26,26,24,0.15)` : '1px solid transparent',
                     background: isActive ? S.accentDim : 'transparent',
                     color: isActive ? S.textPri : S.textSec,
                     fontSize: 12,
@@ -279,20 +259,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <div style={{
-          padding: '10px 16px',
-          borderTop: `1px solid ${S.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          flexShrink: 0,
-        }}>
-          <CheckCircle2 size={12} color={S.success} />
-          <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: S.textTer }}>
-            FastAPI · :8000
-          </span>
-        </div>
+
       </motion.aside>
     </>
   );
