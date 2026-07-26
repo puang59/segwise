@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, MessageSquare, CheckCircle2, X, Sparkles, Brain } from 'lucide-react';
+import { Plus, MessageSquare, CheckCircle2, X, Sparkles, Brain, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ModelSwitcher } from '@/components/model-switcher/ModelSwitcher';
 
 interface SidebarProps {
+  isOpen?: boolean;
+  onToggleSidebar?: () => void;
   currentSessionId?: string;
   onSelectSession?: (id: string) => void;
   onNewSession?: () => void;
@@ -35,6 +37,8 @@ const S = {
 };
 
 export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen = true,
+  onToggleSidebar,
   currentSessionId = 'session-default',
   onSelectSession,
   onNewSession,
@@ -53,19 +57,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'session-3', title: 'Mortgage Churn Risk Analysis', date: 'Yesterday' },
   ]);
 
-  const sidebarStyle: React.CSSProperties = {
-    width: 240,
-    flexShrink: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    background: S.surface,
-    borderRight: `1px solid ${S.border}`,
-    position: 'relative',
-    zIndex: 50,
-    userSelect: 'none',
-  };
-
   return (
     <>
       {/* Mobile backdrop */}
@@ -80,26 +71,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
               position: 'fixed', inset: 0, zIndex: 40,
               background: 'rgba(0,0,0,0.3)',
               backdropFilter: 'blur(4px)',
-              display: 'none', // hidden on desktop
             }}
-            className="lg:block"
+            className="lg:hidden"
             onClick={onCloseMobile}
           />
         )}
       </AnimatePresence>
 
-      <aside style={sidebarStyle}>
+      <motion.aside
+        initial={false}
+        animate={{
+          width: isOpen ? 240 : 0,
+          opacity: isOpen ? 1 : 0,
+        }}
+        transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+        style={{
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          background: S.surface,
+          borderRight: isOpen ? `1px solid ${S.border}` : 'none',
+          position: 'relative',
+          zIndex: 50,
+          userSelect: 'none',
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+        }}
+      >
         {/* Brand Header */}
         <div style={{
           height: 52,
-          padding: '0 16px',
+          padding: '0 12px 0 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: `1px solid ${S.border}`,
           flexShrink: 0,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden' }}>
             <div style={{
               width: 28, height: 28,
               borderRadius: 8,
@@ -110,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             }}>
               <Brain size={13} color={S.accent} />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <div style={{
                 fontWeight: 600,
                 fontSize: 13,
@@ -134,13 +144,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div style={{ fontSize: 11, color: S.textTer }}>Banking Analytics</div>
             </div>
           </div>
-          <button
-            onClick={onCloseMobile}
-            className="lg:hidden pressable"
-            style={{ padding: 4, borderRadius: 6, color: S.textSec, background: 'none', border: 'none' }}
-          >
-            <X size={15} />
-          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {onToggleSidebar && (
+              <button
+                onClick={onToggleSidebar}
+                className="pressable"
+                title="Collapse Sidebar (⌘B)"
+                style={{
+                  padding: 5,
+                  borderRadius: 6,
+                  color: S.textSec,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <PanelLeftClose size={16} />
+              </button>
+            )}
+            <button
+              onClick={onCloseMobile}
+              className="lg:hidden pressable"
+              style={{ padding: 4, borderRadius: 6, color: S.textSec, background: 'none', border: 'none' }}
+            >
+              <X size={15} />
+            </button>
+          </div>
         </div>
 
         {/* New Session */}
@@ -259,7 +291,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             FastAPI · :8000
           </span>
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 };

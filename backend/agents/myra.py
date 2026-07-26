@@ -355,7 +355,7 @@ def _build_fallback_narrative(state: AgentState) -> str:
         for seg, stats in seg_stats.items():
             cnt = stats.get("count", "?")
             pct = stats.get("pct", "?")
-            lines.append(f"- **{seg}**: {cnt:,} customers ({pct}%)")
+            lines.append(f"- **{seg}**: {cnt} customers ({pct}%)")
 
     lines.append("\n---\n**Suggested next steps:**")
     for chip in _default_chips(state):

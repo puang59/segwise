@@ -33,10 +33,15 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
   React.useEffect(() => {
+    setIsLoadingCustomers(true);
     fetchCustomers().then((records) => {
       setCustomers(records);
+      setIsLoadingCustomers(false);
+    }).catch(() => {
+      setIsLoadingCustomers(false);
     });
   }, []);
 
@@ -289,31 +294,38 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                 border: '1px solid rgba(0,0,0,0.07)',
                 overflow: 'hidden',
               }}>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', fontSize: 11 }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#f5f5f3', color: 'rgba(26,26,24,0.4)', fontFamily: 'var(--font-mono)' }}>
-                        <th style={{ padding: '8px 10px', fontWeight: 400 }}>Customer</th>
-                        <th style={{ padding: '8px 10px', fontWeight: 400 }}>Segment</th>
-                        <th style={{ padding: '8px 10px', fontWeight: 400, textAlign: 'right' }}>Balance</th>
-                      </tr>
-                    </thead>
-                    <tbody style={{ color: 'rgba(26,26,24,0.6)' }}>
-                      {customers.map((c) => (
-                        <tr key={c.customer_id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                          <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', color: '#4f46e5' }}>
-                            <div>{c.full_name || c.customer_id}</div>
-                            <div style={{ fontSize: 9, color: 'rgba(26,26,24,0.35)' }}>{c.customer_id}</div>
-                          </td>
-                          <td style={{ padding: '8px 10px', fontSize: 10 }}>{c.segment}</td>
-                          <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#16a34a', fontWeight: 500 }}>
-                            ₹{c.avg_balance.toLocaleString()}
-                          </td>
+                {isLoadingCustomers ? (
+                  <div style={{ padding: '24px', textAlign: 'center', color: 'rgba(26,26,24,0.4)', fontSize: 12 }}>
+                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginBottom: 8 }} />
+                    <div>Loading customer records...</div>
+                  </div>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', fontSize: 11 }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#f5f5f3', color: 'rgba(26,26,24,0.4)', fontFamily: 'var(--font-mono)' }}>
+                          <th style={{ padding: '8px 10px', fontWeight: 400 }}>Customer</th>
+                          <th style={{ padding: '8px 10px', fontWeight: 400 }}>Segment</th>
+                          <th style={{ padding: '8px 10px', fontWeight: 400, textAlign: 'right' }}>Balance</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody style={{ color: 'rgba(26,26,24,0.6)' }}>
+                        {customers.map((c) => (
+                          <tr key={c.customer_id} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                            <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', color: '#4f46e5' }}>
+                              <div>{c.full_name || c.customer_id}</div>
+                              <div style={{ fontSize: 9, color: 'rgba(26,26,24,0.35)' }}>{c.customer_id}</div>
+                            </td>
+                            <td style={{ padding: '8px 10px', fontSize: 10 }}>{c.segment}</td>
+                            <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#16a34a', fontWeight: 500 }}>
+                              ₹{c.avg_balance.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}

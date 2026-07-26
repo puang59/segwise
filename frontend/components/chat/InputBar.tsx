@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AgentName, AGENT_REGISTRY } from '@/lib/types';
-import { AgentAvatar } from '@/components/agent-trace/AgentAvatar';
-import { Send, Loader2 } from 'lucide-react';
+import { AgentName } from '@/lib/types';
+import { LiveAgentStatus } from './LiveAgentStatus';
+import { Sparkles, ArrowUp, Loader2 } from 'lucide-react';
+import { showToast } from '@/components/shared/ToastProvider';
 
 interface InputBarProps {
   activeAgent?: AgentName;
   isStreaming?: boolean;
+  liveStatusText?: string;
   onSendMessage: (text: string) => void;
   presetText?: string;
 }
@@ -15,6 +17,7 @@ interface InputBarProps {
 export const InputBar: React.FC<InputBarProps> = ({
   activeAgent = 'advait',
   isStreaming = false,
+  liveStatusText = '',
   onSendMessage,
   presetText = '',
 }) => {
@@ -32,108 +35,130 @@ export const InputBar: React.FC<InputBarProps> = ({
     setText('');
   };
 
-  const meta = AGENT_REGISTRY[activeAgent] || AGENT_REGISTRY['advait'];
+  const handleEnhancePrompt = () => {
+    if (!text.trim()) {
+      setText('Segment retail customers into priority, regular, and dormant tiers based on balance maintained and transaction frequency.');
+      showToast.info('Prompt Enhanced', 'Added high-value customer segmentation criteria');
+    } else {
+      setText((prev) => `${prev} Filter by minimum balance > $10,000 and calculate SHAP feature importance.`);
+      showToast.success('Prompt Enhanced', 'Appended feature importance analysis parameters');
+    }
+  };
+
   const hasText = text.trim().length > 0;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '8px 10px',
-        borderRadius: 12,
-        background: '#ffffff',
-        border: focused
-          ? `1.5px solid ${meta.color}55`
-          : '1.5px solid rgba(0,0,0,0.08)',
-        boxShadow: focused
-          ? `0 0 0 3px ${meta.color}10, 0 2px 8px rgba(0,0,0,0.06)`
-          : '0 1px 4px rgba(0,0,0,0.06)',
-        transition: 'border-color 150ms cubic-bezier(0.23,1,0.32,1), box-shadow 150ms cubic-bezier(0.23,1,0.32,1)',
-      }}
-    >
-      {/* Agent pill — uses DiceBear avatar instead of text symbol */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '3px 8px 3px 5px',
-          borderRadius: 8,
-          background: `${meta.color}0D`,
-          border: `1px solid ${meta.color}20`,
-          flexShrink: 0,
-        }}
-      >
-        {isStreaming ? (
-          <span className="dot-bounce" style={{ color: meta.color }}>
-            <span /><span /><span />
-          </span>
-        ) : (
-          <AgentAvatar agent={activeAgent} size={18} showName={false} />
-        )}
-        <span style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: meta.color,
-          letterSpacing: '-0.01em',
-        }}>
-          {meta.displayName}
-        </span>
-      </div>
-
-      {/* Input */}
-      <input
-        type="text"
-        disabled={isStreaming}
-        placeholder="Ask about segments, balances, or recommendations…"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{
-          flex: 1,
-          background: 'none',
-          border: 'none',
-          outline: 'none',
-          fontSize: 13.5,
-          color: '#1a1a18',
-          caretColor: '#4f46e5',
-          padding: '2px 0',
-          opacity: isStreaming ? 0.5 : 1,
-          cursor: isStreaming ? 'not-allowed' : 'text',
-        }}
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      {/* Live Agent Status Line (Cyan text + Avatar) directly above input container */}
+      <LiveAgentStatus
+        activeAgent={activeAgent}
+        isStreaming={isStreaming}
+        statusText={liveStatusText}
       />
 
-      {/* Send button */}
-      <button
-        type="submit"
-        disabled={!hasText || isStreaming}
-        className="pressable"
+      {/* Main Input Box Container */}
+      <form
+        onSubmit={handleSubmit}
         style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          border: 'none',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          cursor: hasText && !isStreaming ? 'pointer' : 'not-allowed',
-          background: hasText && !isStreaming ? '#4f46e5' : '#f0f0ef',
-          color: hasText && !isStreaming ? '#ffffff' : 'rgba(26,26,24,0.3)',
-          transition: 'background 150ms cubic-bezier(0.23,1,0.32,1), color 150ms cubic-bezier(0.23,1,0.32,1)',
-          opacity: isStreaming ? 0.4 : 1,
+          flexDirection: 'column',
+          borderRadius: 22,
+          background: '#ffffff',
+          border: focused
+            ? '1.5px solid rgba(14,165,233,0.5)'
+            : '1.5px solid rgba(0,0,0,0.12)',
+          boxShadow: focused
+            ? '0 0 0 4px rgba(14,165,233,0.08), 0 4px 16px rgba(0,0,0,0.06)'
+            : '0 2px 10px rgba(0,0,0,0.04)',
+          padding: '16px 16px 12px 18px',
+          transition: 'all 180ms cubic-bezier(0.23,1,0.32,1)',
         }}
       >
-        {isStreaming ? (
-          <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
-        ) : (
-          <Send size={14} />
-        )}
-      </button>
-    </form>
+        {/* Input Textarea / Field */}
+        <input
+          type="text"
+          disabled={isStreaming}
+          placeholder="Ask me anything..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          style={{
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            outline: 'none',
+            fontSize: 14.5,
+            color: '#1a1a18',
+            caretColor: '#0ea5e9',
+            padding: '2px 0 16px 0',
+            opacity: isStreaming ? 0.6 : 1,
+            cursor: isStreaming ? 'not-allowed' : 'text',
+          }}
+        />
+
+        {/* Bottom Toolbar inside Input Box */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingTop: 4,
+        }}>
+          {/* Bottom Left: Enhance Pill Button */}
+          <button
+            type="button"
+            onClick={handleEnhancePrompt}
+            disabled={isStreaming}
+            className="pressable"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              padding: '5px 12px',
+              borderRadius: 20,
+              border: '1px solid rgba(0,0,0,0.14)',
+              background: '#ffffff',
+              color: '#333331',
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: isStreaming ? 'not-allowed' : 'pointer',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+            }}
+          >
+            <Sparkles size={13} color="#444" />
+            <span>Enhance</span>
+          </button>
+
+          {/* Bottom Right: Send Pill Button */}
+          <button
+            type="submit"
+            disabled={!hasText || isStreaming}
+            className="pressable"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              padding: '6px 16px',
+              borderRadius: 20,
+              border: 'none',
+              cursor: hasText && !isStreaming ? 'pointer' : 'not-allowed',
+              background: hasText && !isStreaming ? '#1a1a18' : 'rgba(26,26,24,0.12)',
+              color: hasText && !isStreaming ? '#ffffff' : 'rgba(26,26,24,0.4)',
+              fontSize: 12.5,
+              fontWeight: 500,
+              transition: 'all 150ms cubic-bezier(0.23,1,0.32,1)',
+              opacity: isStreaming ? 0.5 : 1,
+            }}
+          >
+            {isStreaming ? (
+              <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} />
+            ) : (
+              <ArrowUp size={13} />
+            )}
+            <span>Send</span>
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

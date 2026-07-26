@@ -11,6 +11,7 @@ interface ChatWindowProps {
   messages: ChatMessage[];
   isStreaming?: boolean;
   activeAgent?: AgentName;
+  liveStatusText?: string;
   onSendMessage: (query: string) => void;
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
@@ -51,6 +52,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
   isStreaming = false,
   activeAgent = 'advait',
+  liveStatusText = '',
   onSendMessage,
   onSelectSegment,
   onRespondHitl,
@@ -211,6 +213,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <InputBar
           activeAgent={activeAgent}
           isStreaming={isStreaming}
+          liveStatusText={liveStatusText}
           onSendMessage={onSendMessage}
         />
       </div>

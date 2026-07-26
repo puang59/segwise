@@ -1,18 +1,22 @@
 'use client';
 
 import React from 'react';
-import { Menu, PanelRight } from 'lucide-react';
+import { PanelLeft, PanelRight } from 'lucide-react';
 import { ChatWindow } from './ChatWindow';
-import { ChatMessage, AgentName, SegmentSummary } from '@/lib/types';
+import { ChatMessage, AgentName, AgentStatus, SegmentSummary } from '@/lib/types';
+import { AgentLiveBar } from '@/components/agent-trace/AgentLiveBar';
 
 interface MainWorkspaceProps {
   messages: ChatMessage[];
   isStreaming?: boolean;
   activeAgent?: AgentName;
+  liveStatusText?: string;
+  agentStates?: Record<AgentName, AgentStatus>;
+  isSidebarOpen?: boolean;
   selectedMyraModel?: string;
   onToggleSidebar?: () => void;
   onToggleContextPanel?: () => void;
-  onOpenModelSwitcher?: () => void;
+  onOpenMobileSidebar?: () => void;
   onSendMessage: (query: string) => void;
   onSelectSegment?: (segment: SegmentSummary) => void;
   onRespondHitl?: (response: string) => void;
@@ -22,10 +26,13 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
   messages,
   isStreaming = false,
   activeAgent = 'advait',
+  liveStatusText = '',
+  agentStates,
+  isSidebarOpen = true,
   selectedMyraModel = 'Gemini 3.1 Pro',
   onToggleSidebar,
   onToggleContextPanel,
-  onOpenModelSwitcher,
+  onOpenMobileSidebar,
   onSendMessage,
   onSelectSegment,
   onRespondHitl,
@@ -41,7 +48,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       overflow: 'hidden',
       position: 'relative',
     }}>
-      {/* Header — clean & minimal without model names or agent flow clutter */}
+      {/* Header with Sidebar Toggle & Agent Live Network Status */}
       <header style={{
         height: 52,
         padding: '0 20px',
@@ -55,23 +62,27 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
         WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(0,0,0,0.06)',
       }}>
-        {/* Left: Workspace Title & DB Status */}
+        {/* Left: Sidebar Toggle Button & Workspace Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden pressable"
+            className="pressable"
             style={{
               padding: 6,
               borderRadius: 7,
               background: 'none',
               border: 'none',
-              color: 'rgba(26,26,24,0.5)',
+              color: 'rgba(26,26,24,0.6)',
               cursor: 'pointer',
               display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
+            title={isSidebarOpen ? 'Hide Left Sidebar (⌘B)' : 'Show Left Sidebar (⌘B)'}
           >
-            <Menu size={17} />
+            <PanelLeft size={18} />
           </button>
+          
           <div style={{ minWidth: 0 }}>
             <div style={{
               fontSize: 13,
@@ -96,8 +107,15 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* Right: Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        {/* Right: Agent Live Bar & Context Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <AgentLiveBar
+            activeAgent={activeAgent}
+            isStreaming={isStreaming}
+            liveStatusText={liveStatusText}
+            agentStates={agentStates}
+          />
+
           <button
             onClick={onToggleContextPanel}
             className="pressable"
@@ -124,6 +142,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
         messages={messages}
         isStreaming={isStreaming}
         activeAgent={activeAgent}
+        liveStatusText={liveStatusText}
         onSendMessage={onSendMessage}
         onSelectSegment={onSelectSegment}
         onRespondHitl={onRespondHitl}

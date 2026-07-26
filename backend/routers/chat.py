@@ -110,7 +110,7 @@ async def chat_stream_endpoint(req: ChatRequest):
             log_trace(conv_id, conv_id, "advait", "intent_detected", output_data=state.get("intent"))
         except Exception as e:
             logger.error(f"[Chat SSE] Advait failed: {e}")
-            yield _format_sse("tool_error", {"tool": "advait_intent_extractor", "error": str(e)})
+            yield _format_sse("tool_error", {"tool": "advait_intent_extractor", "agent": "advait", "error": str(e)})
 
         # Check HITL Clarification
         if state.get("clarification_needed"):
@@ -142,7 +142,7 @@ async def chat_stream_endpoint(req: ChatRequest):
                 })
             except Exception as e:
                 logger.error(f"[Chat SSE] Vihaan failed: {e}")
-                yield _format_sse("tool_error", {"tool": "column_resolver", "error": str(e)})
+                yield _format_sse("tool_error", {"tool": "column_resolver", "agent": "vihaan", "error": str(e)})
 
         # ── AGENT 3: KABIR (Feature Engineering) ───────────────────────────
         if "kabir" in agent_plan:
@@ -153,8 +153,10 @@ async def chat_stream_endpoint(req: ChatRequest):
                 yield _format_sse("tool_complete", {"tool": "compute_features", "agent": "kabir"})
                 features = state.get("engineered_features", [])
                 yield _format_sse("tool_progress", {
+                    "agent": "kabir",
                     "tool": "compute_features",
-                    "engineered_features": features,
+                    "progress": 100,
+                    "message": f"Engineered {len(features)} behavioral features",
                 })
                 yield _format_sse("agent_complete", {
                     "agent": "kabir",
@@ -163,7 +165,7 @@ async def chat_stream_endpoint(req: ChatRequest):
                 })
             except Exception as e:
                 logger.error(f"[Chat SSE] Kabir failed: {e}")
-                yield _format_sse("tool_error", {"tool": "compute_features", "error": str(e)})
+                yield _format_sse("tool_error", {"tool": "compute_features", "agent": "kabir", "error": str(e)})
 
         # ── AGENT 4: ISHAAN (Segmentation Engine) ─────────────────────────
         if "ishaan" in agent_plan:
@@ -210,7 +212,7 @@ async def chat_stream_endpoint(req: ChatRequest):
                 })
             except Exception as e:
                 logger.error(f"[Chat SSE] Ishaan failed: {e}")
-                yield _format_sse("tool_error", {"tool": "segmentation_clustering", "error": str(e)})
+                yield _format_sse("tool_error", {"tool": "segmentation_clustering", "agent": "ishaan", "error": str(e)})
 
         # ── AGENT 5: AADHYA (SHAP Explainability) ─────────────────────────
         if "aadhya" in agent_plan:
@@ -226,7 +228,6 @@ async def chat_stream_endpoint(req: ChatRequest):
                             "id": "aadhya-shap-chart",
                             "type": "bar",
                             "title": "Aadhya SHAP Feature Importance",
-                            "produced_by": "aadhya",
                             "categoryKey": "feature",
                             "dataKeys": ["importance"],
                             "data": [
@@ -245,7 +246,7 @@ async def chat_stream_endpoint(req: ChatRequest):
                 })
             except Exception as e:
                 logger.error(f"[Chat SSE] Aadhya failed: {e}")
-                yield _format_sse("tool_error", {"tool": "shap_explainer", "error": str(e)})
+                yield _format_sse("tool_error", {"tool": "shap_explainer", "agent": "aadhya", "error": str(e)})
 
         # ── AGENT 6: SAANVI (Recommendation Engine) ───────────────────────
         if "saanvi" in agent_plan:
@@ -261,7 +262,7 @@ async def chat_stream_endpoint(req: ChatRequest):
                 })
             except Exception as e:
                 logger.error(f"[Chat SSE] Saanvi failed: {e}")
-                yield _format_sse("tool_error", {"tool": "product_recommendations", "error": str(e)})
+                yield _format_sse("tool_error", {"tool": "product_recommendations", "agent": "saanvi", "error": str(e)})
 
         # ── AGENT 7: MYRA (Response Synthesis & Narrative Streaming) ─────
         if "myra" in agent_plan:
@@ -275,11 +276,11 @@ async def chat_stream_endpoint(req: ChatRequest):
                     if ev_type == "model_info":
                         yield _format_sse("model_info", ev_data)
                     elif ev_type == "thinking_start":
-                        yield _format_sse("thinking_start", {})
+                        yield _format_sse("thinking_start", {"agent": "myra"})
                     elif ev_type == "thought_chunk":
-                        yield _format_sse("thought_chunk", ev_data)
+                        yield _format_sse("thinking_chunk", ev_data)
                     elif ev_type == "thinking_end":
-                        yield _format_sse("thinking_end", {})
+                        yield _format_sse("thinking_end", {"agent": "myra"})
                     elif ev_type == "text_chunk":
                         full_narrative_chunks.append(ev_data.get("content", ""))
                         yield _format_sse("text_chunk", ev_data)

@@ -151,7 +151,7 @@ REPORT_HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="section-title">6. Customer Retention & Re-activation Strategies</div>
 <div class="stat-card">
     <h4>Dormant Account Interventions</h4>
-    <p>Automate automated SMS/email outreach with fee waivers and competitive high-yield savings offers to re-engage accounts with falling engagement scores.</p>
+    <p>Automated SMS/email outreach with fee waivers and competitive high-yield savings offers to re-engage accounts with falling engagement scores.</p>
 </div>
 
 <!-- SECTION 8: TRANSITION CANDIDATES -->
