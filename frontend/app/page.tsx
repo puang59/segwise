@@ -53,6 +53,30 @@ export default function Home() {
   const [chartSpecs, setChartSpecs] = useState<ChartSpec[]>([]);
   const [selectedSegment, setSelectedSegment] = useState<SegmentSummary | null>(null);
 
+  // Derive the active segment filter from the most recent message that has segmentData.
+  // Used to filter the Data tab in ContextPanel to only show relevant customers.
+  const activeSegmentFilter = React.useMemo<string | undefined>(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i];
+      if (msg.segmentData && msg.segmentData.length > 0) {
+        // Use the segment with the most customers as the primary filter
+        const sorted = [...msg.segmentData].sort(
+          (a, b) => (b.customer_count ?? b.count ?? 0) - (a.customer_count ?? a.count ?? 0)
+        );
+        const seg = sorted[0];
+        return (seg.id || seg.name)?.toLowerCase();
+      }
+    }
+    return undefined;
+  }, [messages]);
+
+  // True once at least one completed (non-streaming) agent response exists.
+  // Gates the customer data fetch — Data tab stays empty until the agents have run.
+  const hasAgentOutput = React.useMemo(
+    () => messages.some((m) => m.sender !== 'user' && !m.isStreaming && m.content),
+    [messages]
+  );
+
   const isInitialMount = useRef(true);
 
   // 1. Load Sessions from localStorage on Mount
@@ -647,10 +671,13 @@ export default function Home() {
 
       {/* Right Column: Context Panel (360px) */}
       <ContextPanel
+        key={currentSessionId}
         isOpen={isContextPanelOpen}
         onClose={() => setIsContextPanelOpen(false)}
         chartSpecs={chartSpecs}
         sessionId={currentSessionId}
+        activeSegmentFilter={activeSegmentFilter}
+        hasAgentOutput={hasAgentOutput}
         onExportCsv={() => handleExportCsv()}
       />
 

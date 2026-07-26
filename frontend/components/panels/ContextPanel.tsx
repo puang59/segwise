@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BarChart3,
   Table,
@@ -10,10 +10,12 @@ import {
   ExternalLink,
   Loader2,
   Check,
+  ScanSearch,
+  Filter,
 } from 'lucide-react';
 import { ChartSpec, CustomerRecord } from '@/lib/types';
 import { ChartCard } from './ChartCard';
-import { generatePdfReport, fetchCustomers } from '@/lib/api';
+import { generatePdfReport, fetchCustomers, exportCustomersCsv } from '@/lib/api';
 import { showToast } from '@/components/shared/ToastProvider';
 
 interface ContextPanelProps {
@@ -21,6 +23,8 @@ interface ContextPanelProps {
   onClose?: () => void;
   chartSpecs?: ChartSpec[];
   sessionId?: string;
+  activeSegmentFilter?: string;
+  hasAgentOutput?: boolean;
   onExportCsv?: () => void;
 }
 
@@ -29,6 +33,8 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
   onClose,
   chartSpecs = [],
   sessionId = 'session-default',
+  activeSegmentFilter,
+  hasAgentOutput = false,
   onExportCsv,
 }) => {
   const [activeTab, setActiveTab] = useState<'charts' | 'data' | 'report'>('charts');
@@ -36,70 +42,54 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
+  // Local override: null = use activeSegmentFilter from parent, undefined = show all
+  const [segmentOverride, setSegmentOverride] = useState<string | null | undefined>(null);
 
-  React.useEffect(() => {
+  // The resolved filter: if user cleared it (segmentOverride === undefined) show all;
+  // if they haven't touched it, fall back to whatever the parent derived.
+  const resolvedFilter =
+    segmentOverride === null ? activeSegmentFilter : segmentOverride;
+
+  // Reset PDF + segment override when session changes
+  useEffect(() => {
+    setPdfGenerated(false);
+    setSegmentOverride(null); // re-sync with parent on session switch
+  }, [sessionId]);
+
+  // Re-fetch when the resolved filter changes — but ONLY after the agents have produced output.
+  // On an empty chat, skip the fetch entirely and show the waiting empty state.
+  useEffect(() => {
+    if (!hasAgentOutput) {
+      setCustomers([]);
+      setIsLoadingCustomers(false);
+      return;
+    }
     setIsLoadingCustomers(true);
-    fetchCustomers().then((records) => {
+    fetchCustomers(resolvedFilter || undefined).then((records) => {
       setCustomers(records);
       setIsLoadingCustomers(false);
     }).catch(() => {
       setIsLoadingCustomers(false);
     });
-  }, [sessionId]);
+  }, [resolvedFilter, hasAgentOutput]);
 
   const handleGeneratePdf = async () => {
     setIsGeneratingPdf(true);
-    showToast.info('Generating PDF Report', 'Building executive 9-section report...');
+    showToast.info('Generating Report', 'Building executive 9-section report...');
 
     try {
-      const res = await generatePdfReport('current-session');
+      await generatePdfReport(sessionId);
+      setPdfGenerated(true);
+      showToast.success('Report Downloaded', 'Check your downloads folder.');
+    } catch (e: any) {
+      showToast.error('Export Failed', e?.message || 'Server error during report compilation.');
+    } finally {
       setIsGeneratingPdf(false);
-      if (res.success) {
-        setPdfGenerated(true);
-        showToast.success('PDF Generated', 'Report ready for download');
-        if (res.download_url) {
-          window.open(res.download_url, '_blank');
-        }
-      } else {
-        showToast.error('PDF Generation Failed', 'Could not compile report.');
-      }
-    } catch (e) {
-      setIsGeneratingPdf(false);
-      showToast.error('Export Error', 'Server returned error during PDF compilation.');
     }
   };
 
-  const sampleChartSpecs: ChartSpec[] = [
-    {
-      id: 'default-cluster-chart',
-      type: 'bar',
-      title: 'Segment Population Share',
-      produced_by: 'ishaan',
-      categoryKey: 'name',
-      dataKeys: ['percentage'],
-      data: [
-        { name: 'Priority', percentage: 18 },
-        { name: 'Regular', percentage: 58 },
-        { name: 'Dormant', percentage: 24 },
-      ],
-    },
-    {
-      id: 'default-shap-chart',
-      type: 'bar',
-      title: 'Kabir Feature Importance',
-      produced_by: 'kabir',
-      categoryKey: 'feature',
-      dataKeys: ['importance'],
-      data: [
-        { feature: 'Avg Balance', importance: 0.42 },
-        { feature: 'Txn Freq', importance: 0.28 },
-        { feature: 'Credit Score', importance: 0.18 },
-        { feature: 'Digital Active', importance: 0.12 },
-      ],
-    },
-  ];
-
-  const activeCharts = chartSpecs.length > 0 ? chartSpecs : sampleChartSpecs;
+  // Only real agent-produced charts — no hardcoded fallbacks
+  const activeCharts = chartSpecs;
 
   if (!isOpen) return null;
 
@@ -256,20 +246,57 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   <BarChart3 size={13} color="#4f46e5" />
                   Agent Output Charts
                 </h3>
-                <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>
-                  {activeCharts.length} cards
-                </span>
+                {activeCharts.length > 0 && (
+                  <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>
+                    {activeCharts.length} {activeCharts.length === 1 ? 'card' : 'cards'}
+                  </span>
+                )}
               </div>
 
-              {activeCharts.map((spec) => (
-                <ChartCard key={spec.id} chartSpec={spec} />
-              ))}
+              {activeCharts.length === 0 ? (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  padding: '40px 20px',
+                  background: '#f9f9f8',
+                  borderRadius: 10,
+                  border: '1px dashed rgba(0,0,0,0.1)',
+                  textAlign: 'center',
+                }}>
+                  <div style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    background: 'rgba(79,70,229,0.07)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <ScanSearch size={17} color="rgba(79,70,229,0.5)" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(26,26,24,0.5)', marginBottom: 4 }}>
+                      No charts yet
+                    </div>
+                    <div style={{ fontSize: 11, color: 'rgba(26,26,24,0.35)', lineHeight: 1.5 }}>
+                      Ask a question to trigger the agent pipeline. Ishaan and Kabir will generate segmentation and SHAP charts here.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                activeCharts.map((spec) => (
+                  <ChartCard key={spec.id} chartSpec={spec} />
+                ))
+              )}
             </div>
           )}
 
           {activeTab === 'data' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 8 }}>
                 <h3 style={{
                   fontSize: 11,
                   fontFamily: 'var(--font-mono)',
@@ -285,9 +312,32 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   <Table size={13} color="#4f46e5" />
                   Customer Records Explorer
                 </h3>
-                <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>
-                  Vihaan Output
-                </span>
+                {resolvedFilter ? (
+                  <button
+                    onClick={() => setSegmentOverride(undefined)}
+                    title="Clear segment filter — show all customers"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      padding: '2px 6px',
+                      borderRadius: 5,
+                      border: '1px solid rgba(79,70,229,0.25)',
+                      background: 'rgba(79,70,229,0.07)',
+                      color: '#4f46e5',
+                      fontSize: 10,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Filter size={9} />
+                    {resolvedFilter}
+                    <X size={9} />
+                  </button>
+                ) : (
+                  <span style={{ fontSize: 10, color: 'rgba(26,26,24,0.3)', fontFamily: 'var(--font-mono)' }}>
+                    All customers
+                  </span>
+                )}
               </div>
 
               <div style={{
@@ -300,6 +350,52 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   <div style={{ padding: '24px', textAlign: 'center', color: 'rgba(26,26,24,0.4)', fontSize: 12 }}>
                     <Loader2 size={16} style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginBottom: 8 }} />
                     <div>Loading customer records...</div>
+                  </div>
+                ) : !hasAgentOutput ? (
+                  /* ── State 1: No query sent yet ─────────────────────────── */
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    justifyContent: 'center', gap: 10, padding: '40px 20px', textAlign: 'center',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      background: 'rgba(79,70,229,0.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <ScanSearch size={17} color="rgba(79,70,229,0.45)" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(26,26,24,0.45)', marginBottom: 4 }}>
+                        Waiting for your query
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(26,26,24,0.32)', lineHeight: 1.55 }}>
+                        Ask a question in the chat. Vihaan will resolve the relevant customer records and display them here.
+                      </div>
+                    </div>
+                  </div>
+                ) : customers.length === 0 ? (
+                  /* ── State 2: Query ran but no results / backend offline ── */
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    justifyContent: 'center', gap: 10, padding: '40px 20px', textAlign: 'center',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      background: 'rgba(79,70,229,0.07)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Table size={17} color="rgba(79,70,229,0.5)" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(26,26,24,0.5)', marginBottom: 4 }}>
+                        No records found
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(26,26,24,0.35)', lineHeight: 1.5 }}>
+                        {resolvedFilter
+                          ? `No customers matched the "${resolvedFilter}" segment filter.`
+                          : 'The backend returned no customer records. Check that the server is running.'}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
@@ -412,7 +508,15 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                   </button>
 
                   <button
-                    onClick={onExportCsv}
+                    onClick={async () => {
+                      try {
+                        showToast.info('Exporting CSV', 'Preparing customer segment data...');
+                        await exportCustomersCsv({ segmentId: resolvedFilter || undefined });
+                        showToast.success('CSV Downloaded', 'Check your downloads folder.');
+                      } catch (e: any) {
+                        showToast.error('Export Failed', e?.message || 'Could not export CSV.');
+                      }
+                    }}
                     className="pressable"
                     style={{
                       width: '100%',
