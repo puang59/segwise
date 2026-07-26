@@ -20,7 +20,7 @@ async def run_vihaan(state: AgentState) -> AgentState:
     Resolves DB columns from intent and computes dataset health summary.
     Writes resolved_columns, row_count, and dataset_summary into state.
     """
-    intent = state.get("intent", "eda")
+    intent = str(state.get("intent") or "eda")
     filters = state.get("filters") or {}
     hints = state.get("segment_label_hints") or []
 

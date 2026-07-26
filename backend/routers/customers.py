@@ -6,7 +6,7 @@ including engineered features, segment assignments, SHAP explanations, and Saanv
 """
 
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.db.sqlite_client import get_connection
@@ -117,7 +117,7 @@ def get_customer_detail(customer_id: str) -> Dict[str, Any]:
     # Generate SHAP explanation for customer profile
     try:
         feature_cols = [c for c in ["estimated_balance", "credit_score", "age", "engagement_score", "customer_value_score", "risk_score"] if c in df.columns]
-        shap_info = explain_customer_shap(df, customer_id=str(customer_id), feature_cols=feature_cols)
+        shap_info = explain_customer_shap(customer_row=row.to_frame().T, model=None, df_background=df.head(10), features=feature_cols)
     except Exception:
         shap_info = {
             "customer_id": customer_id,

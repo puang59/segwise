@@ -12,7 +12,7 @@ import pickle
 import logging
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 
 from backend.agents.state import AgentState
 from backend.tools.explainability import (

@@ -21,29 +21,33 @@ export const metadata: Metadata = {
   description: 'AI-powered customer segmentation copilot for retail banking analytics.',
 };
 
+import { ThemeProvider } from '@/components/shared/ThemeProvider';
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${sansFont.variable} ${monoFont.variable}`}>
+    <html lang="en" className={`${sansFont.variable} ${monoFont.variable}`} suppressHydrationWarning>
       <body style={{ background: '#FDFDFC', color: '#1a1a18', margin: 0, padding: 0 }}>
-        {children}
-        <Toaster
-          theme="light"
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: '#ffffff',
-              border: '1px solid rgba(0,0,0,0.07)',
-              color: '#1a1a18',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-              borderRadius: '10px',
-              fontSize: '13px',
-            },
-          }}
-        />
+        <ThemeProvider>
+          {children}
+          <Toaster
+            theme="light"
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: '#ffffff',
+                border: '1px solid rgba(0,0,0,0.07)',
+                color: '#1a1a18',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                borderRadius: '10px',
+                fontSize: '13px',
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

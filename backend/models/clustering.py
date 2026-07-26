@@ -217,12 +217,12 @@ def compute_cluster_metrics(
 
     try:
         metrics["davies_bouldin_index"] = round(float(davies_bouldin_score(X_valid, labels_valid)), 4)
-    except Exception as e:
+    except Exception:
         metrics["davies_bouldin_index"] = None
 
     try:
         metrics["calinski_harabasz_score"] = round(float(calinski_harabasz_score(X_valid, labels_valid)), 4)
-    except Exception as e:
+    except Exception:
         metrics["calinski_harabasz_score"] = None
 
     # Cluster size distribution

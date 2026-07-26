@@ -7,7 +7,7 @@ from final response narrative tokens in streaming LLM responses.
 
 import re
 from dataclasses import dataclass
-from typing import AsyncGenerator, Literal, Any, Optional
+from typing import AsyncGenerator, Literal, Any
 
 @dataclass
 class StreamChunk:

@@ -9,10 +9,10 @@ Uses LLM — the only arithmetic-free LLM call in the chain.
 import re
 import json
 import logging
-from typing import AsyncGenerator, Dict, Any, List, Optional
+from typing import AsyncGenerator, Dict, Any, List
 
 from backend.agents.state import AgentState
-from backend.agents.thinking import stream_with_thinking, StreamChunk
+from backend.agents.thinking import stream_with_thinking
 from backend.config import get_llm_client, AVAILABLE_MODELS
 from backend.prompts.myra_response_prompt import build_myra_messages
 from backend.prompts.myra_persona_prompt import build_persona_messages
@@ -81,7 +81,7 @@ def _build_chart_specs(state: AgentState) -> List[Dict[str, Any]]:
     """
     charts = []
     segment_stats = state.get("segment_stats") or {}
-    intent = state.get("intent", "")
+    state.get("intent") or "analysis"
 
     if not segment_stats:
         return charts
@@ -196,7 +196,7 @@ async def run_myra(state: AgentState) -> AgentState:
 
     # Build narrative via LLM
     client = get_llm_client(state.get("session_api_key"), is_async=True)
-    model_id = state.get("session_myra_model")
+    model_id = state.get("session_myra_model") or "meta-llama/Meta-Llama-3.1-70B-Instruct"
     model_meta = AVAILABLE_MODELS.get(model_id, {})
 
     extra_kwargs = {}
@@ -255,7 +255,7 @@ async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]
     Streaming version of Myra — yields SSE-ready event dicts.
     Call this from the FastAPI SSE endpoint.
     """
-    model_id = state.get("session_myra_model")
+    model_id = state.get("session_myra_model") or "meta-llama/Meta-Llama-3.1-70B-Instruct"
     model_meta = AVAILABLE_MODELS.get(model_id, {})
 
     method = state.get("segmentation_method") or "rule"
@@ -343,7 +343,7 @@ async def stream_myra(state: AgentState) -> AsyncGenerator[Dict[str, Any], None]
 
 def _build_fallback_narrative(state: AgentState) -> str:
     """Build a simple fallback narrative when LLM call fails."""
-    intent = state.get("intent", "analysis")
+    intent = state.get("intent") or "analysis"
     seg_stats = state.get("segment_stats") or {}
     row_count = state.get("row_count", 0)
 
@@ -366,7 +366,7 @@ def _build_fallback_narrative(state: AgentState) -> str:
 
 def _default_chips(state: AgentState) -> List[str]:
     """Generate context-aware default follow-up chips."""
-    intent = state.get("intent", "eda")
+    intent = state.get("intent") or "eda"
     segments = list((state.get("segment_stats") or {}).keys())
 
     if intent == "segment" and segments:

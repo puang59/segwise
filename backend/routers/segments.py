@@ -6,7 +6,7 @@ feature distributions, recommended products, and customer sample lists for dashb
 """
 
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.db.sqlite_client import get_connection

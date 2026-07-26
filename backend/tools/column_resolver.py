@@ -6,7 +6,7 @@ Computes dataset health summary: null rates, dtypes, min/max bounds.
 """
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
 from backend.db.sqlite_client import (
     get_table_columns,
@@ -175,7 +175,6 @@ def compute_dataset_health(columns: List[str], sample_limit: int = 5000) -> Dict
     sql = f"SELECT {cols_str} FROM customer_profile LIMIT {sample_limit}"
 
     try:
-        import pandas as pd
         df = execute_read_query(sql)
     except Exception as e:
         logger.error(f"[ColumnResolver] Failed to query health stats: {e}")

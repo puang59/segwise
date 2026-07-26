@@ -8,8 +8,8 @@ Generates downloadable CSV streaming exports for segmented customer records and 
 import io
 import datetime
 import pandas as pd
-from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException
+from typing import Optional
+from fastapi import APIRouter
 from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel, Field
 
@@ -303,7 +303,7 @@ def export_executive_pdf(req: ExportPDFRequest) -> Response:
             media_type="application/pdf",
             headers={"Content-Disposition": "attachment; filename=Segwise_Executive_Report.pdf"}
         )
-    except Exception as e:
+    except Exception:
         # Fallback: if WeasyPrint fails due to missing C libraries (cairo/pango), return rendered HTML document
         return Response(
             content=html_content.encode("utf-8"),

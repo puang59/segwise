@@ -8,7 +8,7 @@ Pure Python — no LLM calls.
 
 import logging
 import pandas as pd
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from backend.agents.state import AgentState
 from backend.tools.recommendation import recommend_for_segments, recommend_products

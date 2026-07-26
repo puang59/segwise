@@ -6,12 +6,9 @@ via the FEATURE_REGISTRY. Saves enriched DataFrame to a temporary Parquet file.
 Pure Python — no LLM calls.
 """
 
-import os
 import uuid
 import logging
-import pandas as pd
 from pathlib import Path
-from typing import List
 
 from backend.agents.state import AgentState
 from backend.db.sqlite_client import fetch_customer_data
@@ -45,7 +42,6 @@ async def run_kabir(state: AgentState) -> AgentState:
     # Build WHERE clause from filters
     where_clause = ""
     params = ()
-    where_parts = []
 
     filter_col_map = {
         "city": "city",

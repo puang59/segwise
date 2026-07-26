@@ -13,7 +13,7 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 from backend.agents.state import AgentState
 from backend.tools.segmentation import (

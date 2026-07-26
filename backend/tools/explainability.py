@@ -10,7 +10,7 @@ Implements:
 import logging
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ def explain_segments_batch(
     unique_labels = sorted(set(labels))
 
     # Build background for KernelExplainer
-    background = shap.sample(X_scaled, min(100, len(X_scaled)))
+    shap.sample(X_scaled, min(100, len(X_scaled)))
 
     try:
         explainer = _get_shap_explainer(model, X_scaled)

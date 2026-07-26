@@ -7,7 +7,7 @@ and DeepInfra OpenAI-compatible API client initialization.
 
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, Any, List, Optional
 try:
     from dotenv import load_dotenv
     # Load environment variables from .env if present

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { flushSync } from 'react-dom';
+
 import { Sidebar } from '@/components/sidebar/Sidebar';
 import { MainWorkspace } from '@/components/chat/MainWorkspace';
 import { ContextPanel } from '@/components/panels/ContextPanel';
@@ -106,26 +106,24 @@ export default function Home() {
     let currentSuggestions: string[] | undefined;
     let currentClarification: any = undefined;
 
-    // Helper: push a message update — uses flushSync so every event is immediately painted
+    // Helper: push a message update
     const pushUpdate = (overrides: Partial<ChatMessage> = {}) => {
-      flushSync(() => {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMsgId
-              ? {
-                  ...msg,
-                  content: currentTextContent,
-                  traceItems: [...currentTraceItems],
-                  segmentData: currentSegmentData,
-                  suggestions: currentSuggestions,
-                  clarification: currentClarification,
-                  isStreaming: true,
-                  ...overrides,
-                }
-              : msg
-          )
-        );
-      });
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMsgId
+            ? {
+                ...msg,
+                content: currentTextContent,
+                traceItems: [...currentTraceItems],
+                segmentData: currentSegmentData,
+                suggestions: currentSuggestions,
+                clarification: currentClarification,
+                isStreaming: true,
+                ...overrides,
+              }
+            : msg
+        )
+      );
     };
 
     await streamChatQuery(
@@ -189,12 +187,10 @@ export default function Home() {
                 );
               }
 
-              // flushSync: force immediate DOM paint so user sees each agent start live
-              flushSync(() => {
-                setActiveAgent(agent);
-                setLiveStatusText(liveMsg);
-                setAgentStates((prev) => ({ ...prev, [agent]: 'running' }));
-              });
+              // force immediate DOM paint so user sees each agent start live
+              setActiveAgent(agent);
+              setLiveStatusText(liveMsg);
+              setAgentStates((prev) => ({ ...prev, [agent]: 'running' }));
               break;
             }
 
@@ -210,9 +206,7 @@ export default function Home() {
                     }
                   : t
               );
-              flushSync(() => {
-                setAgentStates((prev) => ({ ...prev, [agent]: 'done' }));
-              });
+              setAgentStates((prev) => ({ ...prev, [agent]: 'done' }));
               break;
             }
 

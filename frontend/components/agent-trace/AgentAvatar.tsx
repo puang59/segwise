@@ -68,7 +68,6 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
           style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </span>
-
       {showName && (
         <span
           className="font-medium text-xs"

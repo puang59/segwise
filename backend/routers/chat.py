@@ -7,7 +7,7 @@ handoff workflow (Advait -> Vihaan -> Kabir -> Ishaan -> Aadhya -> Saanvi -> Myr
 
 import json
 import logging
-from typing import Dict, Any, List, Optional, AsyncGenerator
+from typing import Any, Optional, AsyncGenerator
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -132,13 +132,13 @@ async def chat_stream_endpoint(req: ChatRequest):
                 state = await run_vihaan(state)
                 yield _format_sse("tool_complete", {"tool": "column_resolver", "agent": "vihaan"})
                 yield _format_sse("columns_resolved", {
-                    "columns": state.get("resolved_columns", []),
+                    "columns": state.get("resolved_columns") or [],
                     "row_count": state.get("row_count", 0),
                 })
                 yield _format_sse("agent_complete", {
                     "agent": "vihaan",
                     "duration_ms": 110,
-                    "summary": f"Resolved {len(state.get('resolved_columns', []))} columns across {state.get('row_count', 0):,} records",
+                    "summary": f"Resolved {len(state.get('resolved_columns') or [])} columns across {state.get('row_count', 0):,} records",
                 })
             except Exception as e:
                 logger.error(f"[Chat SSE] Vihaan failed: {e}")
@@ -151,7 +151,7 @@ async def chat_stream_endpoint(req: ChatRequest):
             try:
                 state = await run_kabir(state)
                 yield _format_sse("tool_complete", {"tool": "compute_features", "agent": "kabir"})
-                features = state.get("engineered_features", [])
+                features = state.get("engineered_features") or []
                 yield _format_sse("tool_progress", {
                     "agent": "kabir",
                     "tool": "compute_features",
@@ -312,7 +312,7 @@ async def chat_stream_endpoint(req: ChatRequest):
             except Exception as e:
                 logger.error(f"[Chat SSE] Myra streaming failed, running non-streaming fallback: {e}")
                 fallback_state = await run_myra(state)
-                narrative_text = fallback_state.get("narrative", "Analysis completed.")
+                narrative_text = fallback_state.get("narrative") or "Analysis completed."
                 yield _format_sse("text_chunk", {"content": narrative_text})
                 yield _format_sse("agent_complete", {
                     "agent": "myra",
