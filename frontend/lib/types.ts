@@ -148,6 +148,8 @@ export interface CustomerRecord {
   avg_balance: number;
   txn_freq?: number;
   credit_score?: number;
+  churn_risk_score?: number;
+  is_high_risk?: number;
 }
 
 export interface ModelInfo {

@@ -158,6 +158,30 @@ def compute_digital_score(df: pd.DataFrame) -> pd.Series:
     return score.round(4)
 
 
+def compute_churn_risk_score(df: pd.DataFrame) -> pd.Series:
+    """
+    churn_risk_score: Probability proxy of customer leaving.
+    Higher = more likely to churn.
+    Based on low recency, low engagement, and low balance trend.
+    """
+    recency_score = df["recency_score"] if "recency_score" in df.columns else compute_recency_score(df)
+    engagement_score = df["engagement_score"] if "engagement_score" in df.columns else compute_engagement_score(df)
+    balance_trend = df["balance_trend"] if "balance_trend" in df.columns else compute_balance_trend(df)
+
+    dormancy = 1.0 - recency_score
+    disengagement = 1.0 - engagement_score
+    declining_balance = 1.0 - balance_trend
+    
+    risk = (0.5 * dormancy + 0.35 * disengagement + 0.15 * declining_balance)
+    risk_prob = 1 / (1 + np.exp(-10 * (risk - 0.65)))  # Sigmoid centered around 0.65
+    
+    return risk_prob.round(4)
+
+def compute_is_high_risk(df: pd.DataFrame) -> pd.Series:
+    """Flag for customers with high churn risk."""
+    score = df["churn_risk_score"] if "churn_risk_score" in df.columns else compute_churn_risk_score(df)
+    return (score > 0.25).astype(int)
+
 # ── Feature Registry ─────────────────────────────────────────────────────────
 
 FEATURE_REGISTRY: Dict[str, Any] = {
@@ -170,6 +194,8 @@ FEATURE_REGISTRY: Dict[str, Any] = {
     "balance_trend":         compute_balance_trend,
     "product_diversity":     compute_product_diversity,
     "digital_score":         compute_digital_score,
+    "churn_risk_score":      compute_churn_risk_score,
+    "is_high_risk":          compute_is_high_risk,
 }
 
 # Features to always compute for segmentation and clustering
@@ -181,6 +207,8 @@ SEGMENTATION_FEATURES = [
     "recency_score",
     "balance_trend",
     "product_diversity",
+    "churn_risk_score",
+    "is_high_risk",
 ]
 
 # Features for EDA only
@@ -188,6 +216,7 @@ EDA_FEATURES = [
     "customer_value_score",
     "risk_score",
     "recency_score",
+    "churn_risk_score",
 ]
 
 

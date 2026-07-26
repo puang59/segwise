@@ -50,7 +50,8 @@ def _load_full_customer_dataset(session_id: Optional[str] = None) -> pd.DataFram
     default_features = [
         "engagement_score", "customer_value_score", "risk_score",
         "savings_ratio", "credit_utilization", "recency_score",
-        "balance_trend", "product_diversity", "digital_score"
+        "balance_trend", "product_diversity", "digital_score",
+        "churn_risk_score", "is_high_risk"
     ]
     df_feat = run_feature_engineering(df, requested_features=default_features)
     return df_feat

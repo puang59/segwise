@@ -224,6 +224,8 @@ export async function fetchCustomers(segment?: string, sessionId?: string): Prom
           avg_balance: Number(item.total_balance ?? item.estimated_balance ?? item.avg_balance ?? 0),
           txn_freq: Number(item.txn_count ?? item.txn_freq ?? 12),
           credit_score: Number(item.credit_score ?? 720),
+          churn_risk_score: Number(item.churn_risk_score ?? 0),
+          is_high_risk: Number(item.is_high_risk ?? 0),
         };
       });
     }

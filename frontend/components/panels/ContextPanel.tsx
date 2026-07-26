@@ -404,6 +404,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                         <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#f5f5f3', color: 'rgba(26,26,24,0.4)', fontFamily: 'var(--font-mono)' }}>
                           <th style={{ padding: '8px 10px', fontWeight: 400 }}>Customer</th>
                           <th style={{ padding: '8px 10px', fontWeight: 400 }}>Segment</th>
+                          <th style={{ padding: '8px 10px', fontWeight: 400, textAlign: 'center' }}>Status</th>
                           <th style={{ padding: '8px 10px', fontWeight: 400, textAlign: 'right' }}>Balance</th>
                         </tr>
                       </thead>
@@ -415,6 +416,17 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
                               <div style={{ fontSize: 9, color: 'rgba(26,26,24,0.35)' }}>{c.customer_id}</div>
                             </td>
                             <td style={{ padding: '8px 10px', fontSize: 10 }}>{c.segment}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                              {c.is_high_risk === 1 ? (
+                                <span style={{ padding: '2px 6px', background: '#fee2e2', color: '#ef4444', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
+                                  High Risk
+                                </span>
+                              ) : (
+                                <span style={{ padding: '2px 6px', background: '#dcfce7', color: '#22c55e', borderRadius: 4, fontSize: 9, fontWeight: 600, textTransform: 'uppercase' }}>
+                                  Safe
+                                </span>
+                              )}
+                            </td>
                             <td style={{ padding: '8px 10px', fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#16a34a', fontWeight: 500 }}>
                               ₹{c.avg_balance.toLocaleString()}
                             </td>
