@@ -44,12 +44,16 @@ Design and implement an AI-powered agent that:
 **Primary Data Source:** [Synthetic Banking Dataset (CSV/SQL/SQLite)](https://www.kaggle.com/datasets/akrambelha/synthetic-banking-dataset-csv-sql-sqlite/code)
 
 The dataset encompasses customer attributes necessary for realistic simulation of banking analytics:
-- **Demographics & Profile:** Customer IDs, City, Credit Scores, Customer Tenure.
-- **Financial Balances:** Total balances, Spending metrics, Active accounts.
-- **Products Used:** Business, Checking, Savings accounts, Loans, Credit, and Debit cards.
-- **Transaction Behaviour:** Loan counts, Transaction frequency, Recency of interactions.
+The raw data is ingested and locally managed inside a structured SQLite database (`bank_sqlite.db`).
 
-The raw data is ingested and locally managed inside a structured SQLite database (`bank_sqlite.db`), enabling complex aggregation queries, rapid EDA, and seamless preprocessing pipelines directly through the agent tools.
+### Schema, Field Definitions & Assumptions
+To effectively simulate a real-world retail banking environment, the synthetic data adheres to the following assumptions and schema definitions:
+- **Demographics (`customers` table):** `customer_id` (PK), `city`, `credit_score` (Assumed to follow a standard FICO distribution 300-850), `customer_tenure_days`.
+- **Financial Balances (`accounts` table):** `total_balance` (Checking + Savings combined), `total_spent` (Monthly outflow).
+- **Product Adoption (`products` table):** Boolean flags (1 or 0) indicating active ownership of `has_business_account`, `has_checking`, `has_savings`, `has_loans`, `has_credit_card`.
+- **Transaction Behaviour (`transactions` table):** `transaction_frequency` (Total count of monthly activities), `recency_days` (Days since last login/activity. Assumption: >90 days indicates high churn risk).
+
+These features are dynamically aggregated using SQL and preprocessed by the agent pipelines.
 
 ---
 
