@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="frontend/public/segwise_logo.png" height="65" alt="Segwise" style="vertical-align: middle; margin-right: 15px;" />
-  <img src="frontend/public/sg.png" height="65" alt="SG" style="vertical-align: middle; margin-left: 15px;" />
+  <img src="frontend/public/segwise_logo.png" height="65" alt="Segwise" style="vertical-align: middle;" />
 </div>
 
 <br />

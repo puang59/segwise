@@ -268,7 +268,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           borderTop: 'none',
           flexShrink: 0,
         }}>
-          <img src="/sg.png" alt="Segwise Logo" style={{ width: '100px', objectFit: 'contain', opacity: 0.9 }} />
         </div>
       </motion.aside>
     </>
