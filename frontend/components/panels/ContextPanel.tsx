@@ -20,6 +20,7 @@ interface ContextPanelProps {
   isOpen?: boolean;
   onClose?: () => void;
   chartSpecs?: ChartSpec[];
+  sessionId?: string;
   onExportCsv?: () => void;
 }
 
@@ -27,6 +28,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
   isOpen = true,
   onClose,
   chartSpecs = [],
+  sessionId = 'session-default',
   onExportCsv,
 }) => {
   const [activeTab, setActiveTab] = useState<'charts' | 'data' | 'report'>('charts');
@@ -43,7 +45,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({
     }).catch(() => {
       setIsLoadingCustomers(false);
     });
-  }, []);
+  }, [sessionId]);
 
   const handleGeneratePdf = async () => {
     setIsGeneratingPdf(true);

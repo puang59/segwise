@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, MessageSquare, CheckCircle2, X, Sparkles, Brain, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { Plus, MessageSquare, CheckCircle2, X, Sparkles, Brain, PanelLeftClose, PanelLeft, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ModelSwitcher } from '@/components/model-switcher/ModelSwitcher';
+import { ChatSession } from '@/lib/types';
 
 interface SidebarProps {
   isOpen?: boolean;
   onToggleSidebar?: () => void;
+  sessions?: ChatSession[];
   currentSessionId?: string;
   onSelectSession?: (id: string) => void;
   onNewSession?: () => void;
+  onDeleteSession?: (id: string, e: React.MouseEvent) => void;
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
   selectedAdvaitModel?: string;
@@ -39,9 +42,11 @@ const S = {
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen = true,
   onToggleSidebar,
+  sessions = [],
   currentSessionId = 'session-default',
   onSelectSession,
   onNewSession,
+  onDeleteSession,
   isMobileOpen = false,
   onCloseMobile,
   selectedAdvaitModel = 'google/gemini-3.1-flash-lite',
@@ -51,11 +56,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   apiKey = '',
   onApiKeyChange = () => {},
 }) => {
-  const [sessions] = useState([
-    { id: 'session-default', title: 'HNW Wealth Retention & Product Recommendations', date: 'Just now' },
-    { id: 'session-2', title: 'Young Professional Credit Card Propensity', date: '2h ago' },
-    { id: 'session-3', title: 'Mortgage Churn Risk Analysis', date: 'Yesterday' },
-  ]);
 
   return (
     <>
@@ -229,10 +229,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {sessions.map((session) => {
               const isActive = currentSessionId === session.id;
               return (
-                <button
+                <div
                   key={session.id}
                   onClick={() => onSelectSession?.(session.id)}
-                  className="pressable"
+                  className="group pressable"
                   style={{
                     width: '100%',
                     textAlign: 'left',
@@ -244,13 +244,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     fontSize: 12,
                     cursor: 'pointer',
                     display: 'flex',
-                    alignItems: 'flex-start',
+                    alignItems: 'center',
                     gap: 8,
+                    position: 'relative',
                   }}
                 >
                   <MessageSquare
                     size={13}
-                    style={{ marginTop: 1, flexShrink: 0, color: isActive ? S.accent : S.textTer }}
+                    style={{ flexShrink: 0, color: isActive ? S.accent : S.textTer }}
                   />
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{
@@ -258,9 +259,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
                       fontWeight: isActive ? 500 : 400,
-                      lineHeight: 1.4,
+                      lineHeight: 1.3,
                     }}>
-                      {session.title}
+                      {session.title || 'Untitled Session'}
                     </div>
                     <div style={{
                       fontSize: 10,
@@ -268,10 +269,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       fontFamily: 'var(--font-mono)',
                       marginTop: 1,
                     }}>
-                      {session.date}
+                      {session.updatedAt || 'Just now'}
                     </div>
                   </div>
-                </button>
+
+                  {onDeleteSession && (
+                    <button
+                      onClick={(e) => onDeleteSession(session.id, e)}
+                      title="Delete Session"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-surface-3 text-text-tertiary hover:text-red-500"
+                      style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>

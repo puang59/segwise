@@ -27,7 +27,7 @@ export const AgentLiveBar: React.FC<AgentLiveBarProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const defaultAgents: AgentName[] = ['advait', 'vihaan', 'kabir', 'ishaan', 'aadhya', 'saanvi', 'myra'];
+  const defaultAgents: AgentName[] = ['advait', 'vihaan', 'kabir', 'ishaan', 'saanvi', 'aanav', 'myra'];
 
   const getStatusForAgent = (agent: AgentName): { status: AgentStatus; text: string } => {
     // When not streaming, show idle state
