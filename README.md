@@ -21,6 +21,57 @@ An enterprise-grade, multi-agent AI copilot designed for retail banking analytic
 
 ---
 
+## 📖 Problem Statement (Problem Statement 2: Customer Segmentation & Personalization Agent for Retail Banking)
+
+A leading retail bank provides a range of financial products such as savings accounts, credit cards, personal loans, and investment services. However, the bank currently applies broad, one-size-fits-all marketing strategies, resulting in low customer engagement and suboptimal product adoption. The bank seeks to leverage its customer data to better understand behavioural patterns, segment customers into meaningful groups, and deliver personalized product recommendations.
+
+**Objective:**
+Design and implement an AI-powered agent that:
+1. Performs automated exploratory data analysis (EDA) on customer data.
+2. Segments customers based on behavioural and financial attributes.
+3. Generates interpretable customer personas.
+4. Recommends personalized banking products or strategies for each segment.
+5. Produces human-readable insights and summaries.
+6. Simulates how a bank’s analytics team would derive actionable insights with minimal manual intervention.
+
+---
+
+## 🗄️ Dataset Information & Data Sources
+
+**Primary Data Source:** [Synthetic Banking Dataset (CSV/SQL/SQLite)](https://www.kaggle.com/datasets/akrambelha/synthetic-banking-dataset-csv-sql-sqlite/code)
+
+The dataset encompasses customer attributes necessary for realistic simulation of banking analytics:
+- **Demographics & Profile:** Customer IDs, City, Credit Scores, Customer Tenure.
+- **Financial Balances:** Total balances, Spending metrics, Active accounts.
+- **Products Used:** Business, Checking, Savings accounts, Loans, Credit, and Debit cards.
+- **Transaction Behaviour:** Loan counts, Transaction frequency, Recency of interactions.
+
+The raw data is ingested and locally managed inside a structured SQLite database (`bank_sqlite.db`), enabling complex aggregation queries, rapid EDA, and seamless preprocessing pipelines directly through the agent tools.
+
+---
+
+## 💡 Solution Approach & Architecture Map
+
+Segwise achieves the minimum functional requirements by breaking down the monolithic LLM approach into an **8-agent specialized pipeline**. This acts as an autonomous data analytics department capable of handling the entire Data Science lifecycle:
+
+1. **EDA Tool (Scout):** Ingests SQL data dynamically based on user query intents. Analyzes missing values, distributions, and correlations.
+2. **Feature Engineering Tool (Forge):** Executes pipelines to derive definitive features (e.g., Balance-to-Spend ratios, Recency Scores, Digital Engagement metrics).
+3. **Segmentation Tool (Mosaic):** Identifies natural edge cases and clusters customers into profiles (e.g. *Priority, Regular, Dormant*) using statistical modeling (K-Means/HDBSCAN) combined with business rules.
+4. **Explainability Tool (Prism):** Justifies exactly why a customer belongs to a segment using SHAP feature importance tracking.
+5. **Recommendation Engine (Compass):** Generates actionable, cross-selling product recommendations and profiles behavioral transition paths (e.g., how to convert a *Regular* customer into *Priority*).
+
+---
+
+## ⚙️ Tech Stack
+
+- **Frontend:** Next.js 14, React, Framer Motion, Dither-kit
+- **Backend:** FastAPI, Python 3.11, Uvicorn
+- **AI/Agents:** LangGraph conceptual models, Llama-3 70B (via DeepInfra)
+- **Data & ML:** SQLite, scikit-learn (HDBSCAN, K-Means), Pandas, SHAP
+- **Exports:** WeasyPrint (PDF Executive Reports)
+
+---
+
 ## System Architecture
 
 Segwise utilizes a decoupled 3-column client-server architecture. The frontend streams agent reasoning traces via Server-Sent Events (SSE) from a FastAPI microservice backend connected to a relational customer database (`bank_sqlite.db`).
