@@ -1,13 +1,11 @@
 <div align="center">
-  <img src="frontend/public/segwise_logo.png" height="65" alt="Segwise" style="vertical-align: middle;" />
+  <img src="frontend/public/segwise_logo.png" height="105" alt="Segwise" style="vertical-align: middle;" />
 </div>
 
 <br />
 
 # Segwise - A Customer Segmentation & Personalization Copilot
 
-🚀 **Live Demo:** [segwise.vontrix.dev](https://segwise.vontrix.dev)
-💻 **GitHub Repository:** [puang59/segwise](https://github.com/puang59/segwise)
 
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -15,16 +13,26 @@
 [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat-square&logo=sqlite)](https://www.sqlite.org/)
 [![DiceBear](https://img.shields.io/badge/DiceBear-Shape_Grid-purple?style=flat-square)](https://www.dicebear.com/)
 
+| Resource | Link |
+| :--- | :--- |
+| **Live Demo** | [segwise.vontrix.dev](https://segwise.vontrix.dev) |
+| **GitHub Repository** | [puang59/segwise](https://github.com/puang59/segwise) |
+| **YouTube Demo** | [youtu.be/K3JXoZffLHo](https://youtu.be/K3JXoZffLHo) |
+
 An enterprise-grade, multi-agent AI copilot designed for retail banking analytics. Segwise automates exploratory data analysis (EDA), customer segmentation, SHAP feature importance calculation, churn risk breakdown, and personalized product recommendation strategies on high-volume customer databases (800,000+ accounts).
 
 <p align="center">
   <img src="media/demo1.png" width="49%" />
   <img src="media/demo2.png" width="49%" />
 </p>
+<p align="center">
+  <img src="media/db1.png" width="49%" />
+  <img src="media/db2.png" width="49%" />
+</p>
 
 ---
 
-## 📖 Problem Statement (Problem Statement 2: Customer Segmentation & Personalization Agent for Retail Banking)
+## Problem Statement (Problem Statement 2: Customer Segmentation & Personalization Agent for Retail Banking)
 
 A leading retail bank provides a range of financial products such as savings accounts, credit cards, personal loans, and investment services. However, the bank currently applies broad, one-size-fits-all marketing strategies, resulting in low customer engagement and suboptimal product adoption. The bank seeks to leverage its customer data to better understand behavioural patterns, segment customers into meaningful groups, and deliver personalized product recommendations.
 
@@ -39,7 +47,7 @@ Design and implement an AI-powered agent that:
 
 ---
 
-## 🗄️ Dataset Information & Data Sources
+## Dataset Information & Data Sources
 
 **Primary Data Source:** [Synthetic Banking Dataset (CSV/SQL/SQLite)](https://www.kaggle.com/datasets/akrambelha/synthetic-banking-dataset-csv-sql-sqlite/code)
 
@@ -57,7 +65,7 @@ These features are dynamically aggregated using SQL and preprocessed by the agen
 
 ---
 
-## 💡 Solution Approach & Architecture Map
+## Solution Approach & Architecture Map
 
 Segwise achieves the minimum functional requirements by breaking down the monolithic LLM approach into an **8-agent specialized pipeline**. This acts as an autonomous data analytics department capable of handling the entire Data Science lifecycle:
 
@@ -69,7 +77,7 @@ Segwise achieves the minimum functional requirements by breaking down the monoli
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 - **Frontend:** Next.js 14, React, Framer Motion, Dither-kit
 - **Backend:** FastAPI, Python 3.11, Uvicorn
@@ -312,7 +320,7 @@ Try entering these natural language prompts into the chat input bar:
 
 ---
 
-## 🤖 Disclosures & AI Assistance
+## Disclosures & AI Assistance
 
 In compliance with hackathon regulations, the following external tools, APIs, and AI assistants were utilized in the creation of this platform:
 
